@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>633</width>
-    <height>413</height>
+    <width>821</width>
+    <height>618</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QLabel" name="label_chatName">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>0</y>
+      <x>560</x>
+      <y>50</y>
       <width>231</width>
       <height>31</height>
      </rect>
@@ -31,9 +31,9 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>0</y>
-      <width>271</width>
-      <height>321</height>
+      <y>60</y>
+      <width>351</width>
+      <height>431</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -54,20 +54,20 @@
    <widget class="QTextEdit" name="textEdit_replyBox">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>260</y>
-      <width>341</width>
-      <height>61</height>
+      <x>390</x>
+      <y>480</y>
+      <width>241</width>
+      <height>51</height>
      </rect>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_sendReply">
     <property name="geometry">
      <rect>
-      <x>410</x>
-      <y>330</y>
-      <width>89</width>
-      <height>25</height>
+      <x>630</x>
+      <y>480</y>
+      <width>101</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="text">
@@ -77,20 +77,20 @@
    <widget class="QLineEdit" name="lineEdit_searchUser">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>330</y>
-      <width>161</width>
-      <height>31</height>
+      <x>0</x>
+      <y>490</y>
+      <width>271</width>
+      <height>41</height>
      </rect>
     </property>
    </widget>
    <widget class="QTableWidget" name="tableWidget_chatWindow">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>30</y>
+      <x>390</x>
+      <y>60</y>
       <width>341</width>
-      <height>221</height>
+      <height>421</height>
      </rect>
     </property>
     <column>
@@ -110,8 +110,8 @@
    <widget class="QLabel" name="label_chatPhoto">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>0</y>
+      <x>460</x>
+      <y>50</y>
       <width>101</width>
       <height>31</height>
      </rect>
@@ -120,46 +120,58 @@
      <string/>
     </property>
    </widget>
-   <widget class="QRadioButton" name="radioButtonPeople">
+   <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>320</y>
-      <width>71</width>
-      <height>23</height>
+      <x>270</x>
+      <y>470</y>
+      <width>81</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <widget class="QRadioButton" name="radioButtonPeople">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>20</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Люди</string>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_Chats">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>40</y>
+       <width>71</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Чаты</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="pushButton_createChat">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>351</width>
+      <height>61</height>
      </rect>
     </property>
     <property name="text">
-     <string>Люди</string>
+     <string>Создать чат</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="radioButton_Chats">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>340</y>
-      <width>71</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Чаты</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_sendEdit">
-    <property name="geometry">
-     <rect>
-      <x>410</x>
-      <y>330</y>
-      <width>89</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Изменить</string>
-    </property>
-   </widget>
-   <zorder>pushButton_sendEdit</zorder>
    <zorder>textEdit_replyBox</zorder>
    <zorder>pushButton_sendReply</zorder>
    <zorder>label_chatName</zorder>
@@ -167,15 +179,15 @@
    <zorder>lineEdit_searchUser</zorder>
    <zorder>tableWidget_chatWindow</zorder>
    <zorder>label_chatPhoto</zorder>
-   <zorder>radioButtonPeople</zorder>
-   <zorder>radioButton_Chats</zorder>
+   <zorder>groupBox</zorder>
+   <zorder>pushButton_createChat</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>633</width>
+     <width>821</width>
      <height>22</height>
     </rect>
    </property>

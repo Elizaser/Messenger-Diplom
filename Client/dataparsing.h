@@ -24,11 +24,12 @@ public:
     QString getMessageID();
     QString getMessageText();
 
-    UserInfo getUserInfo();
-    QList<UserChat> getUserChats();
+    UserInfo getUser();
+    UserMessage getMessage();
+    UserChat getChat();
 
-    QList<UserInfo> getFoundUsers();
-
+    QList<UserChat> getChats();
+    QList<UserInfo> getUsers();
     QList<UserMessage> getChatContent();
 };
 

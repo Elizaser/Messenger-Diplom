@@ -11,6 +11,7 @@
 #include "userchat.h"
 #include "userinfo.h"
 #include "usermessage.h"
+#include "createchat.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -29,6 +30,8 @@ signals:
     void sUserOutput(int i);
 
 
+public slots:
+    void sockReady(DataParsing messageFromServer);
 private slots:
     void search();
     void quit();
@@ -39,8 +42,16 @@ private slots:
     void clickedEdditMessage(int i);
     void on_pushButton_sendReply_clicked();
 
-public slots:
-    void sockReady(DataParsing messageFromServer);
+    void on_pushButton_createChat_clicked();
+
+    void sockWrite(QString process, QString signal);
+    void sockWrite(QString process, QString signal, QString message);
+    void sockWrite(QString process, QString signal, QList<UserChat> chats);
+    void sockWrite(QString process, QString signal, UserChat chat);
+    void sockWrite(QString process, QString signal, QList<UserMessage> conntents);
+    void sockWrite(QString process, QString signal, UserMessage conntent);
+    void sockWrite(QString process, QString signal, QList<UserInfo> clientInfos);
+    void sockWrite(QString process, QString signal, UserInfo clientInfo);
 
 private:
     Ui::MainWindow *ui;
@@ -52,8 +63,16 @@ private:
     UserChat currentChat;
     QList<UserMessage> curChatContent;
     UserMessage curMessage;
+    CreateChat* createChat;
 
-    void sockWrite(QString process, QString signal, QString message);
+
+    void setUserInfo(UserInfo userInfo);
+    void setUserChats(QList<UserChat> chat);
+    void searchPeople(QList<UserInfo> user);
+    void searchChats(QList<UserChat> chats);
+    void setChatContent(QList<UserMessage> conntent);
+    void setNewMessage(UserMessage message);
+    void setNewChat(UserChat chat);
 
     void showListChats(QString headerLabel);
     void showFoundUsers(QString headerLabel);
@@ -62,6 +81,7 @@ private:
     void deleteMessage(QString messageID);
     void updateMessage(QString messageID, QString message);
     void deleteParticipant(UserInfo userInfo);
+
 
 };
 #endif // MAINWINDOW_H

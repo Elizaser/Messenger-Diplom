@@ -56,6 +56,7 @@ void WorkSocket::error(QString err)
 void WorkSocket::swriteSocket(QTcpSocket* socket, QByteArray data)
 {
     socket->write(data);
+    qDebug() << "out - "<< data;
 }
 void WorkSocket:: deleteSocketInSockets(int socketDescriptor)
 {

@@ -26,7 +26,7 @@ void Controller::dataAnalysis()
 {
     try {
         QByteArray strsocket = sockets[sockDescriptor]->readAll();
-//        qDebug() << strsocket;
+        qDebug() << "in "<<strsocket;
         DataParsing messageFromClient(strsocket);
         QString  process = messageFromClient.getProccess();
         if(process == "entry") {
@@ -43,9 +43,9 @@ void Controller::dataAnalysis()
 }
 void Controller::disconnected()
 {
-    qDebug() << sockDescriptor << " disconnected. Thread:" << QThread::currentThreadId();
     db->deleteOnlineUser(QString::number(sockDescriptor));
     sockets[sockDescriptor]->deleteLater();
+    db->close(sockDescriptor);
     emit sockDisconnect(sockDescriptor);
     emit finished();
 }

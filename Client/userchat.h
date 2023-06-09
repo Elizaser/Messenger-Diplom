@@ -1,6 +1,7 @@
 #ifndef USERCHAT_H
 #define USERCHAT_H
 #include "QString"
+#include "QList"
 class UserChat
 {
 public:
@@ -9,5 +10,6 @@ public:
     QString name;
     QList<QString> participants;
     QString countIsNotReadMessages;
+    QString type;
 };
 #endif // USERCHAT_H

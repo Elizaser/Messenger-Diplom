@@ -16,6 +16,7 @@ public:
     WorkDataBase();
     ~WorkDataBase();
     void start(qintptr socketDeskriptor);
+    void close(qintptr socketDeskriptor);
 
     bool insertNewOnlineUser(QString socket, QString userID);
     bool deleteOnlineUser(QString socket);
@@ -23,26 +24,26 @@ public:
     QString getNameUser(QString userID);
 
     ClientInfo getUserInfo(QString login);
-    QList<ClientChats> getUserChats(QString login);
+    QList<ClientChat> getUserChats(QString login);
     QList<ClientMessage> getChatConntent(QString chatID, QString curUserID);
 
     QList<ClientInfo> getFoundUsers(QString desired);
-    QList<ClientChats> getFoundChats(QString desired);
+    QList<ClientChat> getFoundChats(QString desired);
 
-    bool insertMessage(ClientMessage &message);
-    QString insertChat(ClientMessage message);
+    ClientMessage insertMessage(ClientMessage message);
+    ClientChat insertChat(ClientChat chat);
     bool insertUser(QString name, QString login, QString password);
 
     bool isCorrectInfoClient(QString login, QString password);
     bool isClientExist(QString login);
-    QMap<qintptr, ClientInfo> getOnlineUsersInChat(QString chatID, QString userID);
+    QMap<qintptr, ClientInfo> getOnlineUsersInChat(QString chatID);
 
     bool deleteChat(QString chatID, QString userID);
     bool deleteMessage(QString messageID, QString userID);
     QString deleteMessageForEveryone(QString messageID);
 
     bool updateUserIsReadingMessages(QString chatID, QString curUserID);
-    bool updateMessageEddit(QString messageID, QString message);
+    bool updateMessageEddit(ClientMessage message);
 };
 
 #endif // WORKDATABASE_H

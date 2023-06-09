@@ -8,7 +8,7 @@ EntryProcess::EntryProcess(QTcpSocket* socket, WorkDataBase* db):Process(db)
 void EntryProcess::sendingData(DataParsing messageFromClient)
 {
     QString signal  = messageFromClient.getSignal();
-    ClientInfo curClientInfo = messageFromClient.getClientInfo();
+    ClientInfo curClientInfo = messageFromClient.getClient();
     ClientInfo curClientInfo2 = db->getUserInfo(curClientInfo.login);
     curClientInfo.userID = curClientInfo2.userID;
     curClientInfo.name = curClientInfo2.name;

@@ -15,9 +15,12 @@ protected:
     WorkDataBase* db;
     void sockWrite(QTcpSocket* socket, QString process, QString signal);
     void sockWrite(QTcpSocket* socket, QString process, QString signal, QString message);
-    void sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientChats> chats);
-    void sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientMessage> chats);
+    void sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientChat> chats);
+    void sockWrite(QTcpSocket* socket, QString process, QString signal, ClientChat chat);
+    void sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientMessage> conntents);
+    void sockWrite(QTcpSocket* socket, QString process, QString signal, ClientMessage conntent);
     void sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientInfo> clientInfos);
+    void sockWrite(QTcpSocket* socket, QString process, QString signal, ClientInfo clientInfo);
     void printClientInfo(QString header, ClientInfo clientInfo);
 public:
     Process(WorkDataBase* db);

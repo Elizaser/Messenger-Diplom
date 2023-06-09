@@ -23,6 +23,11 @@ void WorkDataBase::start(qintptr socketDeskriptor)
         qDebug()<<"Error database: " + db.lastError().text();
     }
 }
+void WorkDataBase::close(qintptr socketDeskriptor)
+{
+    db.close();
+    db.removeDatabase(QString::number(socketDeskriptor));
+}
 bool WorkDataBase::isCorrectInfoClient(QString login, QString password)
 {
     QSqlQuery* query = new QSqlQuery(db);
@@ -45,56 +50,48 @@ bool WorkDataBase::isClientExist(QString login)
     return false;
 }
 
-bool WorkDataBase::insertMessage(ClientMessage &message)
+ClientMessage WorkDataBase::insertMessage(ClientMessage message)
 {
-    qDebug() << " message.senderID = " <<  message.senderID;
-    bool flag = false;
     QSqlQuery* query = new QSqlQuery(db);
-//    QString messageID;
-    if(query->exec( "INSERT INTO `Messages` (`messageID`, `chatID`, `sender`, `message`) VALUES (NULL, '"
+    if(query->exec( "INSERT INTO Messages (`chatID`, `sender`, `message`) VALUES ('"
                     + message.chatID + "', '" + message.senderID + "', '" + message.message + "')"))
     {
         query->exec( "SELECT messageID FROM `Messages` ORDER BY messageID DESC");
         query->next();
         message.messageID = query->value(0).toString();
         message.isRead = "0";
-        qDebug() << "wdb ins message.messageID = " << message.messageID;
         QSqlQuery* query2 = new QSqlQuery(db);
         query2->exec( "SELECT participantID  FROM `Participants` where chatID =  '" +
                             message.chatID + "'");
         while(query2->next()) {
-            flag = true;
             if(query->exec( "INSERT INTO `MessageStatus` (`messageID`, `userID`) VALUES ('"
                             + message.messageID + "', '" + query2->value(0).toString() + "')")){
-
             } else {
-                flag = false;
+                message.messageID = "";
                 break;
             }
         }
     }
-    if(!flag)
+    if(message.messageID == ""){
         query->exec("DELETE FROM `Messages` WHERE messageID = " + message.messageID);
-    return flag;
+    }
+    return message;
 }
-QString WorkDataBase::insertChat(ClientMessage message)
+ClientChat WorkDataBase::insertChat(ClientChat chat)
 {
-//    QSqlQuery* query = new QSqlQuery(db);
-//    query->exec("SELECT userID FROM User where login = '" + message.recipient  + "'");
-//    query->next();
-//    message.recipient = query->value(0).toString();
-//    query->exec("SELECT userID FROM User where login = '" + message.sender  + "'");
-//    query->next();
-//    message.sender = query->value(0).toString();
-
-//    if (query->exec("INSERT INTO `Chats` (`ChatID`, `user1`, `user2`) VALUES (NULL, " +
-//                   message.sender + ", " + message.recipient + ")")) {
-//        query->exec("SELECT chatID FROM Chats where (user1 = " + message.recipient + " and user2 = " + message.sender + ") or (user1 = " + message.sender + " and user2 = " + message.recipient +  ")");
-//        query->next();
-//        message.chatID = query->value(0).toString();
-//        return message.chatID;
-//    }
-    return "";
+    QSqlQuery* query = new QSqlQuery(db);
+            + chat.userCreator + "', '" + chat.name + "', '" + chat.type + "')";
+    if (query->exec("INSERT INTO Chats (`userCreator`, `name`, `type`) VALUES ('"
+                   + chat.userCreator + "', '" + chat.name + "', '" + chat.type + "')")) {
+        query->exec("SELECT chatID FROM Chats ORDER BY chatID  DESC");
+        query->next();
+        chat.chatID = query->value(0).toString();
+        for(auto&participant:chat.participants){
+            query->exec("INSERT INTO `Participants` (`chatID`, `participantID`) VALUES ('"
+                               + chat.chatID + "', '" + participant + "')");
+        }
+    }
+    return chat;
 }
 bool WorkDataBase::insertUser(QString name, QString login, QString password)
 {
@@ -145,14 +142,14 @@ ClientInfo WorkDataBase::getUserInfo(QString login)
     clientInfo.name = query->value(1).toString();
     return clientInfo;
 }
-QList<ClientChats> WorkDataBase::getUserChats(QString userID)
+QList<ClientChat> WorkDataBase::getUserChats(QString userID)
 {
     QSqlQuery* query1 = new QSqlQuery(db);
 
     query1->exec("SELECT chatID FROM Participants where participantID = '" + userID + "' GROUP BY chatID");
-    QList<ClientChats> chats;
+    QList<ClientChat> chats;
     for(int i = 0; query1->next(); i++){
-        ClientChats chat;
+        ClientChat chat;
         chat.chatID = query1->value(0).toString();
 
         QSqlQuery* query2 = new QSqlQuery(db);
@@ -195,7 +192,6 @@ QList<ClientMessage> WorkDataBase::getChatConntent(QString chatID, QString curUs
     QSqlQuery* query1 = new QSqlQuery(db);
     query1->exec("SELECT * FROM Messages where chatID = '" +  chatID + "'");
     for(int i = 0 ; query1->next(); i++){
-        qDebug() <<"wdb conntent.messageID = " << conntent.messageID;
         conntent.messageID = query1->value(0).toString();
         conntent.chatID = query1->value(1).toString();
         conntent.senderID = query1->value(2).toString();
@@ -215,19 +211,17 @@ QList<ClientMessage> WorkDataBase::getChatConntent(QString chatID, QString curUs
     }
     return conntents;
 }
-QMap<qintptr, ClientInfo> WorkDataBase::getOnlineUsersInChat(QString chatID, QString curUserID)
+QMap<qintptr, ClientInfo> WorkDataBase::getOnlineUsersInChat(QString chatID)
 {
+
     QMap<qintptr, ClientInfo> users;
     QSqlQuery* query1 = new QSqlQuery(db);
-    qDebug() << "curUserID" << curUserID;
-    qDebug() << "chatID" << chatID;
     query1->exec("SELECT participantID FROM Participants where chatID = '" + chatID + "'");
 
     for(int i = 0 ; query1->next(); i++){
         ClientInfo user;
         qintptr socketID;
         user.userID = query1->value(0).toString();
-        qDebug() << "\nuserID in chat" << user.userID;
         QSqlQuery* query2 = new QSqlQuery(db);
         query2->exec("SELECT EXISTS(SELECT socket FROM UsersOnline where userID = '" +  user.userID + "')");
         query2->next();
@@ -235,8 +229,6 @@ QMap<qintptr, ClientInfo> WorkDataBase::getOnlineUsersInChat(QString chatID, QSt
             query2->exec("SELECT socket FROM UsersOnline where userID = '" +  user.userID + "'");
             query2->next();
             socketID = query2->value(0).toInt();
-            qDebug() << "userID online" << user.userID;
-            qDebug() << "socketID" << socketID;
             QSqlQuery* query3 = new QSqlQuery(db);
             query3->exec("SELECT name, login FROM User where userID = '" +  user.userID + "'");
             query3->next();
@@ -247,13 +239,13 @@ QMap<qintptr, ClientInfo> WorkDataBase::getOnlineUsersInChat(QString chatID, QSt
     }
     return users;
 }
-QList<ClientChats> WorkDataBase::getFoundChats(QString desired)
+QList<ClientChat> WorkDataBase::getFoundChats(QString desired)
 {
     QSqlQuery* query = new QSqlQuery(db);
     query->exec("SELECT chatID, userCreator, name FROM Chats where name LIKE '%" + desired +  "%'");
-    QList<ClientChats> chats;
+    QList<ClientChat> chats;
     while(query->next()){
-        ClientChats chat;
+        ClientChat chat;
         chat.chatID = query->value(0).toString();
         chat.userCreator = query->value(1).toString();
         chat.name = query->value(2).toString();
@@ -287,7 +279,6 @@ bool WorkDataBase::deleteChat(QString chatID, QString userID){
     QSqlQuery* query = new QSqlQuery(db);
     query->exec("SELECT messageID FROM Messages WHERE chatID = '" + chatID +  "'");
     while (query->next()) {
-        qDebug() << "messageID = "  << query->value(0).toString();
         QSqlQuery* query1 = new QSqlQuery(db);
         query1->exec("DELETE FROM MessageStatus WHERE messageID ='" + query->value(0).toString()
                      +  "' and userID = '" + userID + "'");
@@ -341,11 +332,10 @@ bool WorkDataBase::updateUserIsReadingMessages(QString chatID, QString curUserID
     }
     return f;
 }
-bool WorkDataBase::updateMessageEddit(QString messageID, QString message)
+bool WorkDataBase::updateMessageEddit(ClientMessage message)
 {
-    qDebug() << "messageID" << messageID << " message" << message;
     QSqlQuery* query = new QSqlQuery(db);
-    if(!query->exec("UPDATE Messages SET `message` = '" + message + "' WHERE messageID = '" + messageID + "'")) {
+    if(!query->exec("UPDATE Messages SET `message` = '" + message.message + "' WHERE messageID = '" + message.messageID + "'")) {
         return false;
     }
     return true;

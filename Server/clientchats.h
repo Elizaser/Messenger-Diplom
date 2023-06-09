@@ -2,7 +2,8 @@
 #define CLIENTCHATS_H
 
 #include "QString"
-class ClientChats
+#include "QList"
+class ClientChat
 {
 public:
     QString chatID;
@@ -10,5 +11,6 @@ public:
     QString name;
     QList<QString> participants;
     QString countIsNotReadMessages;
+    QString type;
 };
 #endif // CLIENTCHATS_H

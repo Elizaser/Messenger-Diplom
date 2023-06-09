@@ -7,7 +7,7 @@ RegistrationProcess::RegistrationProcess(QTcpSocket* socket, WorkDataBase* db):P
 
 void RegistrationProcess::sendingData(DataParsing messageFromClient)
 {
-    ClientInfo newClientInfo = messageFromClient.getClientInfo();
+    ClientInfo newClientInfo = messageFromClient.getClient();
     if (!db->isClientExist(newClientInfo.login)) {
         if(db->insertUser(newClientInfo.name, newClientInfo.login, newClientInfo.password)){
             printClientInfo("Зарегистрировался клиент: ", newClientInfo);

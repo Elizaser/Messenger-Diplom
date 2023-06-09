@@ -31,6 +31,10 @@ void Controller:: start(QString hostName)
     connect(this, &Controller::proccesRegistration, rWindow, &RegistrationWindow::sockReady);
     connect(this, &Controller::proccesMain, mWindow, &MainWindow::sockReady);
 
+//    connect(this, &Controller::socketWrite, eWindow, &EntryWindow::socketWrite);
+//    connect(this, &Controller::socketWrite, rWindow, &RegistrationWindow::socketWrite);
+//    connect(this, &Controller::socketWrite, mWindow, &MainWindow::socketWrite);
+
     eWindow->show();
 }
 void Controller:: sockDisc()

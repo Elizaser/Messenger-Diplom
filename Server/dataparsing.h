@@ -7,6 +7,7 @@
 #include<QJsonParseError>
 #include "clientinfo.h"
 #include "clientmessage.h"
+#include "clientchats.h"
 
 class DataParsing
 {
@@ -18,13 +19,20 @@ public:
     QString getProccess();
     QString getSignal();
 
-    ClientInfo getClientInfo();
     QString getChatID();
     QString getMessageID();
     QString getMessageText();
 
     QString getSearchedUser();
+
+    ClientInfo getClient();
     ClientMessage getMessage();
+    ClientChat getChat();
+
+    QList<ClientChat> getChats();
+    QList<ClientMessage> getMessages();
+    QList<ClientInfo> getClients();
+
 };
 
 #endif // DATAPARSING_H

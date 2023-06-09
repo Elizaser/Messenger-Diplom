@@ -12,14 +12,15 @@ class MainProcess: public Process
     qintptr sockDeskriptor;
     ClientInfo fillCurClientInfo(ClientInfo clientInfo);
     void sendingUserChats();
-    void sendingFoundUsers(QString searchedUser);
+    void sendingFoundUsers(QString searchedUser, QString signal);
     void sendingFoundChats(QString searchedUser);
     void sendingChatContent(QString chatID);
     void sendMessage(ClientMessage message);
 
-    QString createChat(ClientMessage message);
+    void createChat(ClientChat chat);
     ClientMessage saveMessage(ClientMessage message);
-    void sendMessageOnlineUsers(ClientMessage message);
+    void sendOnlineUsersInChat(QString signal, QString chatID, auto message);
+//    void sendOnlineUsers(QString signal, auto message);
 
     void deleteChat(QString chatID);
     void deleteMessage(QString messageID);

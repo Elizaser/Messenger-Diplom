@@ -31,7 +31,7 @@ QString DataParsing::getMessageText()
     return jDoc.object().value("message").toString();
 }
 
-UserInfo DataParsing::getUserInfo()
+UserInfo DataParsing::getUser()
 {
     UserInfo userInfo;
     userInfo.userID = jDoc.object().value("userID").toString();
@@ -41,7 +41,7 @@ UserInfo DataParsing::getUserInfo()
     return userInfo;
 }
 
-QList<UserInfo>  DataParsing::getFoundUsers()
+QList<UserInfo>  DataParsing::getUsers()
 {
     QList<UserInfo> foundUsers;
     QString voidResult = jDoc.object().value("foundUsers").toString();
@@ -58,7 +58,7 @@ QList<UserInfo>  DataParsing::getFoundUsers()
     return foundUsers;
 }
 
-QList<UserChat> DataParsing::getUserChats()
+QList<UserChat> DataParsing::getChats()
 {
     QList<UserChat> chats;
     QString voidResult = jDoc.object().value("chat").toString();
@@ -68,11 +68,9 @@ QList<UserChat> DataParsing::getUserChats()
             UserChat chat;
             chat.chatID = jsChats[i].toObject().value("chatID").toString();
             chat.name = jsChats[i].toObject().value("name").toString();
-            qDebug() <<"chat.chatID" << chat.chatID;
-            qDebug() <<"chat.name" << chat.name;
             chat.userCreator = jsChats[i].toObject().value("userCreator").toString();
             chat.countIsNotReadMessages = jsChats[i].toObject().value("countIsNotReadMessages").toString();
-            qDebug() << jsChats[i].toObject().value("countIsNotReadMessages").toString();
+            chat.type = jsChats[i].toObject().value("type").toString();
 
             QJsonArray jsParticipants = jsChats[i].toObject().value("participants").toArray();
             for(int j = 0; j < jsParticipants.count();j++){
@@ -84,7 +82,21 @@ QList<UserChat> DataParsing::getUserChats()
     }
     return chats;
 }
+UserChat DataParsing::getChat()
+{
+    UserChat chat;
+    chat.chatID = jDoc.object().value("chatID").toString();
+    chat.name = jDoc.object().value("name").toString();
+    chat.userCreator = jDoc.object().value("userCreator").toString();
+    chat.countIsNotReadMessages = jDoc.object().value("countIsNotReadMessages").toString();
+    chat.type = jDoc.object().value("type").toString();
 
+    QJsonArray jsParticipants = jDoc.object().value("participants").toArray();
+    for(int j = 0; j < jsParticipants.count();j++){
+        chat.participants.append(jsParticipants[j].toObject().value("participant").toString());
+    }
+    return chat;
+}
 QList<UserMessage> DataParsing::getChatContent()
 {
     QList <UserMessage> conntents;
@@ -103,4 +115,15 @@ QList<UserMessage> DataParsing::getChatContent()
         }
     }
     return conntents;
+}
+UserMessage DataParsing::getMessage()
+{
+    UserMessage conntent;
+    conntent.messageID = jDoc.object().value("messageID").toString();
+    conntent.chatID = jDoc.object().value("chatID").toString();
+    conntent.senderName = jDoc.object().value("senderName").toString();
+    conntent.senderID = jDoc.object().value("senderID").toString();
+    conntent.message = jDoc.object().value("message").toString();
+    conntent.isRead = jDoc.object().value("isRead").toString();
+    return conntent;
 }
