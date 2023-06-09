@@ -97,11 +97,11 @@ void MainWindow::setNewMessage(UserMessage message)
 //        }
 //    }
 
-    if(currentChat.chatID == message.chatID){
-        showNewMessage(message);
-        socket->write("{\"process\":\"main\", \"signal\":\"isReadingMessage\", \"chatID\":\""
-                      + currentChat.chatID.toLocal8Bit() + "\"}");
-    }
+        if(curChatContent.count() != 0 && curChatContent.at(0).chatID == message.chatID){
+            showNewMessage(message);
+            socket->write("{\"process\":\"main\", \"signal\":\"isReadingMessage\", \"chatID\":\""
+                            + currentChat.chatID.toLocal8Bit() + "\"}");
+        }
 }
 
 void MainWindow::setNewChat(UserChat chat)
@@ -113,11 +113,14 @@ void MainWindow::setNewChat(UserChat chat)
 //            break;
 //        }
 //    }
+    if(curChatContent.count() > 0){
 
+    if(curChatContent.at(0).chatID)
     if(currentChat.chatID == message.chatID){
         showNewMessage(message);
         socket->write("{\"process\":\"main\", \"signal\":\"isReadingMessage\", \"chatID\":\""
                       + currentChat.chatID.toLocal8Bit() + "\"}");
+    }
     }
 }
 

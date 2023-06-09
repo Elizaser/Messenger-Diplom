@@ -130,11 +130,7 @@ void MainProcess:: deleteMessageForEveryone(QString messageID)
 {
     QString chatID = db->deleteMessageForEveryone(messageID);
     if(chatID != ""){
-        qDebug() << "Сообщение успешно у всех удалено";
-        QMap<qintptr, ClientInfo> onlineUsers = db->getOnlineUsersInChat(chatID);
-        foreach (qintptr key, onlineUsers.keys()) {
-            sockWrite(sockets[key], "main", "deleteMessage", "\"messageID\":\"" + messageID + "\"");
-        }
+        sendOnlineUsersInChat( "deleteMessage", chatID, "\"messageID\":\"" + messageID + "\"");
     }
 }
 
