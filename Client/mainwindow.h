@@ -78,13 +78,14 @@ private:
     void showListChats(QString headerLabel);
     void showFoundUsers(QString headerLabel);
     void showChatContents(QList<UserMessage> conntents);
-    void showNewMessage(QList<UserMessage> message);
+    void showNewMessage(UserMessage message);
     void deleteMessage(UserMessage message);
     void deleteChat(QString chatID);
     void updateMessage(QString messageID, QString message);
     void deleteParticipant(UserInfo userInfo);
     int searchChatByID(QString chatID);
     int searchMessageByID(QString messageID);
+    int searchUserByID(QString userID, QList<UserInfo> usersForCreateChat);
 
 
 };

@@ -50,7 +50,10 @@ void MainWindow::sockReady(DataParsing messageFromServer)
         } else if(signal == "deleteParticipant") {
 //            deleteParticipant(messageFromServer.getUser());
         } else if(signal == "setUsersCreateChat") {
-            createChat->setAllUsers(messageFromServer.getUsers());
+            QList<UserInfo> usersForCreateChat = messageFromServer.getUsers();
+            int i = searchUserByID(userInfo.userID, usersForCreateChat);
+            usersForCreateChat.removeAt(i);
+            createChat->setAllUsers(usersForCreateChat);
         } else {
             qDebug() << "Информация(MainWindow)\n" <<  "Ошибка с форматом передачи данных";
         }
@@ -176,23 +179,13 @@ void MainWindow::deleteChat(QString chatID)
 }
 void MainWindow::setNewMessage(UserMessage message)
 {
-    curChatContent.append(message);
-    if(curChatContent.at(0).chatID == message.chatID) {
-        int rowCount  =  ui->tableWidget_chatWindow->rowCount();
-        ui->tableWidget_chatWindow->insertRow(rowCount);
-        ui->tableWidget_chatWindow->setItem(rowCount, 0, new QTableWidgetItem(message.senderName));
-        ui->tableWidget_chatWindow->setItem(rowCount, 1, new QTableWidgetItem(message.message));
-        ui->tableWidget_chatWindow->setItem(rowCount, 2, new QTableWidgetItem("удалить"));
-
-        QString red = "";
-        if(message.senderID == userInfo.userID)
-            red = "редактировать";
-        ui->tableWidget_chatWindow->setItem(rowCount, 3, new QTableWidgetItem(red));
-    } else {
+    if(curChatContent.isEmpty() || curChatContent.at(0).chatID != message.chatID) {
         int i = searchChatByID(message.chatID);
-        int countIsNotReadMessages = chats.at(i).countIsNotReadMessages.toInt() + 1;
-        chats[i].countIsNotReadMessages = QString::number(countIsNotReadMessages);
-        ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(message.senderName + chats[i].countIsNotReadMessages));
+        chats[i].countIsNotReadMessages = QString::number(chats.at(i).countIsNotReadMessages.toInt() + 1);
+        ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(chats[i].name + " " + chats[i].countIsNotReadMessages));
+    } else if(curChatContent.at(0).chatID == message.chatID) {
+            curChatContent.append(message);
+            showNewMessage(message);
     }
 
 //    socket->write("{\"process\":\"main\", \"signal\":\"isReadingMessage\", \"chatID\":\""
@@ -236,19 +229,21 @@ int MainWindow::searchChatByID(QString chatID)
 int MainWindow::searchMessageByID(QString messageID)
 {
     for(int i = curChatContent.count() - 1; i >= 0; i--){
-         qDebug() << "i =" << i;
-        qDebug() << "curChatContent.at(i).messageID =" << curChatContent.at(i).messageID;
-        qDebug() << "curChatContent.at(i).message =" << curChatContent.at(i).message;
         if(curChatContent.at(i).messageID == messageID){
-            qDebug() << "2i =" << i;
-           qDebug() << "2curChatContent.at(i).messageID =" << curChatContent.at(i).messageID;
-           qDebug() << "2curChatContent.at(i).message =" << curChatContent.at(i).message;
             return i;
         }
     }
     return (-1);
 }
-
+int MainWindow::searchUserByID(QString userID, QList<UserInfo> usersForCreateChat)
+{
+    for(int i = usersForCreateChat.count() - 1; i >= 0; i--){
+        if(usersForCreateChat.at(i).userID == userID){
+            return i;
+        }
+    }
+    return (-1);
+}
 
 void MainWindow::setUserInfo(UserInfo userInfo)
 {
@@ -373,21 +368,18 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
     ui->tableWidget_chatWindow->resizeColumnsToContents();
     ui->tableWidget_chatWindow->resizeRowsToContents();
 }
-void MainWindow::showNewMessage(QList<UserMessage> messages)
+void MainWindow::showNewMessage(UserMessage message)
 {
-//    int rowCount = ui->tableWidget_chatWindow->rowCount();
-//    for(auto&message:messages){
-//        curChatContent.append(message);
-//        ui->tableWidget_chatWindow->insertRow(rowCount);
-//        ui->tableWidget_chatWindow->setItem(rowCount, 0, new QTableWidgetItem(message.senderName));
-//        ui->tableWidget_chatWindow->setItem(rowCount, 1, new QTableWidgetItem(message.message));
-//        ui->tableWidget_chatWindow->setItem(rowCount, 2, new QTableWidgetItem("удалить"));
-//        QString text = "";
-//        if(message.senderID == userInfo.userID){
-//            text+="ред.";
-//        }
-//        ui->tableWidget_chatWindow->setItem(rowCount, 3, new QTableWidgetItem(text));
-//    }
+    int rowCount  =  ui->tableWidget_chatWindow->rowCount();
+    ui->tableWidget_chatWindow->insertRow(rowCount);
+    ui->tableWidget_chatWindow->setItem(rowCount, 0, new QTableWidgetItem(message.senderName));
+    ui->tableWidget_chatWindow->setItem(rowCount, 1, new QTableWidgetItem(message.message));
+    ui->tableWidget_chatWindow->setItem(rowCount, 2, new QTableWidgetItem("удалить"));
+
+    QString red = "";
+    if(message.senderID == userInfo.userID)
+        red = "редактировать";
+    ui->tableWidget_chatWindow->setItem(rowCount, 3, new QTableWidgetItem(red));
 }
 
 

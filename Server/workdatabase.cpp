@@ -299,6 +299,11 @@ bool WorkDataBase::exitChat(QString chatID, QString userID){
     if(!query->exec("DELETE FROM Participants WHERE participantID = " + userID + " and chatID = " + chatID)){
         return false;
     }
+    query->exec("SELECT EXIST(SELECT * FROM Participants where chatID = " + chatID + ")");
+    query->next();
+    if(query->value(0).toString() == "0"){
+        query->exec("DELETE FROM Chats WHERE chatID = " + chatID);
+    }
     return true;
 }
 bool WorkDataBase::deleteMessage(QString messageID, QString userID)

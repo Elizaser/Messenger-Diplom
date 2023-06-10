@@ -54,7 +54,8 @@ void MainProcess:: sendOnlineUsersInChat(QString signal, QString chatID, auto  m
 {
         QMap<qintptr, ClientInfo> onlineUsers = db->getOnlineUsersInChat(chatID);
         foreach (qintptr key, onlineUsers.keys()) {
-            sockWrite(sockets[key], "main", signal, message);
+            if(sockets[key]->isOpen())
+                sockWrite(sockets[key], "main", signal, message);
         }
 }
 //void MainProcess:: sendOnlineUsers(QString signal, auto  message)
@@ -101,12 +102,13 @@ void MainProcess:: createChat(ClientChat chat)
     chat.userCreator = curClientInfo.userID;
     chat.type = "group";
     chat.countIsNotReadMessages = "1";
+    chat.participants.append(curClientInfo.userID);
     chat = db->insertChat(chat);
     if (chat.chatID == ""){
         return;
     }
     qDebug() << "chat.chatID = " << chat.chatID;
-    sockWrite(socket, "main", "newChat", chat);
+    sendOnlineUsersInChat("newChat", chat.chatID, chat);
 
     ClientMessage message;
     message.senderID = curClientInfo.userID;
