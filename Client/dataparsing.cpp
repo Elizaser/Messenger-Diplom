@@ -111,7 +111,7 @@ QList<UserMessage> DataParsing::getChatContent()
             conntent.senderID = jsConntents[i].toObject().value("senderID").toString();
             conntent.message = jsConntents[i].toObject().value("message").toString();
             conntent.isRead = jsConntents[i].toObject().value("isRead").toString();
-            conntent.isSystem = jsConntents[i].toObject().value("isRead").toString();
+            conntent.isSystem = jsConntents[i].toObject().value("isSystem").toString();
             conntents.append(conntent);
         }
     }

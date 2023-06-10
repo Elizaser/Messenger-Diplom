@@ -10,6 +10,6 @@ public:
     QString senderID;
     QString message;
     QString isRead;
-    QString isSystem;
+    QString isSystem = "0";
 };
 #endif // USERMESSAGE_H

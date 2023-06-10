@@ -136,9 +136,9 @@ void MainWindow::clickedDeleteMessage(int i)
     int res = msgBox.exec();
     if (res == QMessageBox::Ok)  {
         if(cb->isChecked()) {
-            socket->write("{\"process\":\"main\", \"signal\":\"messageDeleteForEveryone\", \"messageID\":\"" + curChatContent.at(i).messageID.toLocal8Bit() + "\"}");
+            sockWrite("main", "messageDeleteForEveryone", curChatContent.at(i));
         } else {
-            socket->write("{\"process\":\"main\", \"signal\":\"messageDelete\", \"messageID\":\"" + curChatContent.at(i).messageID.toLocal8Bit() + "\"}");
+            sockWrite("main", "messageDelete", curChatContent.at(i));
         }
     }
 }
@@ -166,7 +166,8 @@ void MainWindow::setNewChat(UserChat chat)
 }
 void MainWindow::deleteChat(QString chatID)
 {
-    if(int i = searchChatByID(chatID) != -1){
+    int i = searchChatByID(chatID);
+    if(i != -1){
         if( !(ui->tableWidget_chatsList->horizontalHeaderItem(i)->text() != "Найденные люди")){
             ui->tableWidget_chatsList->removeRow(i);
             chats.removeAt(i);
@@ -177,15 +178,16 @@ void MainWindow::setNewMessage(UserMessage message)
 {
     curChatContent.append(message);
     if(curChatContent.at(0).chatID == message.chatID) {
-        qDebug() << "new Message curChatContent = " << message.message;
-        int rowCount  =  ui->tableWidget_chatsList->rowCount();
+        int rowCount  =  ui->tableWidget_chatWindow->rowCount();
+        ui->tableWidget_chatWindow->insertRow(rowCount);
         ui->tableWidget_chatWindow->setItem(rowCount, 0, new QTableWidgetItem(message.senderName));
-        ui->tableWidget_chatWindow->setItem(rowCount, 1, new QTableWidgetItem("удалить"));
+        ui->tableWidget_chatWindow->setItem(rowCount, 1, new QTableWidgetItem(message.message));
+        ui->tableWidget_chatWindow->setItem(rowCount, 2, new QTableWidgetItem("удалить"));
 
         QString red = "";
         if(message.senderID == userInfo.userID)
-            red == "редактировать";
-        ui->tableWidget_chatWindow->setItem(rowCount, 2, new QTableWidgetItem(red));
+            red = "редактировать";
+        ui->tableWidget_chatWindow->setItem(rowCount, 3, new QTableWidgetItem(red));
     }
 
 //    socket->write("{\"process\":\"main\", \"signal\":\"isReadingMessage\", \"chatID\":\""
@@ -193,8 +195,13 @@ void MainWindow::setNewMessage(UserMessage message)
 }
 void MainWindow::deleteMessage(UserMessage message)
 {
-    if(int i = searchMessageByID(message.messageID) != -1) {
-        if(!curChatContent.isEmpty() && curChatContent.at(i).chatID == message.messageID) {
+    int i = searchMessageByID(message.messageID);
+    if(i != -1) {
+        qDebug() << "i = " << i << " message.messageID = " << message.messageID;
+        qDebug() << "1curChatContent.at(i).chatID = " << curChatContent.at(i).chatID << " message.chatID = " << message.chatID;
+        if(!(curChatContent.isEmpty()) && curChatContent.at(i).chatID == message.chatID) {
+            qDebug() << "2curChatContent.at(i).chatID = " << curChatContent.at(i).chatID << " message.chatID = " << message.chatID;
+
             ui->tableWidget_chatWindow->removeRow(i);
             curChatContent.removeAt(i);
         }
@@ -224,7 +231,13 @@ int MainWindow::searchChatByID(QString chatID)
 int MainWindow::searchMessageByID(QString messageID)
 {
     for(int i = curChatContent.count() - 1; i >= 0; i--){
+         qDebug() << "i =" << i;
+        qDebug() << "curChatContent.at(i).messageID =" << curChatContent.at(i).messageID;
+        qDebug() << "curChatContent.at(i).message =" << curChatContent.at(i).message;
         if(curChatContent.at(i).messageID == messageID){
+            qDebug() << "2i =" << i;
+           qDebug() << "2curChatContent.at(i).messageID =" << curChatContent.at(i).messageID;
+           qDebug() << "2curChatContent.at(i).message =" << curChatContent.at(i).message;
             return i;
         }
     }
@@ -342,13 +355,13 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
         ui->tableWidget_chatWindow->setItem(i, 0, new QTableWidgetItem(conntents.at(i).senderName));
         ui->tableWidget_chatWindow->setItem(i, 1, new QTableWidgetItem(conntents.at(i).message));
         QString text = "";
-        if(!conntents.at(i).isSystem.toInt())
+        if(conntents.at(i).isSystem != "1")
             text = "удалить";
         ui->tableWidget_chatWindow->setItem(i, 2, new QTableWidgetItem(text));
         text = "";
         if(conntents.at(i).senderID == userInfo.userID &&
-                !conntents.at(i).isSystem.toInt()){
-            text+="ред.";
+                conntents.at(i).isSystem != "1"){
+            text ="ред.";
         }
         ui->tableWidget_chatWindow->setItem(i, 3, new QTableWidgetItem(text));
     }
@@ -414,11 +427,7 @@ void MainWindow::on_pushButton_sendReply_clicked()
             return;
         }
         if(socket->isOpen()) {
-            socket->write("{\"process\":\"main\", \"signal\":\"sendMessage\", \"message\":\"" +
-                           message.message.toLocal8Bit() +
-                           "\", \"chatID\":\"" + message.chatID.toLocal8Bit() +
-                           "\", \"senderName\":\"" + message.senderName.toLocal8Bit() +
-                           "\", \"senderID\":\"" + message.senderID.toLocal8Bit() +  "\"}");
+            sockWrite("main", "sendMessage", message);
             ui->textEdit_replyBox->clear();
         } else {
             QMessageBox::information(this, "Информация(MainWindow)", "Соединение не установлено");
@@ -490,6 +499,7 @@ void MainWindow::sockWrite(QString process, QString signal, QList<UserMessage> c
         QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\", \"conntents\":[";
 
         for(auto & conntent : conntents) {
+            conntent.isSystem = "0";
             data.append("{\"messageID\":\"" + conntent.messageID +
                         "\", \"chatID\":\"" + conntent.chatID +
                         "\", \"senderID\":\"" + conntent.senderID +
@@ -509,7 +519,8 @@ void MainWindow::sockWrite(QString process, QString signal, QList<UserMessage> c
 }
 void MainWindow::sockWrite(QString process, QString signal, UserMessage conntent)
 {
-        QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit()
+    conntent.isSystem = "0";
+    QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit()
                         + "\", \"messageID\":\"" + conntent.messageID.toLocal8Bit()
                         + "\", \"chatID\":\"" + conntent.chatID.toLocal8Bit()
                         + "\", \"senderID\":\"" + conntent.senderID.toLocal8Bit()

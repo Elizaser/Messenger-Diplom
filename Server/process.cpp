@@ -57,6 +57,7 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, Cli
         }
         data.remove(data.length()-1,1);
         data.append("]}");
+        qDebug() << "in sockWrite chat";
         emit writeSocketInProcess(socket, data);
 }
 void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientMessage> conntents)
@@ -76,6 +77,7 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QLi
         }
         data.remove(data.length()-1,1);
         data.append("]}");
+         qDebug() << "in sockWrite messages";
         emit writeSocketInProcess(socket, data);
     } else {
         sockWrite(socket, process, signal,
@@ -92,6 +94,7 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, Cli
                         + "\", \"isRead\":\"" + conntent.isRead.toLocal8Bit()
                         + "\", \"isSystem\":\"" + conntent.isSystem.toLocal8Bit()
                         + "\", \"message\":\"" + conntent.message.toLocal8Bit() +"\"}";
+        qDebug() << "in sockWrite message";
         emit writeSocketInProcess(socket, data);
 }
 void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientInfo> clientInfos)
