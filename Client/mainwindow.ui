@@ -29,6 +29,12 @@
       <height>0</height>
      </size>
     </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::SingleSelection</enum>
+    </property>
+    <property name="showGrid">
+     <bool>false</bool>
+    </property>
     <column>
      <property name="text">
       <string>Все чаты</string>
@@ -79,6 +85,12 @@
       <width>341</width>
       <height>421</height>
      </rect>
+    </property>
+    <property name="selectionMode">
+     <enum>QAbstractItemView::SingleSelection</enum>
+    </property>
+    <property name="showGrid">
+     <bool>false</bool>
     </property>
     <column>
      <property name="text">

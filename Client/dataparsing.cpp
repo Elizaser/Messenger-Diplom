@@ -25,7 +25,10 @@ QString DataParsing::getMessageID()
 {
     return jDoc.object().value("messageID").toString();
 }
-
+QString DataParsing::getChatID()
+{
+    return jDoc.object().value("chatID").toString();
+}
 QString DataParsing::getMessageText()
 {
     return jDoc.object().value("message").toString();

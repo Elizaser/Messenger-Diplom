@@ -17,6 +17,10 @@ MainWindow::MainWindow(QTcpSocket* socket, QWidget *parent)
     connect(ui->tableWidget_chatWindow, SIGNAL(cellClicked(int, int)), SLOT(clickChatWindow(int, int)));
     connect(ui->action_quit, SIGNAL(triggered(bool)),this,  SLOT(quit()));
 
+    ui->tableWidget_chatsList->setShowGrid(false);
+    ui->tableWidget_chatWindow->setShowGrid(false);
+    ui->tableWidget_chatsList->setEditTriggers(0);
+    ui->tableWidget_chatWindow->setEditTriggers(0);
 }
 
 MainWindow::~MainWindow()
@@ -54,6 +58,13 @@ void MainWindow::sockReady(DataParsing messageFromServer)
             int i = searchUserByID(userInfo.userID, usersForCreateChat);
             usersForCreateChat.removeAt(i);
             createChat->setAllUsers(usersForCreateChat);
+        } else if(signal == "updateIsReadingMessages") {
+            for(int i = curChatContent.size() - 1; i >= 0; i--){
+                if(curChatContent[i].chatID != messageFromServer.getChatID()) break;
+                if(curChatContent[i].isRead == "1") break;
+                curChatContent[i].isRead = "1";
+                ui->tableWidget_chatWindow->setItem(i, 4, new QTableWidgetItem("VV"));
+            }
         } else {
             qDebug() << "Информация(MainWindow)\n" <<  "Ошибка с форматом передачи данных";
         }
@@ -86,7 +97,8 @@ void MainWindow:: clickChatList(int i, int  j)
             curChat = chats[i];
             ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(curChat.name));
             ui->label_chatName->setText(chats[i].name);
-            socket->write("{\"process\":\"main\", \"signal\":\"getChatContent\", \"chatID\":\"" + chats[i].chatID.toLocal8Bit() + "\"}");
+            sockWrite("main", "getChatContent", "\"chatID\":\""
+                      +  chats[i].chatID + "\"");
         }
         if(j == 1){
             clickedDeleteChat(i, "deleteChat");
@@ -186,10 +198,11 @@ void MainWindow::setNewMessage(UserMessage message)
     } else if(curChatContent.at(0).chatID == message.chatID) {
             curChatContent.append(message);
             showNewMessage(message);
+            if(message.senderID != userInfo.userID)
+                sockWrite("main", "isReadingMessage", "\"chatID\":\""
+                          + message.chatID + "\"");
     }
 
-//    socket->write("{\"process\":\"main\", \"signal\":\"isReadingMessage\", \"chatID\":\""
-//                    + message.chatID.toLocal8Bit() + "\"}");
 }
 void MainWindow::deleteMessage(UserMessage message)
 {
@@ -346,9 +359,9 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
 {
     ui->tableWidget_chatWindow-> clear();
     ui->tableWidget_chatWindow->setRowCount(0);
-    ui->tableWidget_chatWindow->setColumnCount(4);
+    ui->tableWidget_chatWindow->setColumnCount(5);
     QStringList horzHeaders;
-    horzHeaders << "История вашего чата" << "" << "" << "";
+    horzHeaders << "История вашего чата" << "" << "" << "" << "";
     ui->tableWidget_chatWindow->setHorizontalHeaderLabels(horzHeaders);
     for(int i = 0; i < conntents.count(); i++){
         ui->tableWidget_chatWindow->insertRow(i);
@@ -364,6 +377,11 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
             text ="ред.";
         }
         ui->tableWidget_chatWindow->setItem(i, 3, new QTableWidgetItem(text));
+        if(conntents.at(i).isRead == "1")
+            text = "VV";
+        else
+            text = "V";
+        ui->tableWidget_chatWindow->setItem(i, 4, new QTableWidgetItem(text));
     }
     ui->tableWidget_chatWindow->resizeColumnsToContents();
     ui->tableWidget_chatWindow->resizeRowsToContents();
@@ -380,6 +398,12 @@ void MainWindow::showNewMessage(UserMessage message)
     if(message.senderID == userInfo.userID)
         red = "редактировать";
     ui->tableWidget_chatWindow->setItem(rowCount, 3, new QTableWidgetItem(red));
+    QString text = "";
+    if(message.isRead == "1")
+        text = "VV";
+    else
+        text = "V";
+    ui->tableWidget_chatWindow->setItem(rowCount, 4, new QTableWidgetItem(text));
 }
 
 

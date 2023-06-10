@@ -17,6 +17,13 @@ CreateChat::CreateChat(QTcpSocket* socket, QWidget *parent) :
     QStringList horzHeaders;
     horzHeaders << "Пользователи в чате" << "";
     ui->tableWidget_allUsers->setHorizontalHeaderLabels(horzHeaders);
+
+    ui->tableWidget_allUsers->setShowGrid(false);
+    ui->tableWidget_addUsers->setShowGrid(false);
+    ui->tableWidget_allUsers->setEditTriggers(0);
+    ui->tableWidget_addUsers->setEditTriggers(0);
+    ui->tableWidget_addUsers->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableWidget_allUsers->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 void CreateChat::start(){

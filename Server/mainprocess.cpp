@@ -23,7 +23,9 @@ void MainProcess::sendingData(DataParsing messageFromClient)
     } else if(signal == "searchChats"){
         sendingFoundChats(messageFromClient.getSearchedUser());
     } else if(signal == "getChatContent") {
+        db->updateUserIsReadingMessages(messageFromClient.getChatID(), curClientInfo.userID);
         sendingChatContent(messageFromClient.getChatID());
+        sendOnlineUsersInChatExceptMe("updateIsReadingMessages", messageFromClient.getChatID(), "\"chatID\":\"" + messageFromClient.getChatID() + "\"");
     } else if(signal == "sendMessage"){
         sendMessage(messageFromClient.getMessage());
     } else if(signal == "messageEddit"){
@@ -42,6 +44,7 @@ void MainProcess::sendingData(DataParsing messageFromClient)
         sendOnlineUsersInChat("deleteMessage", messageFromClient.getMessage().chatID, messageFromClient.getMessage());
     } else if(signal == "isReadingMessage") {
         db->updateUserIsReadingMessages(messageFromClient.getChatID(), curClientInfo.userID);
+        sendOnlineUsersInChat("updateIsReadingMessages", messageFromClient.getChatID(), "\"chatID\":\"" + messageFromClient.getChatID() + "\"");
     } else if(signal == "getUsersCreateChat") {
         sendingFoundUsers(messageFromClient.getSearchedUser(), "setUsersCreateChat");// поиск по имени если осуществляется с пустой строкой, просто вернет все что есть
     } else if(signal == "createChat") {
@@ -58,6 +61,15 @@ void MainProcess:: sendOnlineUsersInChat(QString signal, QString chatID, auto  m
                 sockWrite(sockets[key], "main", signal, message);
         }
 }
+void MainProcess:: sendOnlineUsersInChatExceptMe(QString signal, QString chatID, auto  message)
+{
+        QMap<qintptr, ClientInfo> onlineUsers = db->getOnlineUsersInChat(chatID);
+        foreach (qintptr key, onlineUsers.keys()) {
+            if(sockets[key]->isOpen() && socket != sockets[key])
+                sockWrite(sockets[key], "main", signal, message);
+        }
+}
+
 //void MainProcess:: sendOnlineUsers(QString signal, auto  message)
 //{
 //        QMap<qintptr, ClientInfo> onlineUsers = db->getOnlineUsers();

@@ -53,8 +53,8 @@ bool WorkDataBase::isClientExist(QString login)
 ClientMessage WorkDataBase::insertMessage(ClientMessage message)
 {
     QSqlQuery* query = new QSqlQuery(db);
-    if(query->exec( "INSERT INTO Messages (`chatID`, `sender`, `message`) VALUES ('"
-                    + message.chatID + "', '" + message.senderID + "', '" + message.message + "')"))
+    if(query->exec( "INSERT INTO Messages (`chatID`, `sender`, `message`, `isSystem` ) VALUES ('"
+                    + message.chatID + "', '" + message.senderID + "', '" + message.message + "', '" + message.isSystem + "')"))
     {
         query->exec( "SELECT messageID FROM `Messages` ORDER BY messageID DESC");
         query->next();
@@ -343,8 +343,6 @@ bool WorkDataBase::updateUserIsReadingMessages(QString chatID, QString curUserID
         QSqlQuery* query1 = new QSqlQuery(db);
         query1->exec("SELECT isRead FROM MessageStatus WHERE messageID = '" + query->value(0).toString() + "' and userID = '" + curUserID + "'");
         query1->next();
-        if(query1->value(0).toString() == "1")
-            break;
         if(!query1->exec("UPDATE MessageStatus SET `isRead` = '1' WHERE messageID = '" + query->value(0).toString() + "' and userID = '" + curUserID+ "'"))
             f = false;;
     }

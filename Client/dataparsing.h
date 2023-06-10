@@ -23,6 +23,7 @@ public:
     QString getSignal();
     QString getMessageID();
     QString getMessageText();
+    QString getChatID();
 
     UserInfo getUser();
     UserMessage getMessage();
