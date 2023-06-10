@@ -112,12 +112,13 @@ QList<ClientMessage> DataParsing::getMessages()
         QJsonArray jsConntents = jDoc.object().value("conntents").toArray();
         ClientMessage conntent;
         for(int i = 0; i < jsConntents.count();i++) {
-            conntent.messageID = jsConntents[i].toObject().value("messageID").toString();
             conntent.chatID = jsConntents[i].toObject().value("chatID").toString();
+            conntent.messageID = jsConntents[i].toObject().value("messageID").toString();
             conntent.senderName = jsConntents[i].toObject().value("senderName").toString();
             conntent.senderID = jsConntents[i].toObject().value("senderID").toString();
             conntent.message = jsConntents[i].toObject().value("message").toString();
             conntent.isRead = jsConntents[i].toObject().value("isRead").toString();
+            conntent.isSystem = jsConntents[i].toObject().value("isSystem").toString();
             messages.append(conntent);
         }
     }
@@ -127,10 +128,12 @@ ClientMessage DataParsing:: getMessage()
 {
     ClientMessage message;
     message.chatID = jDoc.object().value("chatID").toString();
-    message.senderID = jDoc.object().value("senderID").toString();
-    qDebug() << " message.senderID = " <<  message.senderID;
+    message.messageID = jDoc.object().value("messageID").toString();
     message.senderName = jDoc.object().value("senderName").toString();
+    message.senderID = jDoc.object().value("senderID").toString();
     message.message = jDoc.object().value("message").toString();
+    message.isRead = jDoc.object().value("isRead").toString();
+    message.isSystem = jDoc.object().value("isSystem").toString();
 
     return message;
 }

@@ -10,5 +10,6 @@ public:
     QString senderID;
     QString message;
     QString isRead;
+    QString isSystem;
 };
 #endif // CLIENTMESSAGE_H

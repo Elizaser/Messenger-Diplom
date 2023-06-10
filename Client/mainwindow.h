@@ -33,10 +33,10 @@ signals:
 public slots:
     void sockReady(DataParsing messageFromServer);
 private slots:
-    void search();
+    void searchChatList();
     void quit();
     void clickChatList(int i, int j);
-    void clickedDeleteChat(int i);
+    void clickedDeleteChat(int i, QString signal);
     void clickChatWindow(int i, int j);
     void clickedDeleteMessage(int i);
     void clickedEdditMessage(int i);
@@ -60,9 +60,10 @@ private:
     UserInfo userInfo;
     QList<UserChat> chats;
     QList<UserInfo> users;
-    UserChat currentChat;
     QList<UserMessage> curChatContent;
     UserMessage curMessage;
+    UserChat curChat;
+
     CreateChat* createChat;
 
 
@@ -78,9 +79,12 @@ private:
     void showFoundUsers(QString headerLabel);
     void showChatContents(QList<UserMessage> conntents);
     void showNewMessage(QList<UserMessage> message);
-    void deleteMessage(QString messageID);
+    void deleteMessage(UserMessage message);
+    void deleteChat(QString chatID);
     void updateMessage(QString messageID, QString message);
     void deleteParticipant(UserInfo userInfo);
+    int searchChatByID(QString chatID);
+    int searchMessageByID(QString messageID);
 
 
 };

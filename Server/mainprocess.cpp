@@ -30,7 +30,9 @@ void MainProcess::sendingData(DataParsing messageFromClient)
         sendOnlineUsersInChat("updateMessage", messageFromClient.getMessage().chatID, messageFromClient.getMessage());
     } else if(signal == "deleteChat") {
         deleteChat(messageFromClient.getChatID());
-//        sendOnlineUsers("deleteParticipant", curClientInfo);
+    } else if(signal == "exitChat") {
+        exitChat(messageFromClient.getChatID());
+        sendOnlineUsersInChat("exitChat", messageFromClient.getChatID(), "\"chatID\":\"" + messageFromClient.getChatID() + "\"");
     } else if(signal == "messageDelete"){
         deleteMessage(messageFromClient.getMessageID());
     } else if(signal == "messageDeleteForEveryone"){
@@ -75,7 +77,7 @@ void MainProcess:: sendingFoundUsers(QString searchedUser, QString signal)
 }
 void MainProcess:: sendingFoundChats(QString searchedUser)
 {
-    QList<ClientChat> foundChats = db->getFoundChats(searchedUser);
+    QList<ClientChat> foundChats = db->getFoundChats(searchedUser, curClientInfo.userID);
     sockWrite(socket, "main", "searchChats", foundChats);
 }
 
@@ -92,15 +94,19 @@ void MainProcess:: sendMessage(ClientMessage message)
 void MainProcess:: createChat(ClientChat chat)
 {
     chat.userCreator = curClientInfo.userID;
+    chat.type = "group";
+    chat.countIsNotReadMessages = "1";
     chat = db->insertChat(chat);
     if (chat.chatID == ""){
         return;
     }
-    sockWrite(socket, "main", "newChat");
+    qDebug() << "chat.type = " << chat.type;
+    sockWrite(socket, "main", "newChat", chat);
 
     ClientMessage message;
     message.senderID = curClientInfo.userID;
     message.message = "Пользователь создал чат";
+    message.isSystem = "1";
     message.chatID = chat.chatID;
     sendMessage(message);
 }
@@ -111,16 +117,19 @@ ClientMessage MainProcess:: saveMessage(ClientMessage message)
 }
 void MainProcess:: deleteChat(QString chatID)
 {
+    db->deleteChat(chatID, curClientInfo.userID);
+}
+void MainProcess:: exitChat(QString chatID)
+{
+    if(!db->exitChat(chatID, curClientInfo.userID)) return;
     ClientMessage message;
     message.chatID = chatID;
-    message.isRead = "1";
+    message.isRead = "0";
     message.message = " Пользователь вышел из беседы";
     message.senderID = curClientInfo.userID;
     message.senderName = curClientInfo.name;
     sendMessage(message);
-    db->deleteChat(chatID, curClientInfo.userID);
 }
-
 void MainProcess:: deleteMessage(QString messageID)
 {
     db->deleteMessage(messageID, curClientInfo.userID);

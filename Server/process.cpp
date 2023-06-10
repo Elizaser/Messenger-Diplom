@@ -26,7 +26,7 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QLi
                         "\", \"userCreator\":\"" + chat.userCreator
                         + "\", \"name\":\"" + chat.name
                         + "\",  \"countIsNotReadMessages\":\"" + chat.countIsNotReadMessages
-                        + "\",  \"type\":\"" + chat.type.toLocal8Bit()
+                        + "\",  \"type\":\"" + chat.type
                         + "\", \"participants\":[");
             for(auto & participant : chat.participants){
                 data.append("{\"participant\":\"" + participant + "\"},");
@@ -35,7 +35,7 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QLi
             data.append("]},");
         }
         data.remove(data.length()-1,1);
-        data.remove(data.length()-1,1);
+//        data.remove(data.length()-1,1);
         data.append("]}");
         emit writeSocketInProcess(socket, data);
     } else {
@@ -65,12 +65,13 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QLi
         QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\", \"conntents\":[";
 
         for(auto & conntent : conntents) {
-            data.append("{\"messageID\":\"" + conntent.messageID +
-                        "\", \"chatID\":\"" + conntent.chatID +
-                        "\", \"senderID\":\"" + conntent.senderID +
-                        "\", \"senderName\":\"" + conntent.senderName +
-                        "\", \"isRead\":\"" + conntent.isRead +
-                        "\", \"message\":\"" + conntent.message +"\"},");
+            data.append("{\"messageID\":\"" + conntent.messageID
+                        + "\", \"chatID\":\"" + conntent.chatID
+                        + "\", \"senderID\":\"" + conntent.senderID
+                        + "\", \"senderName\":\"" + conntent.senderName
+                        + "\", \"isRead\":\"" + conntent.isRead
+                        + "\", \"isSystem\":\"" + conntent.isSystem
+                        + "\", \"message\":\"" + conntent.message + "\"},");
 
         }
         data.remove(data.length()-1,1);
@@ -89,6 +90,7 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, Cli
                         + "\", \"senderID\":\"" + conntent.senderID.toLocal8Bit()
                         + "\", \"senderName\":\"" + conntent.senderName.toLocal8Bit()
                         + "\", \"isRead\":\"" + conntent.isRead.toLocal8Bit()
+                        + "\", \"isSystem\":\"" + conntent.isSystem.toLocal8Bit()
                         + "\", \"message\":\"" + conntent.message.toLocal8Bit() +"\"}";
         emit writeSocketInProcess(socket, data);
 }
@@ -114,7 +116,7 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, Cli
     QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() +
                     + "\", \"login\":\"" + clientInfo.login.toLocal8Bit()
                     + "\", \"name\":\"" + clientInfo.name.toLocal8Bit()
-                    + "\", \"userID\":\"" + clientInfo.userID.toLocal8Bit() + "\"},";
+                    + "\", \"userID\":\"" + clientInfo.userID.toLocal8Bit() + "\"}";
     emit writeSocketInProcess(socket, data);
 }
 

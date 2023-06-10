@@ -28,7 +28,7 @@ public:
     QList<ClientMessage> getChatConntent(QString chatID, QString curUserID);
 
     QList<ClientInfo> getFoundUsers(QString desired);
-    QList<ClientChat> getFoundChats(QString desired);
+    QList<ClientChat> getFoundChats(QString desired, QString curUserID);
 
     ClientMessage insertMessage(ClientMessage message);
     ClientChat insertChat(ClientChat chat);
@@ -39,6 +39,7 @@ public:
     QMap<qintptr, ClientInfo> getOnlineUsersInChat(QString chatID);
 
     bool deleteChat(QString chatID, QString userID);
+    bool exitChat(QString chatID, QString userID);
     bool deleteMessage(QString messageID, QString userID);
     QString deleteMessageForEveryone(QString messageID);
 

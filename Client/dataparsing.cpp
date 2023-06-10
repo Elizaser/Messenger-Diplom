@@ -111,6 +111,7 @@ QList<UserMessage> DataParsing::getChatContent()
             conntent.senderID = jsConntents[i].toObject().value("senderID").toString();
             conntent.message = jsConntents[i].toObject().value("message").toString();
             conntent.isRead = jsConntents[i].toObject().value("isRead").toString();
+            conntent.isSystem = jsConntents[i].toObject().value("isRead").toString();
             conntents.append(conntent);
         }
     }
@@ -118,12 +119,13 @@ QList<UserMessage> DataParsing::getChatContent()
 }
 UserMessage DataParsing::getMessage()
 {
-    UserMessage conntent;
-    conntent.messageID = jDoc.object().value("messageID").toString();
-    conntent.chatID = jDoc.object().value("chatID").toString();
-    conntent.senderName = jDoc.object().value("senderName").toString();
-    conntent.senderID = jDoc.object().value("senderID").toString();
-    conntent.message = jDoc.object().value("message").toString();
-    conntent.isRead = jDoc.object().value("isRead").toString();
-    return conntent;
+    UserMessage message;
+    message.chatID = jDoc.object().value("chatID").toString();
+    message.messageID = jDoc.object().value("messageID").toString();
+    message.senderName = jDoc.object().value("senderName").toString();
+    message.senderID = jDoc.object().value("senderID").toString();
+    message.message = jDoc.object().value("message").toString();
+    message.isRead = jDoc.object().value("isRead").toString();
+    message.isSystem = jDoc.object().value("isSystem").toString();
+    return message;
 }

@@ -23,6 +23,7 @@ class MainProcess: public Process
 //    void sendOnlineUsers(QString signal, auto message);
 
     void deleteChat(QString chatID);
+    void exitChat(QString chatID);
     void deleteMessage(QString messageID);
     void deleteMessageForEveryone(QString messageID);
 public:
