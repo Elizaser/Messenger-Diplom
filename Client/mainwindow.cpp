@@ -188,6 +188,11 @@ void MainWindow::setNewMessage(UserMessage message)
         if(message.senderID == userInfo.userID)
             red = "редактировать";
         ui->tableWidget_chatWindow->setItem(rowCount, 3, new QTableWidgetItem(red));
+    } else {
+        int i = searchChatByID(message.chatID);
+        int countIsNotReadMessages = chats.at(i).countIsNotReadMessages.toInt() + 1;
+        chats[i].countIsNotReadMessages = QString::number(countIsNotReadMessages);
+        ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(message.senderName + chats[i].countIsNotReadMessages));
     }
 
 //    socket->write("{\"process\":\"main\", \"signal\":\"isReadingMessage\", \"chatID\":\""

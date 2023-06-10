@@ -91,6 +91,8 @@ void MainProcess:: sendingChatContent(QString chatID)
 void MainProcess:: sendMessage(ClientMessage message)
 {
     message = saveMessage(message);
+    qDebug() << "message.senderID" << message.senderID;
+    qDebug() << "message.senderName" << message.senderName;
     if(message.messageID == "") return;
     sendOnlineUsersInChat("newMessage", message.chatID, message);
 }
