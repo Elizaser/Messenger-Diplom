@@ -26,6 +26,7 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QLi
                         "\", \"userCreator\":\"" + chat.userCreator
                         + "\", \"name\":\"" + chat.name
                         + "\",  \"countIsNotReadMessages\":\"" + chat.countIsNotReadMessages
+                        + "\",  \"countIsLook\":\"" + chat.countIsLook
                         + "\",  \"type\":\"" + chat.type
                         + "\", \"participants\":[");
             for(auto & participant : chat.participants){
@@ -50,6 +51,7 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, Cli
                         + "\", \"userCreator\":\"" + chat.userCreator.toLocal8Bit()
                         + "\", \"name\":\"" + chat.name.toLocal8Bit()
                         + "\",  \"countIsNotReadMessages\":\"" + chat.countIsNotReadMessages.toLocal8Bit()
+                        + "\",  \"countIsLook\":\"" + chat.countIsLook.toLocal8Bit()
                         + "\",  \"type\":\"" + chat.type.toLocal8Bit()
                         + "\", \"participants\":[";
         for(auto & participant : chat.participants){

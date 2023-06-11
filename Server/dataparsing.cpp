@@ -19,10 +19,13 @@ QString DataParsing::getSignal()
 {
         return jDoc.object().value("signal").toString();
 }
-
 QString DataParsing::getChatID()
 {
     return jDoc.object().value("chatID").toString();
+}
+QString DataParsing::getUserID()
+{
+    return jDoc.object().value("userID").toString();
 }
 QString DataParsing::getMessageID()
 {
@@ -75,6 +78,7 @@ QList<ClientChat> DataParsing::getChats()
             chat.name = jsChats[i].toObject().value("name").toString();
             chat.userCreator = jsChats[i].toObject().value("userCreator").toString();
             chat.countIsNotReadMessages = jsChats[i].toObject().value("countIsNotReadMessages").toString();
+            chat.countIsLook = jsChats[i].toObject().value("countIsLook").toString();
             chat.type = jsChats[i].toObject().value("type").toString();
 
             QJsonArray jsParticipants = jsChats[i].toObject().value("participants").toArray();
@@ -94,6 +98,7 @@ ClientChat DataParsing::getChat()
     chat.name = jDoc.object().value("name").toString();
     chat.userCreator = jDoc.object().value("userCreator").toString();
     chat.countIsNotReadMessages = jDoc.object().value("countIsNotReadMessages").toString();
+    chat.countIsLook = jDoc.object().value("countIsLook").toString();
     chat.type = jDoc.object().value("type").toString();
 
     QJsonArray jsParticipants = jDoc.object().value("participants").toArray();

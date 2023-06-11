@@ -19,6 +19,7 @@ public:
     QString getProccess();
     QString getSignal();
 
+    QString getUserID();
     QString getChatID();
     QString getMessageID();
     QString getMessageText();
@@ -32,7 +33,6 @@ public:
     QList<ClientChat> getChats();
     QList<ClientMessage> getMessages();
     QList<ClientInfo> getClients();
-
 };
 
 #endif // DATAPARSING_H

@@ -110,6 +110,9 @@ void MainWindow:: clickChatList(int i, int  j)
             chats.removeAt(i);
         }
     } else {
+        if(j == 1) {
+            
+        }
         QMessageBox::information(this, "Информация(MainWindow)", "Пока это поле недоступно");
     }
 }

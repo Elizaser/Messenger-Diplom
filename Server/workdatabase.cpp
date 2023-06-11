@@ -178,9 +178,10 @@ QList<ClientChat> WorkDataBase::getUserChats(QString userID)
             }
             countIsLook++;
         }
-        if(countIsLook <= 0)
-            continue;
+//        if(countIsLook <= 0)
+//            continue;
         chat.countIsNotReadMessages = QString::number(countIsNotReadMessages);
+        chat.countIsLook = QString::number(countIsLook);
         chats.append(chat);
     }
     return chats;
@@ -337,14 +338,16 @@ QString WorkDataBase::deleteMessageForEveryone(QString messageID)
 bool WorkDataBase::updateUserIsReadingMessages(QString chatID, QString curUserID)
 {
     bool f = true;
-    QSqlQuery* query = new QSqlQuery(db);
-    query->exec("SELECT messageID FROM Messages WHERE chatID = " + chatID + " ORDER BY messageID DESC");
-    while(query->next()){
-        QSqlQuery* query1 = new QSqlQuery(db);
-        query1->exec("SELECT isRead FROM MessageStatus WHERE messageID = '" + query->value(0).toString() + "' and userID = '" + curUserID + "'");
-        query1->next();
-        if(!query1->exec("UPDATE MessageStatus SET `isRead` = '1' WHERE messageID = '" + query->value(0).toString() + "' and userID = '" + curUserID+ "'"))
-            f = false;;
+    QSqlQuery* queryMessages = new QSqlQuery(db);
+    queryMessages->exec("SELECT messageID FROM Messages WHERE chatID = " + chatID + " ORDER BY messageID DESC");
+    while(queryMessages->next()){
+        QSqlQuery* queryUsers = new QSqlQuery(db);
+        queryUsers->exec("SELECT userID FROM MessageStatus WHERE messageID = '" + queryMessages->value(0).toString() + "'");
+        while(queryUsers->next()){
+            QSqlQuery* query = new QSqlQuery(db);
+            if(!query->exec("UPDATE MessageStatus SET `isRead` = '1' WHERE messageID = '" + queryMessages->value(0).toString() + "' and userID = '" + queryUsers->value(0).toString()+ "'"))
+                f = false;;
+        }
     }
     return f;
 }

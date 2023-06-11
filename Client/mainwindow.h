@@ -53,6 +53,10 @@ private slots:
     void sockWrite(QString process, QString signal, QList<UserInfo> clientInfos);
     void sockWrite(QString process, QString signal, UserInfo clientInfo);
 
+    void on_radioButtonPeople_clicked();
+
+    void on_radioButton_Chats_clicked();
+
 private:
     Ui::MainWindow *ui;
     QTcpSocket* socket;
@@ -69,16 +73,18 @@ private:
 
     void setUserInfo(UserInfo userInfo);
     void setUserChats(QList<UserChat> chat);
-    void searchPeople(QList<UserInfo> user);
-    void searchChats(QList<UserChat> chats);
+    void setAllUsers(QList<UserInfo> users);
+    void setSearchPeople(QList<UserInfo> user);
+    void setSearchChats(QList<UserChat> chats);
     void setChatContent(QList<UserMessage> conntent);
     void setNewMessage(UserMessage message);
     void setNewChat(UserChat chat);
 
     void showListChats(QString headerLabel);
-    void showFoundUsers(QString headerLabel);
+    void showUsers(QString headerLabel);
     void showChatContents(QList<UserMessage> conntents);
     void showNewMessage(UserMessage message);
+    void showNewChat(UserChat chat);
     void deleteMessage(UserMessage message);
     void deleteChat(QString chatID);
     void updateMessage(QString messageID, QString message);

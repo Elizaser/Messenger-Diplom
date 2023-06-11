@@ -18,16 +18,18 @@ void MainProcess::sendingData(DataParsing messageFromClient)
         sendingUserChats();
     } else if(signal == "getUserChats"){
         sendingUserChats();
+    } else if(signal == "getAllUsers"){
+        sendingFoundUsers("", "setAllUsers");// если поиск по имени  осуществляется с пустой строкой, то просто вернется все что есть
     } else if(signal == "searchPeople"){
         sendingFoundUsers(messageFromClient.getSearchedUser(), "searchPeople");
     } else if(signal == "searchChats"){
         sendingFoundChats(messageFromClient.getSearchedUser());
     } else if(signal == "getChatContent") {
-        db->updateUserIsReadingMessages(messageFromClient.getChatID(), curClientInfo.userID);
+//        db->updateUserIsReadingMessages(messageFromClient.getChat().chatID, curClientInfo.userID);
         sendingChatContent(messageFromClient.getChatID());
-        sendOnlineUsersInChatExceptMe("updateIsReadingMessages", messageFromClient.getChatID(), "\"chatID\":\"" + messageFromClient.getChatID() + "\"");
+//        sendOnlineUsersInChatExceptMe("updateIsReadingMessages", messageFromClient.getChat().chatID, "\"chatID\":\"" + messageFromClient.getChatID() + "\"");
     } else if(signal == "sendMessage"){
-        sendMessage(messageFromClient.getMessage());
+        sendingMessage(messageFromClient.getMessage());
     } else if(signal == "messageEddit"){
         db->updateMessageEddit(messageFromClient.getMessage());
         sendOnlineUsersInChat("updateMessage", messageFromClient.getMessage().chatID, messageFromClient.getMessage());
@@ -43,10 +45,12 @@ void MainProcess::sendingData(DataParsing messageFromClient)
         deleteMessageForEveryone(messageFromClient.getMessage().messageID);
         sendOnlineUsersInChat("deleteMessage", messageFromClient.getMessage().chatID, messageFromClient.getMessage());
     } else if(signal == "isReadingMessage") {
-        db->updateUserIsReadingMessages(messageFromClient.getChatID(), curClientInfo.userID);
-        sendOnlineUsersInChat("updateIsReadingMessages", messageFromClient.getChatID(), "\"chatID\":\"" + messageFromClient.getChatID() + "\"");
+        if(messageFromClient.getChat().countIsNotReadMessages != "0"){
+            db->updateUserIsReadingMessages(messageFromClient.getChat().chatID, curClientInfo.userID);
+            sendOnlineUsersInChat("updateIsReadingMessages", messageFromClient.getChat().chatID, "\"chatID\":\"" + messageFromClient.getChat().chatID + "\"");
+        }
     } else if(signal == "getUsersCreateChat") {
-        sendingFoundUsers(messageFromClient.getSearchedUser(), "setUsersCreateChat");// поиск по имени если осуществляется с пустой строкой, просто вернет все что есть
+        sendingFoundUsers("", "setUsersCreateChat");// поиск по имени если осуществляется с пустой строкой, просто вернет все что есть
     } else if(signal == "createChat") {
         createChat(messageFromClient.getChat());
     } else {
@@ -57,7 +61,7 @@ void MainProcess:: sendOnlineUsersInChat(QString signal, QString chatID, auto  m
 {
         QMap<qintptr, ClientInfo> onlineUsers = db->getOnlineUsersInChat(chatID);
         foreach (qintptr key, onlineUsers.keys()) {
-            if(sockets[key]->isOpen())
+//            if(sockets[key]->isOpen())
                 sockWrite(sockets[key], "main", signal, message);
         }
 }
@@ -101,13 +105,19 @@ void MainProcess:: sendingChatContent(QString chatID)
     sockWrite(socket, "main", "setChatContent", conntents);
 }
 
-void MainProcess:: sendMessage(ClientMessage message)
+void MainProcess:: sendingMessage(ClientMessage message)
 {
     message = saveMessage(message);
-    qDebug() << "message.senderID" << message.senderID;
-    qDebug() << "message.senderName" << message.senderName;
     if(message.messageID == "") return;
     sendOnlineUsersInChat("newMessage", message.chatID, message);
+}
+
+ClientMessage MainProcess:: saveMessage(ClientMessage message)
+{
+    message.senderID = curClientInfo.userID;
+    message.senderName = curClientInfo.name;
+    message.isSystem = "0";
+    return db->insertMessage(message);
 }
 void MainProcess:: createChat(ClientChat chat)
 {
@@ -127,15 +137,7 @@ void MainProcess:: createChat(ClientChat chat)
     message.message = "Пользователь создал чат";
     message.isSystem = "1";
     message.chatID = chat.chatID;
-    sendMessage(message);
-}
-
-ClientMessage MainProcess:: saveMessage(ClientMessage message)
-{
-    message.senderID = curClientInfo.userID;
-    message.senderName = curClientInfo.name;
-    message.isSystem = "0";
-    return db->insertMessage(message);
+    sendingMessage(message);
 }
 void MainProcess:: deleteChat(QString chatID)
 {
@@ -151,7 +153,7 @@ void MainProcess:: exitChat(QString chatID)
     message.senderID = curClientInfo.userID;
     message.senderName = curClientInfo.name;
     message.isSystem = "1";
-    sendMessage(message);
+    sendingMessage(message);
 }
 void MainProcess:: deleteMessage(QString messageID)
 {

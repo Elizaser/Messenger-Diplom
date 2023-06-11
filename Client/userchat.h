@@ -10,6 +10,7 @@ public:
     QString name;
     QList<QString> participants;
     QString countIsNotReadMessages;
+    QString countIsLook;
     QString type;
 };
 #endif // USERCHAT_H
