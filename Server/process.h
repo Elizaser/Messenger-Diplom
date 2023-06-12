@@ -13,14 +13,16 @@ signals:
     void writeSocketInProcess(QTcpSocket* socket, QByteArray data);
 protected:
     WorkDataBase* db;
-    void sockWrite(QTcpSocket* socket, QString process, QString signal);
-    void sockWrite(QTcpSocket* socket, QString process, QString signal, QString message);
-    void sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientChat> chats);
-    void sockWrite(QTcpSocket* socket, QString process, QString signal, ClientChat chat);
-    void sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientMessage> conntents);
-    void sockWrite(QTcpSocket* socket, QString process, QString signal, ClientMessage conntent);
-    void sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientInfo> clientInfos);
-    void sockWrite(QTcpSocket* socket, QString process, QString signal, ClientInfo clientInfo);
+    QByteArray generateData(QString process, QString signal);
+    QByteArray generateData(QString process, QString signal, QString message);
+    QByteArray generateData(QString process, QString signal, QList<ClientChat> chats);
+    QByteArray generateData(QString process, QString signal, ClientChat chat);
+    QByteArray generateData(QString process, QString signal, QList<ClientMessage> conntents);
+    QByteArray generateData(QString process, QString signal, ClientMessage conntent);
+    QByteArray generateData(QString process, QString signal, QList<ClientInfo> clientInfos);
+    QByteArray generateData(QString process, QString signal, ClientInfo clientInfo);
+    QByteArray generateData(QString process, QString signal, QList<ClientMessage> conntents, QString dopMessage);
+    void sockWrite(QTcpSocket* socket, QByteArray data);
     void printClientInfo(QString header, ClientInfo clientInfo);
 public:
     Process(WorkDataBase* db);

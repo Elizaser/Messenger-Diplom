@@ -25,9 +25,9 @@ void MainProcess::sendingData(DataParsing messageFromClient)
     } else if(signal == "searchChats"){
         sendingFoundChats(messageFromClient.getSearchedUser());
     } else if(signal == "getChatContent") {
-//        db->updateUserIsReadingMessages(messageFromClient.getChat().chatID, curClientInfo.userID);
         sendingChatContent(messageFromClient.getChatID());
-//        sendOnlineUsersInChatExceptMe("updateIsReadingMessages", messageFromClient.getChat().chatID, "\"chatID\":\"" + messageFromClient.getChatID() + "\"");
+    } else if(signal == "getDialogContent") {
+        sendingDialogContent(messageFromClient.getUserID());
     } else if(signal == "sendMessage"){
         sendingMessage(messageFromClient.getMessage());
     } else if(signal == "messageEddit"){
@@ -40,7 +40,7 @@ void MainProcess::sendingData(DataParsing messageFromClient)
         sendOnlineUsersInChat("exitChat", messageFromClient.getChatID(), "\"chatID\":\"" + messageFromClient.getChatID() + "\"");
     } else if(signal == "messageDelete"){
         deleteMessage(messageFromClient.getMessage().messageID);
-        sockWrite(socket, "main", "deleteMessage", messageFromClient.getMessage());
+        sockWrite(socket, generateData("main", "deleteMessage", messageFromClient.getMessage()));
     } else if(signal == "messageDeleteForEveryone"){
         deleteMessageForEveryone(messageFromClient.getMessage().messageID);
         sendOnlineUsersInChat("deleteMessage", messageFromClient.getMessage().chatID, messageFromClient.getMessage());
@@ -53,24 +53,26 @@ void MainProcess::sendingData(DataParsing messageFromClient)
         sendingFoundUsers("", "setUsersCreateChat");// поиск по имени если осуществляется с пустой строкой, просто вернет все что есть
     } else if(signal == "createChat") {
         createChat(messageFromClient.getChat());
+    } else if(signal == "sendMessageInNewDialog") {
+        sendMessageInNewDialog(messageFromClient.getMessage());
     } else {
           qDebug()<<"Ошибка. Непонятно имя сигнала";
     }
 }
-void MainProcess:: sendOnlineUsersInChat(QString signal, QString chatID, auto  message)
+void MainProcess::sendOnlineUsersInChat(QString signal, QString chatID, auto  message)
 {
         QMap<qintptr, ClientInfo> onlineUsers = db->getOnlineUsersInChat(chatID);
         foreach (qintptr key, onlineUsers.keys()) {
-//            if(sockets[key]->isOpen())
-                sockWrite(sockets[key], "main", signal, message);
+            if(sockets[key]->isOpen())
+                sockWrite(sockets[key], generateData("main", signal, message));
         }
 }
-void MainProcess:: sendOnlineUsersInChatExceptMe(QString signal, QString chatID, auto  message)
+void MainProcess::sendOnlineUsersInChatExceptMe(QString signal, QString chatID, auto  message)
 {
         QMap<qintptr, ClientInfo> onlineUsers = db->getOnlineUsersInChat(chatID);
         foreach (qintptr key, onlineUsers.keys()) {
             if(sockets[key]->isOpen() && socket != sockets[key])
-                sockWrite(sockets[key], "main", signal, message);
+                generateData(sockets[key], "main", signal, message);
         }
 }
 
@@ -81,45 +83,49 @@ void MainProcess:: sendOnlineUsersInChatExceptMe(QString signal, QString chatID,
 //            sockWrite(sockets[key], "main", signal, message);
 //        }
 //}
+
 void MainProcess:: sendingUserChats()
 {
     QList <ClientChat> chats = db->getUserChats(curClientInfo.userID);
-    sockWrite(socket, "main", "setUserChats", chats);
+    sockWrite(socket, generateData("main", "setUserChats", chats));
 }
-
-void MainProcess:: sendingFoundUsers(QString searchedUser, QString signal)
+void MainProcess::sendingFoundUsers(QString searchedUser, QString signal)
 {
-    QList<ClientInfo> foundUsers = db->getFoundUsers(searchedUser);
-    sockWrite(socket, "main", signal, foundUsers);
-
+    QList<ClientInfo> foundUsers = db->getFoundUsers(searchedUser, curClientInfo.userID);
+    sockWrite(socket, generateData("main", signal, foundUsers));
 }
-void MainProcess:: sendingFoundChats(QString searchedUser)
+void MainProcess::sendingFoundChats(QString searchedUser)
 {
     QList<ClientChat> foundChats = db->getFoundChats(searchedUser, curClientInfo.userID);
-    sockWrite(socket, "main", "searchChats", foundChats);
+    sockWrite(socket, generateData("main", "searchChats", foundChats));
 }
-
 void MainProcess:: sendingChatContent(QString chatID)
 {
     QList<ClientMessage> conntents = db->getChatConntent(chatID, curClientInfo.userID);
-    sockWrite(socket, "main", "setChatContent", conntents);
+    sockWrite(socket, generateData("main", "setChatContent", conntents));
 }
-
-void MainProcess:: sendingMessage(ClientMessage message)
+void MainProcess::sendingDialogContent(QString companionUserID)
+{
+    QString chatID = db->getDialogID(companionUserID, curClientInfo.userID);
+//    ClientChat chat = db->getChat(chatID, curClientInfo.userID);
+    QList<ClientMessage> conntents = db->getDialogConntent(companionUserID, curClientInfo.userID);
+    sockWrite(socket, generateData("main", "setChatContent", conntents, "\"chatID\":\"" + chatID + "\""));
+}
+void MainProcess::sendingMessage(ClientMessage message)
 {
     message = saveMessage(message);
     if(message.messageID == "") return;
     sendOnlineUsersInChat("newMessage", message.chatID, message);
 }
 
-ClientMessage MainProcess:: saveMessage(ClientMessage message)
+ClientMessage MainProcess::saveMessage(ClientMessage message)
 {
     message.senderID = curClientInfo.userID;
     message.senderName = curClientInfo.name;
     message.isSystem = "0";
     return db->insertMessage(message);
 }
-void MainProcess:: createChat(ClientChat chat)
+void MainProcess::createChat(ClientChat chat)
 {
     chat.userCreator = curClientInfo.userID;
     chat.type = "group";
@@ -136,6 +142,31 @@ void MainProcess:: createChat(ClientChat chat)
     message.senderID = curClientInfo.userID;
     message.message = "Пользователь создал чат";
     message.isSystem = "1";
+    message.chatID = chat.chatID;
+    sendingMessage(message);
+}
+
+void MainProcess::sendMessageInNewDialog(ClientMessage message)
+{
+    QString companionID = message.senderID;
+    QString companionName = message.senderName;
+    message.senderID = curClientInfo.userID;
+    message.senderName = curClientInfo.name;
+    ClientChat chat;
+    chat.name = message.senderName + " - " + companionName;
+    chat.userCreator = curClientInfo.userID;
+    chat.type = "dialog";
+    chat.countIsNotReadMessages = "0";
+    chat.countIsLook = "1";
+    chat.participants.append(companionID);
+    chat.participants.append(curClientInfo.userID);
+    chat = db->insertChat(chat);
+    if (chat.chatID == ""){
+        return;
+    }
+    qDebug() << "chat.chatID = " << chat.chatID;
+//    sockWrite(socket, "main", "setCurChat", chat);
+    sendOnlineUsersInChat("newChat", chat.chatID, chat);
     message.chatID = chat.chatID;
     sendingMessage(message);
 }

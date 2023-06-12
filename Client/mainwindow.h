@@ -67,6 +67,7 @@ private:
     QList<UserMessage> curChatContent;
     UserMessage curMessage;
     UserChat curChat;
+    UserInfo curUser;
 
     CreateChat* createChat;
 
@@ -85,6 +86,8 @@ private:
     void showChatContents(QList<UserMessage> conntents);
     void showNewMessage(UserMessage message);
     void showNewChat(UserChat chat);
+    void clearChatWindow();
+
     void deleteMessage(UserMessage message);
     void deleteChat(QString chatID);
     void updateMessage(QString messageID, QString message);

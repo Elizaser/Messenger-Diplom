@@ -11,13 +11,13 @@ void RegistrationProcess::sendingData(DataParsing messageFromClient)
     if (!db->isClientExist(newClientInfo.login)) {
         if(db->insertUser(newClientInfo.name, newClientInfo.login, newClientInfo.password)){
             printClientInfo("Зарегистрировался клиент: ", newClientInfo);
-            sockWrite(socket, "registration", "welcome");
+            sockWrite(socket, generateData("registration", "welcome"));
         } else {
             printClientInfo("Ошибка с базами данных. Не получилось добавить нового пользователя", newClientInfo);
-            sockWrite(socket, "registration", "errorInsertBD");
+            sockWrite(socket, generateData("registration", "errorInsertBD"));
         }
     } else {
         qDebug()<<"Попытка регистрации под уже существующим логином. Отказано";
-        sockWrite(socket, "registration", "errorLogin");
+        sockWrite(socket, generateData("registration", "errorLogin"));
     }
 }

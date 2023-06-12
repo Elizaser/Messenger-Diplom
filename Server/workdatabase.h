@@ -25,9 +25,12 @@ public:
 
     ClientInfo getUserInfo(QString login);
     QList<ClientChat> getUserChats(QString login);
+    ClientChat getChat(QString chatID, QString userID);
     QList<ClientMessage> getChatConntent(QString chatID, QString curUserID);
+    QList<ClientMessage> getDialogConntent(QString companionUserID, QString curUserID);
+    QString getDialogID(QString companionUserID, QString curUserID);
 
-    QList<ClientInfo> getFoundUsers(QString desired);
+    QList<ClientInfo> getFoundUsers(QString desired, QString curUserID);
     QList<ClientChat> getFoundChats(QString desired, QString curUserID);
 
     ClientMessage insertMessage(ClientMessage message);

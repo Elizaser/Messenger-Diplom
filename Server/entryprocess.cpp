@@ -28,21 +28,21 @@ void EntryProcess:: sendingStatus(ClientInfo curClientInfo)
 {
     if (db->isCorrectInfoClient(curClientInfo.login, curClientInfo.password)) {
         qDebug()<<"EntryProcess socket = " << socket;
-        sockWrite(socket, "entry", "welcome");
+        sockWrite(socket, generateData("entry", "welcome"));
         printClientInfo("Вошел клиент ", curClientInfo);
 
     } else {
-        sockWrite(socket, "entry", "error");
+        sockWrite(socket, generateData("entry", "error"));
         printClientInfo("Неверный логин или пароль ", curClientInfo);
     }
 }
 
 void EntryProcess:: sendingUserInfo(ClientInfo curClientInfo)
 {
-    sockWrite(socket, "main", "setUserInfo",
-              "\"userID\":\"" + curClientInfo.userID +
-              "\", \"name\":\"" +  curClientInfo.name +
-              "\", \"login\":\"" + curClientInfo.login +
-              "\", \"password\":\"" + curClientInfo.password + "\"");
+    sockWrite(socket, generateData("main", "setUserInfo",
+                                   "\"userID\":\"" + curClientInfo.userID +
+                                   "\", \"name\":\"" +  curClientInfo.name +
+                                   "\", \"login\":\"" + curClientInfo.login +
+                                   "\", \"password\":\"" + curClientInfo.password + "\""));
 }
 

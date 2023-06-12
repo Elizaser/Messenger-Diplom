@@ -59,13 +59,14 @@ ClientMessage WorkDataBase::insertMessage(ClientMessage message)
         query->exec( "SELECT messageID FROM `Messages` ORDER BY messageID DESC");
         query->next();
         message.messageID = query->value(0).toString();
-        message.isRead = "0";
         QSqlQuery* query2 = new QSqlQuery(db);
         query2->exec( "SELECT participantID  FROM `Participants` where chatID =  '" +
                             message.chatID + "'");
+        message.isRead = "0";
         while(query2->next()) {
-            if(query->exec( "INSERT INTO `MessageStatus` (`messageID`, `userID`) VALUES ('"
-                            + message.messageID + "', '" + query2->value(0).toString() + "')")){
+//            if(query2->value(0).toString() == message.senderID) message.isRead = "1";
+            if(query->exec( "INSERT INTO `MessageStatus` (`messageID`, `userID`, `isRead`) VALUES ('"
+                            + message.messageID + "', '" + query2->value(0).toString() + "', '" + message.isRead + "')")){
             } else {
                 message.messageID = "";
                 break;
@@ -141,6 +142,42 @@ ClientInfo WorkDataBase::getUserInfo(QString login)
     clientInfo.name = query->value(1).toString();
     return clientInfo;
 }
+ClientChat WorkDataBase::getChat(QString chatID, QString userID)
+{
+    ClientChat chat;
+    chat.chatID = chatID;
+
+    QSqlQuery* query2 = new QSqlQuery(db);
+
+    query2->exec("SELECT userCreator, name, type FROM Chats where chatID = '" +  chat.chatID + "'");
+    query2->next();
+    chat.userCreator = query2->value(0).toString();
+    chat.name = query2->value(1).toString();
+    chat.type = query2->value(2).toString();
+
+    query2->exec("SELECT participantID FROM Participants where chatID = '" +  chat.chatID + "'");
+    while(query2->next()){
+        chat.participants.append(query2->value(0).toString());
+    }
+
+    query2->exec("SELECT messageID FROM Messages where chatID = '" +  chat.chatID + "'");
+    int countIsLook = 0;
+    int countIsNotReadMessages = 0;
+    while(query2->next()){
+        QSqlQuery* query3 = new QSqlQuery(db);
+        query3->exec("SELECT isRead FROM MessageStatus where messageID = '" +  query2->value(0).toString() + "' and userID = '" + userID + "'");
+        query3->next();
+        if(query3->value(0).toString() == "0"){
+            countIsNotReadMessages++;
+        } else if(query3->value(0).toString() == ""){
+            countIsLook--;
+        }
+        countIsLook++;
+    }
+    chat.countIsNotReadMessages = QString::number(countIsNotReadMessages);
+    chat.countIsLook = QString::number(countIsLook);
+    return chat;
+}
 QList<ClientChat> WorkDataBase::getUserChats(QString userID)
 {
     QSqlQuery* query1 = new QSqlQuery(db);
@@ -191,12 +228,13 @@ QList<ClientMessage> WorkDataBase::getChatConntent(QString chatID, QString curUs
     QList<ClientMessage> conntents;
     ClientMessage conntent;
     QSqlQuery* query1 = new QSqlQuery(db);
-    query1->exec("SELECT * FROM Messages where chatID = '" +  chatID + "'");
-    for(int i = 0 ; query1->next(); i++){
+    query1->exec("SELECT messageID, chatID, sender, message, isSystem FROM Messages where chatID = '" +  chatID + "'");
+    while(query1->next()) {
         conntent.messageID = query1->value(0).toString();
         conntent.chatID = query1->value(1).toString();
         conntent.senderID = query1->value(2).toString();
         conntent.message = query1->value(3).toString();
+        conntent.isSystem = query1->value(4).toString();
         QSqlQuery* query2 = new QSqlQuery(db);
         query2->exec("SELECT name FROM User WHERE userID = " + conntent.senderID);
         query2->next();
@@ -211,6 +249,50 @@ QList<ClientMessage> WorkDataBase::getChatConntent(QString chatID, QString curUs
         conntents.append(conntent);
     }
     return conntents;
+}
+
+QList<ClientMessage> WorkDataBase::getDialogConntent(QString companionUserID, QString curUserID)
+{
+    qDebug() << "companionUserID" << companionUserID;
+    qDebug() << "curUserID" << curUserID;
+    QList<ClientMessage> conntents;
+    ClientMessage conntent;
+    QString chatID = getDialogID(companionUserID, curUserID);
+    qDebug() << "chatID" << chatID;
+    QSqlQuery* queryDialogConntent = new QSqlQuery(db);
+    queryDialogConntent ->exec("SELECT messageID, chatID, sender, message, isSystem  FROM Messages where chatID = '" +  chatID + "'");
+    while(queryDialogConntent->next()){
+        conntent.messageID = queryDialogConntent->value(0).toString();
+        conntent.chatID = queryDialogConntent->value(1).toString();
+        conntent.senderID = queryDialogConntent->value(2).toString();
+        conntent.message = queryDialogConntent->value(3).toString();
+        conntent.isSystem = queryDialogConntent->value(4).toString();
+        QSqlQuery* query2 = new QSqlQuery(db);
+        query2->exec("SELECT name FROM User WHERE userID = " + conntent.senderID);
+        query2->next();
+        conntent.senderName = query2->value(0).toString();
+        query2->exec("SELECT isRead FROM MessageStatus where messageID = '" +
+                     conntent.messageID + "' and userID = '" + curUserID + "'");
+        query2->next();
+        conntent.isRead = query2->value(0).toString();
+        if(conntent.isRead == ""){
+            continue;
+        }
+        conntents.append(conntent);
+    }
+    if(conntents.count() < 0){
+
+    }
+    return conntents;
+}
+QString WorkDataBase::getDialogID(QString companionUserID, QString curUserID)
+{
+    QSqlQuery* queryDialog = new QSqlQuery(db);
+    queryDialog ->exec("SELECT p1.chatID FROM (SELECT chatID FROM Participants WHERE participantID = '" + companionUserID + "') p1,"
+                                           + " (SELECT chatID FROM Participants WHERE participantID = '" + curUserID + "') p2,"
+                                           + " (SELECT chatID FROM Chats WHERE type = 'dialog') p3 WHERE p1.chatID = p2.chatID and p1.chatID = p3.chatID");
+    queryDialog->next();
+    return queryDialog->value(0).toString();
 }
 QMap<qintptr, ClientInfo> WorkDataBase::getOnlineUsersInChat(QString chatID)
 {
@@ -262,10 +344,10 @@ QList<ClientChat> WorkDataBase::getFoundChats(QString desired, QString curUserID
     }
     return chats;
 }
-QList<ClientInfo> WorkDataBase::getFoundUsers(QString desired)
+QList<ClientInfo> WorkDataBase::getFoundUsers(QString desired, QString curUserID)
 {
     QSqlQuery* query = new QSqlQuery(db);
-    query->exec("SELECT userID, login, name FROM User where name LIKE '%" + desired +  "%'");
+    query->exec("SELECT userID, login, name FROM User where name LIKE '%" + desired +  "%' and userID != " + curUserID);
     QList<ClientInfo> users;
     while(query->next()){
         ClientInfo user;

@@ -15,9 +15,11 @@ class MainProcess: public Process
     void sendingFoundUsers(QString searchedUser, QString signal);
     void sendingFoundChats(QString searchedUser);
     void sendingChatContent(QString chatID);
+    void sendingDialogContent(QString companionUserID);
     void sendingMessage(ClientMessage message);
 
     void createChat(ClientChat chat);
+    void sendMessageInNewDialog(ClientMessage message);
     ClientMessage saveMessage(ClientMessage message);
     void sendOnlineUsersInChat(QString signal, QString chatID, auto message);
     void sendOnlineUsersInChatExceptMe(QString signal, QString chatID, auto  message);

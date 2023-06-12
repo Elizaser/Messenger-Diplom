@@ -5,22 +5,25 @@ Process::Process(WorkDataBase* db)
     this->db = db;
 }
 
-void Process::sockWrite(QTcpSocket* socket, QString process, QString signal)
+QByteArray Process::generateData(QString process, QString signal)
 {
     QByteArray data = "{\"process\":\"" +  process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\"}";
-    emit writeSocketInProcess(socket, data);
+    qDebug() << "data1 = " << data;
+    return data;
 }
 
-void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QString message)
+QByteArray Process::generateData(QString process, QString signal, QString message)
 {
     QByteArray data = "{\"process\":\"" +  process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\", " + message.toLocal8Bit() + "}";
-    emit writeSocketInProcess(socket, data);
+    qDebug() << "data2 = " << data;
+    return data;
 }
 
-void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientChat> chats)
+QByteArray Process::generateData(QString process, QString signal, QList<ClientChat> chats)
 {
+    QByteArray data = "";
     if(chats.size() > 0) {
-        QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\", \"chats\":[";
+        data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\", \"chats\":[";
         for(auto & chat : chats) {
             data.append("{\"chatID\":\"" + chat.chatID +
                         "\", \"userCreator\":\"" + chat.userCreator
@@ -38,34 +41,35 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QLi
         data.remove(data.length()-1,1);
 //        data.remove(data.length()-1,1);
         data.append("]}");
-        emit writeSocketInProcess(socket, data);
     } else {
-        sockWrite(socket, process, signal,
+        data = generateData(process, signal,
                   "\"chat\":\"-1\"");
     }
+    qDebug() << "data chats = " << data;
+    return data;
 }
-void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, ClientChat chat)
+QByteArray Process::generateData(QString process, QString signal, ClientChat chat)
 {
-        QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit()
-                        + "\", \"chatID\":\"" + chat.chatID.toLocal8Bit()
-                        + "\", \"userCreator\":\"" + chat.userCreator.toLocal8Bit()
-                        + "\", \"name\":\"" + chat.name.toLocal8Bit()
-                        + "\",  \"countIsNotReadMessages\":\"" + chat.countIsNotReadMessages.toLocal8Bit()
-                        + "\",  \"countIsLook\":\"" + chat.countIsLook.toLocal8Bit()
-                        + "\",  \"type\":\"" + chat.type.toLocal8Bit()
-                        + "\", \"participants\":[";
-        for(auto & participant : chat.participants){
-            data.append("{\"participant\":\"" + participant + "\"},");
-        }
-        data.remove(data.length()-1,1);
-        data.append("]}");
-        qDebug() << "in sockWrite chat";
-        emit writeSocketInProcess(socket, data);
+    QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit()
+                    + "\", \"chatID\":\"" + chat.chatID.toLocal8Bit()
+                    + "\", \"userCreator\":\"" + chat.userCreator.toLocal8Bit()
+                    + "\", \"name\":\"" + chat.name.toLocal8Bit()
+                    + "\",  \"countIsNotReadMessages\":\"" + chat.countIsNotReadMessages.toLocal8Bit()
+                    + "\",  \"countIsLook\":\"" + chat.countIsLook.toLocal8Bit()
+                    + "\",  \"type\":\"" + chat.type.toLocal8Bit()
+                    + "\", \"participants\":[";
+    for(auto & participant : chat.participants){
+        data.append("{\"participant\":\"" + participant + "\"},");
+    }
+    data.remove(data.length()-1,1);
+    data.append("]}");
+    return data;
 }
-void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientMessage> conntents)
+QByteArray Process::generateData(QString process, QString signal, QList<ClientMessage> conntents)
 {
+    QByteArray data = "";
     if(conntents.size() > 0) {
-        QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\", \"conntents\":[";
+        data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\", \"conntents\":[";
 
         for(auto & conntent : conntents) {
             data.append("{\"messageID\":\"" + conntent.messageID
@@ -79,31 +83,30 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QLi
         }
         data.remove(data.length()-1,1);
         data.append("]}");
-         qDebug() << "in sockWrite messages";
-        emit writeSocketInProcess(socket, data);
     } else {
-        sockWrite(socket, process, signal,
+        data = generateData(process, signal,
                   "\"conntent\":\"-1\"");
     }
+    return data;
 }
-void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, ClientMessage conntent)
+QByteArray Process::generateData(QString process, QString signal, ClientMessage conntent)
 {
-        QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit()
-                        + "\", \"messageID\":\"" + conntent.messageID.toLocal8Bit()
-                        + "\", \"chatID\":\"" + conntent.chatID.toLocal8Bit()
-                        + "\", \"senderID\":\"" + conntent.senderID.toLocal8Bit()
-                        + "\", \"senderName\":\"" + conntent.senderName.toLocal8Bit()
-                        + "\", \"isRead\":\"" + conntent.isRead.toLocal8Bit()
-                        + "\", \"isSystem\":\"" + conntent.isSystem.toLocal8Bit()
-                        + "\", \"message\":\"" + conntent.message.toLocal8Bit() +"\"}";
-        qDebug() << "in sockWrite message";
-        emit writeSocketInProcess(socket, data);
+    QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit()
+                    + "\", \"messageID\":\"" + conntent.messageID.toLocal8Bit()
+                    + "\", \"chatID\":\"" + conntent.chatID.toLocal8Bit()
+                    + "\", \"senderID\":\"" + conntent.senderID.toLocal8Bit()
+                    + "\", \"senderName\":\"" + conntent.senderName.toLocal8Bit()
+                    + "\", \"isRead\":\"" + conntent.isRead.toLocal8Bit()
+                    + "\", \"isSystem\":\"" + conntent.isSystem.toLocal8Bit()
+                    + "\", \"message\":\"" + conntent.message.toLocal8Bit() +"\"}";
+    return data;
 }
-void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QList<ClientInfo> clientInfos)
+QByteArray Process::generateData(QString process, QString signal, QList<ClientInfo> clientInfos)
 {
+    QByteArray data = "";
     if(clientInfos.size() > 0) {
-        QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\", \"foundUsers\":[";
-
+        qDebug() << "data clients 00 = " << data;
+        data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\", \"foundUsers\":[";
         for(auto & clientInfo : clientInfos) {
             data.append("{\"login\":\"" + clientInfo.login +
                         "\", \"name\":\"" + clientInfo.name +
@@ -111,20 +114,35 @@ void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, QLi
         }
         data.remove(data.length()-1,1);
         data.append("]}");
-        emit writeSocketInProcess(socket, data);
     } else {
-        sockWrite(socket, process, signal, "\"foundUser\":\"-1\"");
+        qDebug() << "data clients 01 = " << data;
+        data = generateData(process, signal, "\"foundUser\":\"-1\"");
     }
+    qDebug() << "data clients = " << data;
+    return data;
 }
-void Process::sockWrite(QTcpSocket* socket, QString process, QString signal, ClientInfo clientInfo)
+QByteArray Process::generateData(QString process, QString signal, ClientInfo clientInfo)
 {
     QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() +
                     + "\", \"login\":\"" + clientInfo.login.toLocal8Bit()
                     + "\", \"name\":\"" + clientInfo.name.toLocal8Bit()
                     + "\", \"userID\":\"" + clientInfo.userID.toLocal8Bit() + "\"}";
-    emit writeSocketInProcess(socket, data);
+    return data;
 }
+QByteArray Process::generateData(QString process, QString signal, QList<ClientMessage> conntents, QString dopMessage)
+{
+    QByteArray data  = generateData(process, signal, conntents);
+    data.remove(data.length()-1,1).append(", ");
+    data.append(dopMessage);
+    data.append("}");
+    qDebug() << "super data = " << data;
+    return data;
+}
+void Process::sockWrite(QTcpSocket* socket, QByteArray data)
+{
+    emit writeSocketInProcess(socket, data);
 
+}
 void Process::printClientInfo(QString header, ClientInfo clientInfo)
 {
     qDebug()<< header;
