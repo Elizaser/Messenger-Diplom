@@ -44,10 +44,17 @@ void MainWindow::sockReady(DataParsing messageFromServer)
         } else if(signal == "searchChats") {
             setSearchChats(messageFromServer.getChats());
         } else if(signal == "setChatContent") {
-                int i = searchChatByID(messageFromServer.getChatID());
-                if(i != -1) {
-                    curChat = chats[i];
-                }
+            qDebug () << "signal setContent messageFromServer.getChatID() =  " << messageFromServer.getChatID();
+            int i = searchChatByID(messageFromServer.getChat().chatID);
+            qDebug () << "signal setContent i =  " << i;
+            if(i == -1 && messageFromServer.getChat().chatID != ""){
+                setNewChat(messageFromServer.getChat());
+            }
+            if(i != -1) {
+                chats[i].countIsNotReadMessages = "0";
+                curChat = chats[i];
+                qDebug () << "signal setContent curChat =  " << curChat.name;
+            }
             setChatContent(messageFromServer.getChatContent());
         } else if(signal == "newMessage") {
             setNewMessage(messageFromServer.getMessage());
@@ -56,6 +63,10 @@ void MainWindow::sockReady(DataParsing messageFromServer)
         } else if(signal == "updateMessage") {
             updateMessage(messageFromServer.getMessageID(), messageFromServer.getMessageText());
         } else if(signal == "newChat") {
+            setNewChat(messageFromServer.getChat());
+        } else if(signal == "newDialog") {
+            curChat = messageFromServer.getChat();
+            qDebug () << "signal newDialog curChat =  " << curChat.name;
             setNewChat(messageFromServer.getChat());
         } else if(signal == "deleteParticipant") {
 //            deleteParticipant(messageFromServer.getUser());
@@ -72,7 +83,8 @@ void MainWindow::sockReady(DataParsing messageFromServer)
                 ui->tableWidget_chatWindow->setItem(i, 4, new QTableWidgetItem("VV"));
             }
         } else if(signal == "setCurChat") {
-//            curChat = messageFromServer.getChat();
+//            int i = searchChatByID( messageFromServer.getChatID());
+//            curChat = chats[i];
         } else {
             qDebug() << "Информация(MainWindow)\n" <<  "Ошибка с форматом передачи данных";
         }
@@ -103,7 +115,7 @@ void MainWindow:: clickChatList(int i, int  j)
         if(j == 0){
             ui->tableWidget_chatWindow->clear();
             curChat = chats[i];
-//            qDebug() << "chat i = " << i  << " countIsNotReadMessages" << chats[i].countIsNotReadMessages;
+            qDebug() << "clickChatList curChat = " << curChat.name;
             ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(curChat.name));
             ui->label_chatName->setText(chats[i].name);
             sockWrite("main", "getChatContent", "\"chatID\":\"" + curChat.chatID.toLocal8Bit() + "\"");
@@ -182,6 +194,8 @@ void MainWindow::clickedEdditMessage(int i)
 
 void MainWindow::setNewChat(UserChat chat)
 {
+    qDebug() << "setNewChat chat.countIsNotReadMessages = " << chat.countIsNotReadMessages;
+    qDebug() << "setNewChat chat.countIsLook = " << chat.countIsLook;
     chats.append(chat);
     showNewChat(chat);
 
@@ -212,6 +226,8 @@ void MainWindow::setNewMessage(UserMessage message)
     } else {
         curChatContent.append(message);
         showNewMessage(message);
+        qDebug() << "message.senderID = " << message.senderID;
+        qDebug() << "userInfo.userID = " << userInfo.userID;
         if(message.senderID != userInfo.userID)
             sockWrite("main", "isReadingMessage", "\"chatID\":\""
                       + message.chatID + "\"");
@@ -281,6 +297,7 @@ void MainWindow::setUserInfo(UserInfo userInfo)
 }
 void MainWindow::setUserChats(QList<UserChat> chats)
 {
+
     this->chats = chats;
     showListChats("Мои чаты");
 
@@ -360,7 +377,8 @@ void MainWindow::showListChats(QString headerLabel)
         if(chats[i].countIsLook == "0") break;
         ui->tableWidget_chatsList->insertRow(i);
         QString nameChat = chats.at(i).name;
-        if(chats[i].countIsNotReadMessages.toInt() > 0) {
+        qDebug() << "showListChats chats[i].countIsNotReadMessages"  << chats[i].countIsNotReadMessages;
+        if(chats[i].countIsNotReadMessages != "0") {
             nameChat += " " + chats.at(i).countIsNotReadMessages;
         }
         ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(nameChat));
@@ -440,10 +458,14 @@ void MainWindow::showNewMessage(UserMessage message)
 }
 void MainWindow::showNewChat(UserChat chat)
 {
+    qDebug() << "showNewChat chat.countIsNotReadMessages = " << chat.countIsNotReadMessages;
     int rowCount  =  ui->tableWidget_chatsList->rowCount();
     if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Мои чаты") {
         ui->tableWidget_chatsList->insertRow(rowCount);
-        ui->tableWidget_chatsList->setItem(rowCount, 0, new QTableWidgetItem(chat.name + " " + chat.countIsNotReadMessages));
+        QString countIsNotReadMessages = "";
+        if(chat.countIsNotReadMessages != "0")
+            countIsNotReadMessages = chat.countIsNotReadMessages;
+        ui->tableWidget_chatsList->setItem(rowCount, 0, new QTableWidgetItem(chat.name + " " + countIsNotReadMessages));
         ui->tableWidget_chatsList->setItem(rowCount, 1, new QTableWidgetItem("Очистить"));
         QString out = "";
         if(chat.type == "group")
@@ -496,7 +518,6 @@ void MainWindow::on_pushButton_sendReply_clicked()
                 message.senderID = curUser.userID;
                 message.senderName = curUser.name;
                 sockWrite("main", "sendMessageInNewDialog", message);
-//                sockWrite("main", "createDialog", "\"userID\":\"" + curUser.userID + "\"");
             } else {
                 sockWrite("main", "sendMessage", message);
             }

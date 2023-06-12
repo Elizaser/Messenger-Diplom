@@ -52,8 +52,9 @@ bool WorkDataBase::isClientExist(QString login)
 
 ClientMessage WorkDataBase::insertMessage(ClientMessage message)
 {
+
     QSqlQuery* query = new QSqlQuery(db);
-    if(query->exec( "INSERT INTO Messages (`chatID`, `sender`, `message`, `isSystem` ) VALUES ('"
+    if(query->exec( "INSERT INTO Messages (`chatID`, `sender`, `message`, `isSystem`) VALUES ('"
                     + message.chatID + "', '" + message.senderID + "', '" + message.message + "', '" + message.isSystem + "')"))
     {
         query->exec( "SELECT messageID FROM `Messages` ORDER BY messageID DESC");
@@ -64,6 +65,10 @@ ClientMessage WorkDataBase::insertMessage(ClientMessage message)
                             message.chatID + "'");
         message.isRead = "0";
         while(query2->next()) {
+//            if(message.senderID == query2->value(0).toString())
+//                message.isRead = "1";
+//            else
+//                message.isRead = "0";
 //            if(query2->value(0).toString() == message.senderID) message.isRead = "1";
             if(query->exec( "INSERT INTO `MessageStatus` (`messageID`, `userID`, `isRead`) VALUES ('"
                             + message.messageID + "', '" + query2->value(0).toString() + "', '" + message.isRead + "')")){
@@ -201,14 +206,14 @@ QList<ClientChat> WorkDataBase::getUserChats(QString userID)
             chat.participants.append(query2->value(0).toString());
         }
 
-        query2->exec("SELECT messageID FROM Messages where chatID = '" +  chat.chatID + "'");
+        query2->exec("SELECT messageID, sender FROM Messages where chatID = '" +  chat.chatID + "'");
         int countIsLook = 0;
         int countIsNotReadMessages = 0;
         while(query2->next()){
             QSqlQuery* query3 = new QSqlQuery(db);
             query3->exec("SELECT isRead FROM MessageStatus where messageID = '" +  query2->value(0).toString() + "' and userID = '" + userID + "'");
             query3->next();
-            if(query3->value(0).toString() == "0"){
+            if(query3->value(0).toString() == "0" && query2->value(1).toString() != userID){
                 countIsNotReadMessages++;
             } else if(query3->value(0).toString() == ""){
                 countIsLook--;

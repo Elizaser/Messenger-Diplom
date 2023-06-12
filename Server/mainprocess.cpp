@@ -107,9 +107,9 @@ void MainProcess:: sendingChatContent(QString chatID)
 void MainProcess::sendingDialogContent(QString companionUserID)
 {
     QString chatID = db->getDialogID(companionUserID, curClientInfo.userID);
-//    ClientChat chat = db->getChat(chatID, curClientInfo.userID);
     QList<ClientMessage> conntents = db->getDialogConntent(companionUserID, curClientInfo.userID);
-    sockWrite(socket, generateData("main", "setChatContent", conntents, "\"chatID\":\"" + chatID + "\""));
+    ClientChat chat = db->getChat(chatID, curClientInfo.userID);
+    sockWrite(socket, generateData("main", "setChatContent", conntents, chat));
 }
 void MainProcess::sendingMessage(ClientMessage message)
 {
@@ -166,8 +166,10 @@ void MainProcess::sendMessageInNewDialog(ClientMessage message)
     }
     qDebug() << "chat.chatID = " << chat.chatID;
 //    sockWrite(socket, "main", "setCurChat", chat);
-    sendOnlineUsersInChat("newChat", chat.chatID, chat);
+    qDebug() << "chat.countIsNotReadMessages  = " << chat.countIsNotReadMessages;
+    sendOnlineUsersInChat("newDialog", chat.chatID, chat);
     message.chatID = chat.chatID;
+//    sockWrite(socket, generateData("main", "setCurChat", "\"chatID\":\"" + message.chatID + "\""));
     sendingMessage(message);
 }
 void MainProcess:: deleteChat(QString chatID)

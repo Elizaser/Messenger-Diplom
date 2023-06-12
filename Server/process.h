@@ -21,7 +21,7 @@ protected:
     QByteArray generateData(QString process, QString signal, ClientMessage conntent);
     QByteArray generateData(QString process, QString signal, QList<ClientInfo> clientInfos);
     QByteArray generateData(QString process, QString signal, ClientInfo clientInfo);
-    QByteArray generateData(QString process, QString signal, QList<ClientMessage> conntents, QString dopMessage);
+    QByteArray generateData(QString process, QString signal, QList<ClientMessage> conntents, ClientChat chat);
     void sockWrite(QTcpSocket* socket, QByteArray data);
     void printClientInfo(QString header, ClientInfo clientInfo);
 public:

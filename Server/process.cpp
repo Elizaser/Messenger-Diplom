@@ -129,12 +129,26 @@ QByteArray Process::generateData(QString process, QString signal, ClientInfo cli
                     + "\", \"userID\":\"" + clientInfo.userID.toLocal8Bit() + "\"}";
     return data;
 }
-QByteArray Process::generateData(QString process, QString signal, QList<ClientMessage> conntents, QString dopMessage)
+QByteArray Process::generateData(QString process, QString signal, QList<ClientMessage> conntents, ClientChat chat)
 {
     QByteArray data  = generateData(process, signal, conntents);
     data.remove(data.length()-1,1).append(", ");
-    data.append(dopMessage);
-    data.append("}");
+
+    data += "\"chatID\":\"" + chat.chatID.toLocal8Bit()
+                    + "\", \"userCreator\":\"" + chat.userCreator.toLocal8Bit()
+                    + "\", \"name\":\"" + chat.name.toLocal8Bit()
+                    + "\",  \"countIsNotReadMessages\":\"" + chat.countIsNotReadMessages.toLocal8Bit()
+                    + "\",  \"countIsLook\":\"" + chat.countIsLook.toLocal8Bit()
+                    + "\",  \"type\":\"" + chat.type.toLocal8Bit()
+                    + "\", \"participants\":[";
+    for(auto & participant : chat.participants){
+        data.append("{\"participant\":\"" + participant + "\"},");
+    }
+    if(chat.participants.size() > 0){
+        data.remove(data.length()-1,1);
+    }
+    data.append("]}");
+
     qDebug() << "super data = " << data;
     return data;
 }
