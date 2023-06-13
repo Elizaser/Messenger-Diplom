@@ -116,6 +116,8 @@ QByteArray Process::generateData(QString process, QString signal, QList<ClientIn
         for(auto & clientInfo : clientInfos) {
             data.append("{\"login\":\"" + clientInfo.login +
                         "\", \"name\":\"" + clientInfo.name +
+                        "\", \"status\":\"" + clientInfo.status +
+                        "\", \"statusInLine\":\"" + clientInfo.statusInLine +
                         "\", \"userID\":\"" + clientInfo.userID +"\"},");
         }
         data.remove(data.length()-1,1);
@@ -131,7 +133,10 @@ QByteArray Process::generateData(QString process, QString signal, ClientInfo cli
 {
     QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() +
                     + "\", \"login\":\"" + clientInfo.login.toLocal8Bit()
+                    + "\", \"password\":\"" + clientInfo.password.toLocal8Bit()
                     + "\", \"name\":\"" + clientInfo.name.toLocal8Bit()
+                    + "\", \"status\":\"" + clientInfo.status.toLocal8Bit()
+                    + "\", \"statusInLine\":\"" + clientInfo.statusInLine.toLocal8Bit()
                     + "\", \"userID\":\"" + clientInfo.userID.toLocal8Bit() + "\"}";
     return data;
 }

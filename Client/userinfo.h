@@ -8,5 +8,7 @@ public:
     QString name;
     QString login;
     QString password;
+    QString status;
+    QString statusInLine;
 };
 #endif // USERINFO_H

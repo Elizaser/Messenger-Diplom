@@ -12,6 +12,8 @@
 #include "userinfo.h"
 #include "usermessage.h"
 #include "createchat.h"
+#include "userlook.h"
+#include "usersettings.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -33,8 +35,10 @@ signals:
 public slots:
     void sockReady(DataParsing messageFromServer);
 private slots:
-    void searchChatList();
     void quit();
+    void lookSelfUser();
+    void settingsSelfUser();
+    void searchChatList();
     void clickChatList(int i, int j);
     void clickedDeleteChat(int i, QString signal);
     void clickChatWindow(int i, int j);
@@ -61,7 +65,7 @@ private:
     Ui::MainWindow *ui;
     QTcpSocket* socket;
 
-    UserInfo userInfo;
+    UserInfo curUserInfo;
     QList<UserChat> allChats;
     QList<UserChat> deleteChats;
     QList<UserInfo> users;
@@ -73,7 +77,7 @@ private:
     CreateChat* createChat;
 
 
-    void setUserInfo(UserInfo userInfo);
+    void setUserInfo(UserInfo curUserInfo);
     void setUserChats(QList<UserChat> chat);
     void renameDialogOnNameCompanion();
     void setAllUsers(QList<UserInfo> users);
@@ -84,6 +88,7 @@ private:
     void setNewChat(UserChat chat);
     void setUsersInWindowCreateChat(QList<UserInfo> users);
     void updateIsReadingMessages(QString chatID);
+    void updateEdditUser(UserInfo user);
 
     void showListChats(QString headerLabel);
     void showUsers(QString headerLabel);
@@ -95,7 +100,7 @@ private:
     void deleteMessage(UserMessage message);
     void deleteChat(QString chatID);
     void updateMessage(QString messageID, QString message);
-    void deleteParticipant(UserInfo userInfo);
+    void deleteParticipant(UserInfo curUserInfo);
     int searchChatByID(QList<UserChat> chats, QString chatID);
     int searchMessageByID(QList<UserMessage> messages, QString messageID);
     int searchUserByID(QList<UserInfo> users, QString userID);

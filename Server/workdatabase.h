@@ -32,6 +32,8 @@ public:
 
     QList<ClientInfo> getFoundUsers(QString desired, QString curUserID);
     QList<ClientChat> getFoundChats(QString desired, QString curUserID);
+    QMap<qintptr, ClientInfo> getOnlineUsersInChat(QString chatID);
+    QMap<qintptr, ClientInfo> getOnlineUsers();
 
     ClientMessage insertMessage(ClientMessage message);
     ClientChat insertChat(ClientChat chat);
@@ -39,7 +41,6 @@ public:
 
     bool isCorrectInfoClient(QString login, QString password);
     bool isClientExist(QString login);
-    QMap<qintptr, ClientInfo> getOnlineUsersInChat(QString chatID);
 
     bool deleteChat(QString chatID, QString userID);
     bool exitChat(QString chatID, QString userID);
@@ -48,6 +49,7 @@ public:
 
     bool updateUserIsReadingMessages(QString chatID, QString curUserID);
     bool updateMessageEddit(ClientMessage message);
+    bool updateUser(ClientInfo client);
 };
 
 #endif // WORKDATABASE_H

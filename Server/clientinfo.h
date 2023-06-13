@@ -9,6 +9,8 @@ public:
     QString login;
     QString password;
     QString name;
+    QString status;
+    QString statusInLine;
 };
 
 #endif // CLIENTINFO_H

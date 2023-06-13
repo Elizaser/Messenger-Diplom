@@ -41,6 +41,8 @@ UserInfo DataParsing::getUser()
     userInfo.name = jDoc.object().value("name").toString();
     userInfo.login = jDoc.object().value("login").toString();
     userInfo.password = jDoc.object().value("password").toString();
+    userInfo.status = jDoc.object().value("status").toString();
+    userInfo.statusInLine = jDoc.object().value("statusInLine").toString();
     return userInfo;
 }
 
@@ -55,6 +57,8 @@ QList<UserInfo>  DataParsing::getUsers()
             foundUser.userID = jsFoundUsers[i].toObject().value("userID").toString();
             foundUser.login = jsFoundUsers[i].toObject().value("login").toString();
             foundUser.name = jsFoundUsers[i].toObject().value("name").toString();
+            foundUser.status = jsFoundUsers[i].toObject().value("status").toString();
+            foundUser.statusInLine = jsFoundUsers[i].toObject().value("statusInLine").toString();
             foundUsers.append(foundUser);
         }
     }

@@ -16,6 +16,8 @@ MainWindow::MainWindow(QTcpSocket* socket, QWidget *parent)
     connect(ui->tableWidget_chatsList, SIGNAL(cellClicked(int, int)), SLOT(clickChatList(int, int )));
     connect(ui->tableWidget_chatWindow, SIGNAL(cellClicked(int, int)), SLOT(clickChatWindow(int, int)));
     connect(ui->action_quit, SIGNAL(triggered(bool)),this,  SLOT(quit()));
+    connect(ui->action_look, SIGNAL(triggered(bool)),this,  SLOT(lookSelfUser()));
+    connect(ui->action_settings, SIGNAL(triggered(bool)),this,  SLOT(settingsSelfUser()));
 
     ui->tableWidget_chatsList->setShowGrid(false);
     ui->tableWidget_chatWindow->setShowGrid(false);
@@ -75,7 +77,8 @@ void MainWindow::sockReady(DataParsing messageFromServer)
             setUsersInWindowCreateChat(messageFromServer.getUsers());
         } else if(signal == "updateIsReadingMessages") {
             updateIsReadingMessages(messageFromServer.getChatID());
-        } else if(signal == "setCurChat") {
+        } else if(signal == "updateEdditUser") {
+            updateEdditUser(messageFromServer.getUser());
 //            int i = searchChatByID( messageFromServer.getChatID());
 //            curChat = chats[i];
         } else {
@@ -90,14 +93,26 @@ void MainWindow::sockReady(DataParsing messageFromServer)
 
 void MainWindow::quit()
 {
-    userInfo.login = "";
-    userInfo.name = "";
-    userInfo.password = "";
+    curUserInfo.login = "";
+    curUserInfo.name = "";
+    curUserInfo.password = "";
 
     this->close();
     emit openWindow();
 }
 
+void MainWindow::lookSelfUser()
+{
+    UserLook *userLook = new UserLook(curUserInfo);
+    userLook->show();
+}
+void MainWindow::settingsSelfUser()
+{
+    qDebug() << "settingsSelfUser curUserInfo.userID" << curUserInfo.userID;
+    UserSettings *userSettings = new UserSettings(curUserInfo);
+    connect(userSettings, SIGNAL(sockWrite(QString,QString, UserInfo)), this, SLOT(sockWrite(QString, QString, UserInfo)));
+    userSettings->show();
+}
 
 
 void MainWindow:: clickChatList(int i, int  j)
@@ -124,10 +139,12 @@ void MainWindow:: clickChatList(int i, int  j)
         }
     } else {
         curUser = users[i];
-        clearChatWindow();
         if(j == 0) {
-
+            UserLook *user = new UserLook(curUser);
+            user->show();
         } else if(j == 1) {
+            clearChatWindow();
+            ui->label_chatName->setText(curUser.name);
             sockWrite("main", "getDialogContent", "\"userID\":\"" + curUser.userID.toLocal8Bit() + "\"");
         }
 //        QMessageBox::information(this, "Информация(MainWindow)", "Пока это поле недоступно");
@@ -170,7 +187,7 @@ void MainWindow::clickedDeleteMessage(int i)
     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     QCheckBox* cb = new QCheckBox("&Удалить для всех");
     cb->setChecked(false);
-    if(curChatContent.at(i).senderID == userInfo.userID){
+    if(curChatContent.at(i).senderID == curUserInfo.userID){
         msgBox.setCheckBox(cb);
     }
     msgBox.setIcon(QMessageBox::NoIcon);
@@ -181,7 +198,12 @@ void MainWindow::clickedDeleteMessage(int i)
         if(cb->isChecked()) {
             sockWrite("main", "messageDeleteForEveryone", curChatContent.at(i));
         } else {
-            sockWrite("main", "messageDelete", curChatContent.at(i));
+            if(curChatContent.count() == 1) { // если осталось последнее сообщение, затираем чат
+                i = searchChatByID(allChats, curChatContent.at(i).chatID);
+                clickedDeleteChat(i, "deleteChat");
+            }
+            else
+                sockWrite("main", "messageDelete", curChatContent.at(i));
         }
     }
 }
@@ -231,8 +253,8 @@ void MainWindow::setNewMessage(UserMessage message)
         curChatContent.append(message);
         showNewMessage(message);
         qDebug() << "message.senderID = " << message.senderID;
-        qDebug() << "userInfo.userID = " << userInfo.userID;
-        if(message.senderID != userInfo.userID)
+        qDebug() << "userInfo.userID = " << curUserInfo.userID;
+        if(message.senderID != curUserInfo.userID)
             sockWrite("main", "isReadingMessage", "\"chatID\":\""
                       + message.chatID + "\"");
     }
@@ -295,7 +317,7 @@ int MainWindow::searchUserByID(QList<UserInfo> users, QString userID)
 
 void MainWindow::setUserInfo(UserInfo userInfo)
 {
-    this->userInfo = userInfo;
+    this->curUserInfo = userInfo;
     sockWrite("main", "setUserInfo", "\"login\":\"" +
               userInfo.login + "\", \"password\":\"" +
               userInfo.password + "\"");
@@ -311,7 +333,7 @@ void MainWindow::renameDialogOnNameCompanion(){
     for(auto&chat:allChats){
         if(chat.type == "dialog"){
             foreach (auto key, chat.participants.keys()){
-                if(key != userInfo.userID)
+                if(key != curUserInfo.userID)
                     chat.name = chat.participants.value(key);
             }
         }
@@ -380,7 +402,7 @@ void MainWindow::clearChatWindow()
 
 void MainWindow::setUsersInWindowCreateChat(QList<UserInfo> users)
 {
-    int i = searchUserByID(users, userInfo.userID);
+    int i = searchUserByID(users, curUserInfo.userID);
     users.removeAt(i);
     createChat->setAllUsers(users);
 }
@@ -391,6 +413,16 @@ void MainWindow::updateIsReadingMessages(QString chatID)
         if(curChatContent[i].isRead == "1") break;
         curChatContent[i].isRead = "1";
         ui->tableWidget_chatWindow->setItem(i, 4, new QTableWidgetItem("VV"));
+    }
+}
+void MainWindow:: updateEdditUser(UserInfo user)
+{
+    if(user.userID == curUserInfo.userID){
+        curUserInfo = user;
+    } else{
+        int i = searchUserByID(users, user.userID);
+        if(i != -1)
+            users[i] = user;
     }
 }
 
@@ -426,16 +458,17 @@ void MainWindow::showUsers(QString headerLabel)
 {
     ui->tableWidget_chatsList-> clear();
     ui->tableWidget_chatsList->setRowCount(0);
-    ui->tableWidget_chatsList->setColumnCount(2);
+    ui->tableWidget_chatsList->setColumnCount(3);
 
     QStringList horzHeaders;
-    horzHeaders << headerLabel << "";
+    horzHeaders << headerLabel << "" << "";
     ui->tableWidget_chatsList->setHorizontalHeaderLabels(horzHeaders);
 
     for(int i = 0; i < users.count(); i++){
         ui->tableWidget_chatsList->insertRow(i);
         ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(users.at(i).name));
         ui->tableWidget_chatsList->setItem(i, 1, new QTableWidgetItem("написать"));
+        ui->tableWidget_chatsList->setItem(i, 2, new QTableWidgetItem(users.at(i).statusInLine));
     }
 }
 void MainWindow::showChatContents(QList<UserMessage> conntents)
@@ -455,7 +488,7 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
             text = "удалить";
         ui->tableWidget_chatWindow->setItem(i, 2, new QTableWidgetItem(text));
         text = "";
-        if(conntents.at(i).senderID == userInfo.userID &&
+        if(conntents.at(i).senderID == curUserInfo.userID &&
                 conntents.at(i).isSystem != "1"){
             text ="ред.";
         }
@@ -478,7 +511,7 @@ void MainWindow::showNewMessage(UserMessage message)
     ui->tableWidget_chatWindow->setItem(rowCount, 2, new QTableWidgetItem("удалить"));
 
     QString red = "";
-    if(message.senderID == userInfo.userID)
+    if(message.senderID == curUserInfo.userID)
         red = "редактировать";
     ui->tableWidget_chatWindow->setItem(rowCount, 3, new QTableWidgetItem(red));
     QString text = "";
@@ -505,24 +538,6 @@ void MainWindow::showNewChat(UserChat chat)
         ui->tableWidget_chatsList->setItem(rowCount, 2, new QTableWidgetItem(out));
     }
 }
-void MainWindow::deleteParticipant(UserInfo userInfo)
-{
-//    int rowCount = ui->tableWidget_chatWindow->rowCount();
-//    for(auto&message:messages){
-//        curChatContent.append(message);
-//        ui->tableWidget_chatWindow->insertRow(rowCount);
-//        ui->tableWidget_chatWindow->setItem(rowCount, 0, new QTableWidgetItem(message.senderName));
-//        ui->tableWidget_chatWindow->setItem(rowCount, 1, new QTableWidgetItem(message.message));
-//        ui->tableWidget_chatWindow->setItem(rowCount, 2, new QTableWidgetItem("удалить"));
-//        QString text = "";
-//        if(message.senderID == userInfo.userID){
-//            text+="ред.";
-//        }
-//        ui->tableWidget_chatWindow->setItem(rowCount, 3, new QTableWidgetItem(text));
-//    }
-}
-
-
 
 void MainWindow::on_pushButton_createChat_clicked()
 {
@@ -539,8 +554,8 @@ void MainWindow::on_pushButton_sendReply_clicked()
     if(ui->pushButton_sendReply->text() == "Отправить"){
         UserMessage message;
         message.chatID = curChat.chatID;
-        message.senderName = userInfo.name;
-        message.senderID = userInfo.userID;
+        message.senderName = curUserInfo.name;
+        message.senderID = curUserInfo.userID;
         QString m = message.message = ui->textEdit_replyBox->toPlainText();
         if(m.remove(' ').remove('\n') == ""){
             return;
@@ -677,6 +692,8 @@ void MainWindow::sockWrite(QString process, QString signal, QList<UserInfo> clie
         for(auto & clientInfo : clientInfos) {
             data.append("{\"login\":\"" + clientInfo.login +
                         "\", \"name\":\"" + clientInfo.name +
+                        "\", \"status\":\"" + clientInfo.status +
+                        "\", \"statusInLine\":\"" + clientInfo.statusInLine +
                         "\", \"userID\":\"" + clientInfo.userID +"\"},");
         }
         data.remove(data.length()-1,1);
@@ -692,7 +709,10 @@ void MainWindow::sockWrite(QString process, QString signal, UserInfo clientInfo)
     QByteArray data = "{\"process\":\"" + process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() +
                     + "\", \"login\":\"" + clientInfo.login.toLocal8Bit()
                     + "\", \"name\":\"" + clientInfo.name.toLocal8Bit()
-                    + "\", \"userID\":\"" + clientInfo.userID.toLocal8Bit() + "\"},";
+                    + "\", \"status\":\"" + clientInfo.status.toLocal8Bit()
+                    + "\", \"password\":\"" + clientInfo.password.toLocal8Bit()
+                    + "\", \"statusInLine\":\"" + clientInfo.statusInLine.toLocal8Bit()
+                    + "\", \"userID\":\"" + clientInfo.userID.toLocal8Bit() + "\"}";
     socket->write(data);
     socket->waitForBytesWritten();
 }

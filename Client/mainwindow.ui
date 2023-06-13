@@ -206,11 +206,9 @@
     <property name="title">
      <string>Профиль</string>
     </property>
-   </widget>
-   <widget class="QMenu" name="menu_settings">
-    <property name="title">
-     <string>Настройки</string>
-    </property>
+    <addaction name="separator"/>
+    <addaction name="action_look"/>
+    <addaction name="action_settings"/>
    </widget>
    <widget class="QMenu" name="menu_quit">
     <property name="title">
@@ -219,13 +217,22 @@
     <addaction name="action_quit"/>
    </widget>
    <addaction name="menu_user"/>
-   <addaction name="menu_settings"/>
    <addaction name="menu_quit"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action_quit">
    <property name="text">
     <string>Выйти</string>
+   </property>
+  </action>
+  <action name="action_look">
+   <property name="text">
+    <string>Просмотреть</string>
+   </property>
+  </action>
+  <action name="action_settings">
+   <property name="text">
+    <string>Настроить</string>
    </property>
   </action>
  </widget>

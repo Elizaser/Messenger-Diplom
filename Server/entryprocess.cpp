@@ -12,6 +12,8 @@ void EntryProcess::sendingData(DataParsing messageFromClient)
     ClientInfo curClientInfo2 = db->getUserInfo(curClientInfo.login);
     curClientInfo.userID = curClientInfo2.userID;
     curClientInfo.name = curClientInfo2.name;
+    curClientInfo.status = curClientInfo2.status;
+
     if(signal == "getStatus") {
         sendingStatus(curClientInfo);
     }
@@ -27,7 +29,7 @@ void EntryProcess::sendingData(DataParsing messageFromClient)
 void EntryProcess:: sendingStatus(ClientInfo curClientInfo)
 {
     if (db->isCorrectInfoClient(curClientInfo.login, curClientInfo.password)) {
-        qDebug()<<"EntryProcess socket = " << socket;
+        qDebug() << "1 entry curClientInfo.userID = " << curClientInfo.userID;
         sockWrite(socket, generateData("entry", "welcome"));
         printClientInfo("Вошел клиент ", curClientInfo);
 
@@ -39,10 +41,7 @@ void EntryProcess:: sendingStatus(ClientInfo curClientInfo)
 
 void EntryProcess:: sendingUserInfo(ClientInfo curClientInfo)
 {
-    sockWrite(socket, generateData("main", "setUserInfo",
-                                   "\"userID\":\"" + curClientInfo.userID +
-                                   "\", \"name\":\"" +  curClientInfo.name +
-                                   "\", \"login\":\"" + curClientInfo.login +
-                                   "\", \"password\":\"" + curClientInfo.password + "\""));
+    qDebug() << "2 entry curClientInfo.userID = " << curClientInfo.userID;
+    sockWrite(socket, generateData("main", "setUserInfo", curClientInfo));
 }
 

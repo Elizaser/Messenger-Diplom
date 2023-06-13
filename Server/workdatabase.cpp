@@ -147,10 +147,17 @@ ClientInfo WorkDataBase::getUserInfo(QString login)
 {
     ClientInfo clientInfo;
     QSqlQuery* query = new QSqlQuery(db);
-    query->exec("SELECT userID, name FROM User where login = '" + login + "'");
+    query->exec("SELECT userID, name, status FROM User where login = '" + login + "'");
     query->next();
     clientInfo.userID = query->value(0).toString();
     clientInfo.name = query->value(1).toString();
+    clientInfo.status = query->value(2).toString();
+    query->exec("SELECT userID FROM UsersOnline where userID = '" + clientInfo.userID + "'");
+    query->next();
+    if(query->value(0).toString() == "")
+        clientInfo.statusInLine = "Offline";
+    else
+        clientInfo.statusInLine = "Online";
     return clientInfo;
 }
 ClientChat WorkDataBase::getChat(QString chatID, QString userID)
@@ -313,7 +320,6 @@ QString WorkDataBase::getDialogID(QString companionUserID, QString curUserID)
 }
 QMap<qintptr, ClientInfo> WorkDataBase::getOnlineUsersInChat(QString chatID)
 {
-
     QMap<qintptr, ClientInfo> users;
     QSqlQuery* query1 = new QSqlQuery(db);
     query1->exec("SELECT participantID FROM Participants where chatID = '" + chatID + "'");
@@ -336,6 +342,25 @@ QMap<qintptr, ClientInfo> WorkDataBase::getOnlineUsersInChat(QString chatID)
             user.userID = query3->value(1).toString();
             users.insert(socketID, user);
         }
+    }
+    return users;
+}
+QMap<qintptr, ClientInfo> WorkDataBase::getOnlineUsers()
+{
+    QMap<qintptr, ClientInfo> users;
+    QSqlQuery* query = new QSqlQuery(db);
+
+    query->exec("SELECT userID, socket FROM UsersOnline");
+    while(query->next()) {
+        ClientInfo user;
+        qintptr socketID;
+        user.userID = query->value(0).toString();
+        socketID = query->value(1).toInt();
+        QSqlQuery* query2 = new QSqlQuery(db);
+        query2->exec("SELECT name, login FROM User where userID = '" +  user.userID + "'");
+        query2->next();
+        user.name = query2->value(0).toString();
+        users.insert(socketID, user);
     }
     return users;
 }
@@ -386,13 +411,21 @@ QList<ClientChat> WorkDataBase::getFoundChats(QString desired, QString curUserID
 QList<ClientInfo> WorkDataBase::getFoundUsers(QString desired, QString curUserID)
 {
     QSqlQuery* query = new QSqlQuery(db);
-    query->exec("SELECT userID, login, name FROM User where name LIKE '%" + desired +  "%' and userID != " + curUserID);
+    query->exec("SELECT userID, login, name, status FROM User where name LIKE '%" + desired +  "%' and userID != " + curUserID);
     QList<ClientInfo> users;
     while(query->next()){
         ClientInfo user;
         user.userID = query->value(0).toString();
         user.login = query->value(1).toString();
         user.name = query->value(2).toString();
+        user.status = query->value(3).toString();
+        QSqlQuery* query2 = new QSqlQuery(db);
+        query2->exec("SELECT userID FROM UsersOnline where userID = '" + user.userID + "'");
+        query2->next();
+        if(query2->value(0).toString() == "")
+            user.statusInLine = "Offline";
+        else
+            user.statusInLine = "Online";
         users.append(user);
     }
     return users;
@@ -476,6 +509,22 @@ bool WorkDataBase::updateMessageEddit(ClientMessage message)
 {
     QSqlQuery* query = new QSqlQuery(db);
     if(!query->exec("UPDATE Messages SET `message` = '" + message.message + "' WHERE messageID = '" + message.messageID + "'")) {
+        return false;
+    }
+    return true;
+}
+bool WorkDataBase::updateUser(ClientInfo client){
+    QSqlQuery* query = new QSqlQuery(db);
+    qDebug() << "WorkDataBase::updateUser query = " << "UPDATE User SET `login` = '" + client.login
+                + "', `password` = '" + client.password
+                + "', `name` = '" + client.name
+                + "', `status` = \"" + client.status
+                + "\" WHERE userID = '" + client.userID + "'";
+    if(!query->exec("UPDATE User SET `login` = '" + client.login
+                    + "', `password` = '" + client.password
+                    + "', `name` = '" + client.name
+                    + "', `status` = \"" + client.status
+                    + "\" WHERE userID = '" + client.userID + "'")) {
         return false;
     }
     return true;

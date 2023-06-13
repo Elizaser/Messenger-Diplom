@@ -47,6 +47,8 @@ void MainProcess::sendingData(DataParsing messageFromClient)
         sendingFoundUsers("", "setUsersCreateChat");// поиск по имени если осуществляется с пустой строкой, просто вернет все что есть
     } else if(signal == "createChat") {
         createChat(messageFromClient.getChat());
+    } else if(signal == "edditUser") {
+        edditUser(messageFromClient.getClient());
     } else {
           qDebug()<<"Ошибка. Непонятно имя сигнала";
     }
@@ -68,13 +70,13 @@ void MainProcess::sendOnlineUsersInChat(QString chatID, QByteArray data)
 //        }
 //}
 
-//void MainProcess:: sendOnlineUsers(QString signal, auto  message)
-//{
-//        QMap<qintptr, ClientInfo> onlineUsers = db->getOnlineUsers();
-//        foreach (qintptr key, onlineUsers.keys()) {
-//            sockWrite(sockets[key], "main", signal, message);
-//        }
-//}
+void MainProcess:: sendOnlineUsers(QByteArray  data)
+{
+        QMap<qintptr, ClientInfo> onlineUsers = db->getOnlineUsers();
+        foreach (qintptr key, onlineUsers.keys()) {
+            sockWrite(sockets[key], data);
+        }
+}
 
 void MainProcess:: sendingUserChats()
 {
@@ -206,7 +208,13 @@ void MainProcess:: exitChat(QString chatID)
     sendOnlineUsersInChat(chatID, generateData("main", "exitChat",  "\"chatID\":\"" + chatID + "\""));
 }
 
-
+void MainProcess::edditUser(ClientInfo client)
+{
+    if(db->updateUser(client)) {
+        qDebug() << "db->updateUser(client)";
+        sendOnlineUsers(generateData("main", "updateEdditUser", client));
+    }
+}
 ClientInfo MainProcess:: fillCurClientInfo(ClientInfo inClientInfo)
 {
     ClientInfo outClientInfo = db->getUserInfo(inClientInfo.login);

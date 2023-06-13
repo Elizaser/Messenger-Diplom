@@ -24,10 +24,11 @@ class MainProcess: public Process
     ClientMessage saveMessage(ClientMessage message);
     void sendOnlineUsersInChat(QString chatID, QByteArray data);
 //    void sendOnlineUsersInChatExceptMe(QString signal, QString chatID, auto  message);
-//    void sendOnlineUsers(QString signal, auto message);
+    void sendOnlineUsers(QByteArray data);
 
     void deleteChat(QString chatID);
     void exitChat(QString chatID);
+    void edditUser(ClientInfo client);
     void deleteMessage(ClientMessage message);
     void deleteMessageForEveryone(ClientMessage message);
     void updateIsReadingMessages(ClientChat chat);

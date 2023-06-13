@@ -42,9 +42,12 @@ QString DataParsing::getSearchedUser()
 
 ClientInfo DataParsing::getClient(){
     ClientInfo clientInfo;
+    clientInfo.userID = jDoc.object().value("userID").toString();
     clientInfo.login = jDoc.object().value("login").toString();
     clientInfo.password = jDoc.object().value("password").toString();
     clientInfo.name = jDoc.object().value("name").toString();
+    clientInfo.status = jDoc.object().value("status").toString();
+    clientInfo.statusInLine = jDoc.object().value("statusInLine").toString();
 
     return clientInfo;
 }
@@ -60,6 +63,8 @@ QList<ClientInfo>  DataParsing::getClients()
             foundUser.userID = jsFoundUsers[i].toObject().value("userID").toString();
             foundUser.login = jsFoundUsers[i].toObject().value("login").toString();
             foundUser.name = jsFoundUsers[i].toObject().value("name").toString();
+            foundUser.status = jsFoundUsers[i].toObject().value("status").toString();
+            foundUser.statusInLine = jsFoundUsers[i].toObject().value("statusInLine").toString();
             foundUsers.append(foundUser);
         }
     }
