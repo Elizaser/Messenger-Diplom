@@ -63,7 +63,7 @@ private:
 
     UserInfo userInfo;
     QList<UserChat> allChats;
-    QList<UserChat> deleteDialog;
+    QList<UserChat> deleteChats;
     QList<UserInfo> users;
     QList<UserMessage> curChatContent;
     UserMessage curMessage;

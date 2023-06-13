@@ -172,7 +172,7 @@ void MainProcess::createChat(ClientChat chat)
 {
     chat.userCreator = curClientInfo.userID;
     chat.type = "group";
-    chat.countIsNotReadMessages = "1";
+    chat.countIsNotReadMessages = "0";
     chat.participants.insert(curClientInfo.userID, curClientInfo.name);
     chat = db->insertChat(chat);
     if (chat.chatID == ""){

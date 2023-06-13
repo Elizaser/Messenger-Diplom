@@ -146,7 +146,7 @@ void MainWindow::clickedDeleteChat(int i, QString signal)
     qDebug() << "chats.at(i).chatID" << allChats.at(i).chatID;
     sockWrite("main", signal, "\"chatID\":\"" + allChats.at(i).chatID.toLocal8Bit() + "\"");
     if(signal == "deleteChat"){
-        deleteDialog.append(allChats.at(i));
+        deleteChats.append(allChats.at(i));
     }
     allChats.removeAt(i);
     clearChatWindow();
@@ -214,24 +214,15 @@ void MainWindow::deleteChat(QString chatID)
 }
 void MainWindow::setNewMessage(UserMessage message)
 {
-//    if(curChat.chatID == ""){
-//        int i = searchChatByID(message.chatID);
-//        chats[i].countIsLook = "1";
-//        chats[i].countIsNotReadMessages = "1";
-//        curChat = chats[i];
-//        showNewChat(curChat);
-    /*} else*/
-    qDebug() << "setNewMessage curChat.chatID = " << curChat.chatID;
-    qDebug() << "setNewMessage message.chatID = " << message.chatID;
     if((curChat.chatID == "" || curChat.chatID != message.chatID) &&
     (  ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Найденные чаты"
     || ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Мои чаты" )) {
         int i = searchChatByID(allChats, message.chatID);
         if(i == -1){
-            i = searchChatByID(deleteDialog, message.chatID);
-            deleteDialog[i].countIsNotReadMessages = "1";
-            setNewChat(deleteDialog.at(i));
-            deleteDialog.removeAt(i);
+            i = searchChatByID(deleteChats, message.chatID);
+            deleteChats[i].countIsNotReadMessages = "1";
+            setNewChat(deleteChats.at(i));
+            deleteChats.removeAt(i);
             return;
         }
         allChats[i].countIsNotReadMessages = QString::number(allChats.at(i).countIsNotReadMessages.toInt() + 1);
