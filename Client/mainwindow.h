@@ -46,7 +46,7 @@ private slots:
 
     void sockWrite(QString process, QString signal);
     void sockWrite(QString process, QString signal, QString message);
-    void sockWrite(QString process, QString signal, QList<UserChat> chats);
+    void sockWrite(QString process, QString signal, QList<UserChat> allChats);
     void sockWrite(QString process, QString signal, UserChat chat);
     void sockWrite(QString process, QString signal, QList<UserMessage> conntents);
     void sockWrite(QString process, QString signal, UserMessage conntent);
@@ -62,7 +62,8 @@ private:
     QTcpSocket* socket;
 
     UserInfo userInfo;
-    QList<UserChat> chats;
+    QList<UserChat> allChats;
+    QList<UserChat> deleteDialog;
     QList<UserInfo> users;
     QList<UserMessage> curChatContent;
     UserMessage curMessage;
@@ -77,7 +78,7 @@ private:
     void renameDialogOnNameCompanion();
     void setAllUsers(QList<UserInfo> users);
     void setSearchPeople(QList<UserInfo> user);
-    void setSearchChats(QList<UserChat> chats);
+    void setSearchChats(QList<UserChat> allChats);
     void setChatContent(QList<UserMessage> conntent);
     void setNewMessage(UserMessage message);
     void setNewChat(UserChat chat);
@@ -95,9 +96,9 @@ private:
     void deleteChat(QString chatID);
     void updateMessage(QString messageID, QString message);
     void deleteParticipant(UserInfo userInfo);
-    int searchChatByID(QString chatID);
-    int searchMessageByID(QString messageID);
-    int searchUserByID(QString userID, QList<UserInfo> usersForCreateChat);
+    int searchChatByID(QList<UserChat> chats, QString chatID);
+    int searchMessageByID(QList<UserMessage> messages, QString messageID);
+    int searchUserByID(QList<UserInfo> users, QString userID);
 
 
 };
