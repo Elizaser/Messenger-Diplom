@@ -80,6 +80,8 @@ private:
     void setChatContent(QList<UserMessage> conntent);
     void setNewMessage(UserMessage message);
     void setNewChat(UserChat chat);
+    void setUsersInWindowCreateChat(QList<UserInfo> users);
+    void updateIsReadingMessages(QString chatID);
 
     void showListChats(QString headerLabel);
     void showUsers(QString headerLabel);

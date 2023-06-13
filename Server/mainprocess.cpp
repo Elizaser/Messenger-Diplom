@@ -14,7 +14,6 @@ void MainProcess::sendingData(DataParsing messageFromClient)
     qDebug() << "signal = " << signal;
     if(signal == "setUserInfo") {
         curClientInfo = fillCurClientInfo(messageFromClient.getClient());
-//        printClientInfo("В главном процессе клиент ", curClientInfo);
         sendingUserChats();
     } else if(signal == "getUserChats"){
         sendingUserChats();
@@ -30,31 +29,24 @@ void MainProcess::sendingData(DataParsing messageFromClient)
         sendingDialogContent(messageFromClient.getUserID());
     } else if(signal == "sendMessage"){
         sendingMessage(messageFromClient.getMessage());
+    } else if(signal == "sendMessageInNewDialog") {
+        sendingMessageInNewDialog(messageFromClient.getMessage());
     } else if(signal == "messageEddit"){
-        db->updateMessageEddit(messageFromClient.getMessage());
-        sendOnlineUsersInChat("updateMessage", messageFromClient.getMessage().chatID, messageFromClient.getMessage());
+        updateMessage(messageFromClient.getMessage());
     } else if(signal == "deleteChat") {
         deleteChat(messageFromClient.getChatID());
     } else if(signal == "exitChat") {
         exitChat(messageFromClient.getChatID());
-        sendOnlineUsersInChat("exitChat", messageFromClient.getChatID(), "\"chatID\":\"" + messageFromClient.getChatID() + "\"");
     } else if(signal == "messageDelete"){
-        deleteMessage(messageFromClient.getMessage().messageID);
-        sockWrite(socket, generateData("main", "deleteMessage", messageFromClient.getMessage()));
+        deleteMessage(messageFromClient.getMessage());
     } else if(signal == "messageDeleteForEveryone"){
-        deleteMessageForEveryone(messageFromClient.getMessage().messageID);
-        sendOnlineUsersInChat("deleteMessage", messageFromClient.getMessage().chatID, messageFromClient.getMessage());
+        deleteMessageForEveryone(messageFromClient.getMessage());
     } else if(signal == "isReadingMessage") {
-        if(messageFromClient.getChat().countIsNotReadMessages != "0"){
-            db->updateUserIsReadingMessages(messageFromClient.getChat().chatID, curClientInfo.userID);
-            sendOnlineUsersInChat("updateIsReadingMessages", messageFromClient.getChat().chatID, "\"chatID\":\"" + messageFromClient.getChat().chatID + "\"");
-        }
+        updateIsReadingMessages(messageFromClient.getChat());
     } else if(signal == "getUsersCreateChat") {
         sendingFoundUsers("", "setUsersCreateChat");// поиск по имени если осуществляется с пустой строкой, просто вернет все что есть
     } else if(signal == "createChat") {
         createChat(messageFromClient.getChat());
-    } else if(signal == "sendMessageInNewDialog") {
-        sendMessageInNewDialog(messageFromClient.getMessage());
     } else {
           qDebug()<<"Ошибка. Непонятно имя сигнала";
     }
@@ -117,7 +109,6 @@ void MainProcess::sendingMessage(ClientMessage message)
     if(message.messageID == "") return;
     sendOnlineUsersInChat("newMessage", message.chatID, message);
 }
-
 ClientMessage MainProcess::saveMessage(ClientMessage message)
 {
     message.senderID = curClientInfo.userID;
@@ -125,28 +116,7 @@ ClientMessage MainProcess::saveMessage(ClientMessage message)
     message.isSystem = "0";
     return db->insertMessage(message);
 }
-void MainProcess::createChat(ClientChat chat)
-{
-    chat.userCreator = curClientInfo.userID;
-    chat.type = "group";
-    chat.countIsNotReadMessages = "1";
-    chat.participants.append(curClientInfo.userID);
-    chat = db->insertChat(chat);
-    if (chat.chatID == ""){
-        return;
-    }
-    qDebug() << "chat.chatID = " << chat.chatID;
-    sendOnlineUsersInChat("newChat", chat.chatID, chat);
-
-    ClientMessage message;
-    message.senderID = curClientInfo.userID;
-    message.message = "Пользователь создал чат";
-    message.isSystem = "1";
-    message.chatID = chat.chatID;
-    sendingMessage(message);
-}
-
-void MainProcess::sendMessageInNewDialog(ClientMessage message)
+void MainProcess::sendingMessageInNewDialog(ClientMessage message)
 {
     QString companionID = message.senderID;
     QString companionName = message.senderName;
@@ -172,6 +142,32 @@ void MainProcess::sendMessageInNewDialog(ClientMessage message)
 //    sockWrite(socket, generateData("main", "setCurChat", "\"chatID\":\"" + message.chatID + "\""));
     sendingMessage(message);
 }
+void MainProcess::updateMessage(ClientMessage message)
+{
+    db->updateMessageEddit(message);
+    sendOnlineUsersInChat("updateMessage", message.chatID, message);
+}
+
+void MainProcess::createChat(ClientChat chat)
+{
+    chat.userCreator = curClientInfo.userID;
+    chat.type = "group";
+    chat.countIsNotReadMessages = "1";
+    chat.participants.append(curClientInfo.userID);
+    chat = db->insertChat(chat);
+    if (chat.chatID == ""){
+        return;
+    }
+    qDebug() << "chat.chatID = " << chat.chatID;
+    sendOnlineUsersInChat("newChat", chat.chatID, chat);
+
+    ClientMessage message;
+    message.senderID = curClientInfo.userID;
+    message.message = "Пользователь создал чат";
+    message.isSystem = "1";
+    message.chatID = chat.chatID;
+    sendingMessage(message);
+}
 void MainProcess:: deleteChat(QString chatID)
 {
     db->deleteChat(chatID, curClientInfo.userID);
@@ -187,17 +183,25 @@ void MainProcess:: exitChat(QString chatID)
     message.senderName = curClientInfo.name;
     message.isSystem = "1";
     sendingMessage(message);
+    sendOnlineUsersInChat("exitChat", chatID, "\"chatID\":\"" + chatID + "\"");
 }
-void MainProcess:: deleteMessage(QString messageID)
+void MainProcess::deleteMessage(ClientMessage message)
 {
-    db->deleteMessage(messageID, curClientInfo.userID);
+    db->deleteMessage(message.messageID, curClientInfo.userID);
+    sockWrite(socket, generateData("main", "deleteMessage", message));
 }
-
-void MainProcess:: deleteMessageForEveryone(QString messageID)
+void MainProcess::deleteMessageForEveryone(ClientMessage message)
 {
-    QString chatID = db->deleteMessageForEveryone(messageID);
-    if(chatID != ""){
-        sendOnlineUsersInChat( "deleteMessage", chatID, "\"messageID\":\"" + messageID + "\"");
+    message.chatID = db->deleteMessageForEveryone(message.messageID);
+    if(message.chatID != ""){
+        sendOnlineUsersInChat( "deleteMessage", message.chatID, "\"messageID\":\"" + message.messageID + "\"");
+    }
+}
+void MainProcess::updateIsReadingMessages(ClientChat chat)
+{
+    if(chat.countIsNotReadMessages != "0"){
+        db->updateUserIsReadingMessages(chat.chatID, curClientInfo.userID);
+        sendOnlineUsersInChat("updateIsReadingMessages", chat.chatID, "\"chatID\":\"" + chat.chatID + "\"");
     }
 }
 

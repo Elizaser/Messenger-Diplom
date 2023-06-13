@@ -17,9 +17,10 @@ class MainProcess: public Process
     void sendingChatContent(QString chatID);
     void sendingDialogContent(QString companionUserID);
     void sendingMessage(ClientMessage message);
+    void updateMessage(ClientMessage message);
 
     void createChat(ClientChat chat);
-    void sendMessageInNewDialog(ClientMessage message);
+    void sendingMessageInNewDialog(ClientMessage message);
     ClientMessage saveMessage(ClientMessage message);
     void sendOnlineUsersInChat(QString signal, QString chatID, auto message);
     void sendOnlineUsersInChatExceptMe(QString signal, QString chatID, auto  message);
@@ -27,8 +28,9 @@ class MainProcess: public Process
 
     void deleteChat(QString chatID);
     void exitChat(QString chatID);
-    void deleteMessage(QString messageID);
-    void deleteMessageForEveryone(QString messageID);
+    void deleteMessage(ClientMessage message);
+    void deleteMessageForEveryone(ClientMessage message);
+    void updateIsReadingMessages(ClientChat chat);
 public:
     MainProcess(QMap <qintptr, QTcpSocket*> sockets, QTcpSocket* socket, WorkDataBase* db);
     void sendingData(DataParsing messageFromClient);

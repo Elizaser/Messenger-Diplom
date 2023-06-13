@@ -44,16 +44,17 @@ void MainWindow::sockReady(DataParsing messageFromServer)
         } else if(signal == "searchChats") {
             setSearchChats(messageFromServer.getChats());
         } else if(signal == "setChatContent") {
-            qDebug () << "signal setContent messageFromServer.getChatID() =  " << messageFromServer.getChatID();
-            int i = searchChatByID(messageFromServer.getChat().chatID);
-            qDebug () << "signal setContent i =  " << i;
-            if(i == -1 && messageFromServer.getChat().chatID != ""){
-                setNewChat(messageFromServer.getChat());
-            }
-            if(i != -1) {
+            qDebug() << "signal setContent messageFromServer.getChatID() =  " << messageFromServer.getChatID();
+            if(messageFromServer.getChatID() != "") {
+                int i = searchChatByID(messageFromServer.getChat().chatID);
+                if(i == -1) {
+                    setNewChat(messageFromServer.getChat());
+                    i = searchChatByID(messageFromServer.getChat().chatID);
+                }
+                qDebug() << "signal setContent i =  " << i;
                 chats[i].countIsNotReadMessages = "0";
                 curChat = chats[i];
-                qDebug () << "signal setContent curChat =  " << curChat.name;
+                qDebug() << "signal setContent curChat =  " << curChat.name;
             }
             setChatContent(messageFromServer.getChatContent());
         } else if(signal == "newMessage") {
@@ -71,17 +72,9 @@ void MainWindow::sockReady(DataParsing messageFromServer)
         } else if(signal == "deleteParticipant") {
 //            deleteParticipant(messageFromServer.getUser());
         } else if(signal == "setUsersCreateChat") {
-            QList<UserInfo> usersForCreateChat = messageFromServer.getUsers();
-            int i = searchUserByID(userInfo.userID, usersForCreateChat);
-            usersForCreateChat.removeAt(i);
-            createChat->setAllUsers(usersForCreateChat);
+            setUsersInWindowCreateChat(messageFromServer.getUsers());
         } else if(signal == "updateIsReadingMessages") {
-            for(int i = curChatContent.size() - 1; i >= 0; i--){
-                if(curChatContent[i].chatID != messageFromServer.getChatID()) break;
-                if(curChatContent[i].isRead == "1") break;
-                curChatContent[i].isRead = "1";
-                ui->tableWidget_chatWindow->setItem(i, 4, new QTableWidgetItem("VV"));
-            }
+            updateIsReadingMessages(messageFromServer.getChatID());
         } else if(signal == "setCurChat") {
 //            int i = searchChatByID( messageFromServer.getChatID());
 //            curChat = chats[i];
@@ -113,6 +106,7 @@ void MainWindow:: clickChatList(int i, int  j)
     if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Мои чаты" ||
             ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Найденные чаты"){
         if(j == 0){
+            clearChatWindow();
             ui->tableWidget_chatWindow->clear();
             curChat = chats[i];
             qDebug() << "clickChatList curChat = " << curChat.name;
@@ -150,6 +144,7 @@ void MainWindow::clickedDeleteChat(int i, QString signal)
     qDebug() << "chats.at(i).chatID" << chats.at(i).chatID;
     sockWrite("main", signal, "\"chatID\":\"" + chats.at(i).chatID.toLocal8Bit() + "\"");
     chats.removeAt(i);
+    clearChatWindow();
 }
 
 void MainWindow:: clickChatWindow(int i, int j)
@@ -361,6 +356,21 @@ void MainWindow::clearChatWindow()
         curChat.userCreator = "";
 }
 
+void MainWindow::setUsersInWindowCreateChat(QList<UserInfo> users)
+{
+    int i = searchUserByID(userInfo.userID, users);
+    users.removeAt(i);
+    createChat->setAllUsers(users);
+}
+void MainWindow::updateIsReadingMessages(QString chatID)
+{
+    for(int i = curChatContent.size() - 1; i >= 0; i--){
+        if(curChatContent[i].chatID != chatID) break;
+        if(curChatContent[i].isRead == "1") break;
+        curChatContent[i].isRead = "1";
+        ui->tableWidget_chatWindow->setItem(i, 4, new QTableWidgetItem("VV"));
+    }
+}
 
 void MainWindow::showListChats(QString headerLabel)
 {
@@ -377,7 +387,6 @@ void MainWindow::showListChats(QString headerLabel)
         if(chats[i].countIsLook == "0") break;
         ui->tableWidget_chatsList->insertRow(i);
         QString nameChat = chats.at(i).name;
-        qDebug() << "showListChats chats[i].countIsNotReadMessages"  << chats[i].countIsNotReadMessages;
         if(chats[i].countIsNotReadMessages != "0") {
             nameChat += " " + chats.at(i).countIsNotReadMessages;
         }

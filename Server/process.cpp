@@ -133,7 +133,7 @@ QByteArray Process::generateData(QString process, QString signal, QList<ClientMe
 {
     QByteArray data  = generateData(process, signal, conntents);
     data.remove(data.length()-1,1).append(", ");
-
+//    data.append("\"chatID\":\"" + chatID + "\"}");
     data += "\"chatID\":\"" + chat.chatID.toLocal8Bit()
                     + "\", \"userCreator\":\"" + chat.userCreator.toLocal8Bit()
                     + "\", \"name\":\"" + chat.name.toLocal8Bit()
