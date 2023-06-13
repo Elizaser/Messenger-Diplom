@@ -2,14 +2,15 @@
 #define CLIENTCHATS_H
 
 #include "QString"
-#include "QList"
+#include "QMap"
 class ClientChat
 {
 public:
     QString chatID;
     QString userCreator;
     QString name;
-    QList<QString> participants;
+    QMap<QString, QString> participants;//id, name
+//    QMap <qintptr, QString>participants;
     QString countIsNotReadMessages;
     QString countIsLook;
     QString type;

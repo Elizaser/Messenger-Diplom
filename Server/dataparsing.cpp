@@ -83,7 +83,7 @@ QList<ClientChat> DataParsing::getChats()
 
             QJsonArray jsParticipants = jsChats[i].toObject().value("participants").toArray();
             for(int j = 0; j < jsParticipants.count();j++){
-                chat.participants.append(jsParticipants[j].toObject().value("participant").toString());
+                chat.participants.insert(jsParticipants[j].toObject().value("participantID").toString(), jsParticipants[j].toObject().value("participantName").toString());
             }
 
             chats.append(chat);
@@ -103,7 +103,7 @@ ClientChat DataParsing::getChat()
 
     QJsonArray jsParticipants = jDoc.object().value("participants").toArray();
     for(int j = 0; j < jsParticipants.count();j++){
-        chat.participants.append(jsParticipants[j].toObject().value("participant").toString());
+        chat.participants.insert(jsParticipants[j].toObject().value("participantID").toString(), jsParticipants[j].toObject().value("participantName").toString());
     }
 
     return chat;

@@ -22,8 +22,8 @@ class MainProcess: public Process
     void createChat(ClientChat chat);
     void sendingMessageInNewDialog(ClientMessage message);
     ClientMessage saveMessage(ClientMessage message);
-    void sendOnlineUsersInChat(QString signal, QString chatID, auto message);
-    void sendOnlineUsersInChatExceptMe(QString signal, QString chatID, auto  message);
+    void sendOnlineUsersInChat(QString chatID, QByteArray data);
+//    void sendOnlineUsersInChatExceptMe(QString signal, QString chatID, auto  message);
 //    void sendOnlineUsers(QString signal, auto message);
 
     void deleteChat(QString chatID);

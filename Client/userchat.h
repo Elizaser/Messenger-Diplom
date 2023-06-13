@@ -1,14 +1,14 @@
 #ifndef USERCHAT_H
 #define USERCHAT_H
 #include "QString"
-#include "QList"
+#include "QMap"
 class UserChat
 {
 public:
     QString chatID;
     QString userCreator;
     QString name;
-    QList<QString> participants;
+    QMap<QString, QString> participants;//id, name
     QString countIsNotReadMessages;
     QString countIsLook;
     QString type;

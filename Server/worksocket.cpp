@@ -57,6 +57,7 @@ void WorkSocket::swriteSocket(QTcpSocket* socket, QByteArray data)
 {
     qDebug() << "out - "<< data;
     socket->write(data);
+    socket->waitForBytesWritten();
 }
 void WorkSocket:: deleteSocketInSockets(int socketDescriptor)
 {

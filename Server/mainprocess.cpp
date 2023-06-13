@@ -51,22 +51,22 @@ void MainProcess::sendingData(DataParsing messageFromClient)
           qDebug()<<"Ошибка. Непонятно имя сигнала";
     }
 }
-void MainProcess::sendOnlineUsersInChat(QString signal, QString chatID, auto  message)
+void MainProcess::sendOnlineUsersInChat(QString chatID, QByteArray data)
 {
         QMap<qintptr, ClientInfo> onlineUsers = db->getOnlineUsersInChat(chatID);
         foreach (qintptr key, onlineUsers.keys()) {
             if(sockets[key]->isOpen())
-                sockWrite(sockets[key], generateData("main", signal, message));
+                sockWrite(sockets[key], data);
         }
 }
-void MainProcess::sendOnlineUsersInChatExceptMe(QString signal, QString chatID, auto  message)
-{
-        QMap<qintptr, ClientInfo> onlineUsers = db->getOnlineUsersInChat(chatID);
-        foreach (qintptr key, onlineUsers.keys()) {
-            if(sockets[key]->isOpen() && socket != sockets[key])
-                generateData(sockets[key], "main", signal, message);
-        }
-}
+//void MainProcess::sendOnlineUsersInChatExceptMe(QString signal, QString chatID, auto  message)
+//{
+//        QMap<qintptr, ClientInfo> onlineUsers = db->getOnlineUsersInChat(chatID);
+//        foreach (qintptr key, onlineUsers.keys()) {
+//            if(sockets[key]->isOpen() && socket != sockets[key])
+//                generateData(sockets[key], "main", signal, message);
+//        }
+//}
 
 //void MainProcess:: sendOnlineUsers(QString signal, auto  message)
 //{
@@ -107,7 +107,7 @@ void MainProcess::sendingMessage(ClientMessage message)
 {
     message = saveMessage(message);
     if(message.messageID == "") return;
-    sendOnlineUsersInChat("newMessage", message.chatID, message);
+    sendOnlineUsersInChat(message.chatID, generateData("main", "newMessage", message));
 }
 ClientMessage MainProcess::saveMessage(ClientMessage message)
 {
@@ -128,8 +128,8 @@ void MainProcess::sendingMessageInNewDialog(ClientMessage message)
     chat.type = "dialog";
     chat.countIsNotReadMessages = "0";
     chat.countIsLook = "1";
-    chat.participants.append(companionID);
-    chat.participants.append(curClientInfo.userID);
+    chat.participants.insert(companionID, companionName);
+    chat.participants.insert(curClientInfo.userID, curClientInfo.name);
     chat = db->insertChat(chat);
     if (chat.chatID == ""){
         return;
@@ -137,7 +137,7 @@ void MainProcess::sendingMessageInNewDialog(ClientMessage message)
     qDebug() << "chat.chatID = " << chat.chatID;
 //    sockWrite(socket, "main", "setCurChat", chat);
     qDebug() << "chat.countIsNotReadMessages  = " << chat.countIsNotReadMessages;
-    sendOnlineUsersInChat("newDialog", chat.chatID, chat);
+    sendOnlineUsersInChat(chat.chatID, generateData("main", "newDialog", chat));
     message.chatID = chat.chatID;
 //    sockWrite(socket, generateData("main", "setCurChat", "\"chatID\":\"" + message.chatID + "\""));
     sendingMessage(message);
@@ -145,21 +145,41 @@ void MainProcess::sendingMessageInNewDialog(ClientMessage message)
 void MainProcess::updateMessage(ClientMessage message)
 {
     db->updateMessageEddit(message);
-    sendOnlineUsersInChat("updateMessage", message.chatID, message);
+    sendOnlineUsersInChat(message.chatID, generateData("main", "updateMessage", message));
 }
+void MainProcess::deleteMessage(ClientMessage message)
+{
+    db->deleteMessage(message.messageID, curClientInfo.userID);
+    sockWrite(socket, generateData("main", "deleteMessage", message));
+}
+void MainProcess::deleteMessageForEveryone(ClientMessage message)
+{
+    message.chatID = db->deleteMessageForEveryone(message.messageID);
+    if(message.chatID != ""){
+        sendOnlineUsersInChat(message.chatID, generateData("main", "deleteMessage", message));
+    }
+}
+void MainProcess::updateIsReadingMessages(ClientChat chat)
+{
+//    if(chat.countIsNotReadMessages != "0"){
+        db->updateUserIsReadingMessages(chat.chatID, curClientInfo.userID);
+        sendOnlineUsersInChat(chat.chatID, generateData("main", "updateIsReadingMessages", "\"chatID\":\"" + chat.chatID + "\""));
+//    }
+}
+
 
 void MainProcess::createChat(ClientChat chat)
 {
     chat.userCreator = curClientInfo.userID;
     chat.type = "group";
     chat.countIsNotReadMessages = "1";
-    chat.participants.append(curClientInfo.userID);
+    chat.participants.insert(curClientInfo.userID, curClientInfo.name);
     chat = db->insertChat(chat);
     if (chat.chatID == ""){
         return;
     }
     qDebug() << "chat.chatID = " << chat.chatID;
-    sendOnlineUsersInChat("newChat", chat.chatID, chat);
+    sendOnlineUsersInChat(chat.chatID, generateData("main", "newChat", chat));
 
     ClientMessage message;
     message.senderID = curClientInfo.userID;
@@ -183,27 +203,9 @@ void MainProcess:: exitChat(QString chatID)
     message.senderName = curClientInfo.name;
     message.isSystem = "1";
     sendingMessage(message);
-    sendOnlineUsersInChat("exitChat", chatID, "\"chatID\":\"" + chatID + "\"");
+    sendOnlineUsersInChat(chatID, generateData("main", "exitChat",  "\"chatID\":\"" + chatID + "\""));
 }
-void MainProcess::deleteMessage(ClientMessage message)
-{
-    db->deleteMessage(message.messageID, curClientInfo.userID);
-    sockWrite(socket, generateData("main", "deleteMessage", message));
-}
-void MainProcess::deleteMessageForEveryone(ClientMessage message)
-{
-    message.chatID = db->deleteMessageForEveryone(message.messageID);
-    if(message.chatID != ""){
-        sendOnlineUsersInChat( "deleteMessage", message.chatID, "\"messageID\":\"" + message.messageID + "\"");
-    }
-}
-void MainProcess::updateIsReadingMessages(ClientChat chat)
-{
-    if(chat.countIsNotReadMessages != "0"){
-        db->updateUserIsReadingMessages(chat.chatID, curClientInfo.userID);
-        sendOnlineUsersInChat("updateIsReadingMessages", chat.chatID, "\"chatID\":\"" + chat.chatID + "\"");
-    }
-}
+
 
 ClientInfo MainProcess:: fillCurClientInfo(ClientInfo inClientInfo)
 {

@@ -66,8 +66,8 @@ void MainWindow::sockReady(DataParsing messageFromServer)
         } else if(signal == "newChat") {
             setNewChat(messageFromServer.getChat());
         } else if(signal == "newDialog") {
-            curChat = messageFromServer.getChat();
-            qDebug () << "signal newDialog curChat =  " << curChat.name;
+//            curChat = messageFromServer.getChat();
+//            qDebug () << "signal newDialog curChat =  " << curChat.name;
             setNewChat(messageFromServer.getChat());
         } else if(signal == "deleteParticipant") {
 //            deleteParticipant(messageFromServer.getUser());
@@ -107,9 +107,10 @@ void MainWindow:: clickChatList(int i, int  j)
             ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Найденные чаты"){
         if(j == 0){
             clearChatWindow();
-            ui->tableWidget_chatWindow->clear();
+//            ui->tableWidget_chatWindow->clear();
+//            chats[i].countIsNotReadMessages = "0";
+            qDebug() << "clickChatList chats[i].countIsNotReadMessages = " << chats[i].countIsNotReadMessages;
             curChat = chats[i];
-            qDebug() << "clickChatList curChat = " << curChat.name;
             ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(curChat.name));
             ui->label_chatName->setText(chats[i].name);
             sockWrite("main", "getChatContent", "\"chatID\":\"" + curChat.chatID.toLocal8Bit() + "\"");
@@ -123,6 +124,7 @@ void MainWindow:: clickChatList(int i, int  j)
         }
     } else {
         curUser = users[i];
+        clearChatWindow();
         if(j == 0) {
 
         } else if(j == 1) {
@@ -191,7 +193,9 @@ void MainWindow::setNewChat(UserChat chat)
 {
     qDebug() << "setNewChat chat.countIsNotReadMessages = " << chat.countIsNotReadMessages;
     qDebug() << "setNewChat chat.countIsLook = " << chat.countIsLook;
+
     chats.append(chat);
+    renameDialogOnNameCompanion();
     showNewChat(chat);
 
 }
@@ -213,8 +217,12 @@ void MainWindow::setNewMessage(UserMessage message)
 //        chats[i].countIsNotReadMessages = "1";
 //        curChat = chats[i];
 //        showNewChat(curChat);
-    /*} else*/ if((curChat.chatID == "" || curChat.chatID != message.chatID) &&
-                  (ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Найденные чаты" || ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Мои чаты")) {
+    /*} else*/
+    qDebug() << "setNewMessage curChat.chatID = " << curChat.chatID;
+    qDebug() << "setNewMessage message.chatID = " << message.chatID;
+    if((curChat.chatID == "" || curChat.chatID != message.chatID) &&
+    (  ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Найденные чаты"
+    || ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Мои чаты" )) {
         int i = searchChatByID(message.chatID);
         chats[i].countIsNotReadMessages = QString::number(chats.at(i).countIsNotReadMessages.toInt() + 1);
         ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(chats[i].name + " " + chats[i].countIsNotReadMessages));
@@ -232,6 +240,7 @@ void MainWindow::setNewMessage(UserMessage message)
 void MainWindow::deleteMessage(UserMessage message)
 {
     int i = searchMessageByID(message.messageID);
+
     if(i != -1) {
         qDebug() << "i = " << i << " message.messageID = " << message.messageID;
         qDebug() << "1curChatContent.at(i).chatID = " << curChatContent.at(i).chatID << " message.chatID = " << message.chatID;
@@ -294,8 +303,19 @@ void MainWindow::setUserChats(QList<UserChat> chats)
 {
 
     this->chats = chats;
+    renameDialogOnNameCompanion();
     showListChats("Мои чаты");
 
+}
+void MainWindow::renameDialogOnNameCompanion(){
+    for(auto&chat:chats){
+        if(chat.type == "dialog"){
+            foreach (auto key, chat.participants.keys()){
+                if(key != userInfo.userID)
+                    chat.name = chat.participants.value(key);
+            }
+        }
+    }
 }
 void MainWindow::setAllUsers(QList<UserInfo> users)
 {
@@ -311,6 +331,7 @@ void MainWindow::setSearchPeople(QList<UserInfo> users)
 void MainWindow::setSearchChats(QList<UserChat> chats)
 {
     this->chats = chats;
+    renameDialogOnNameCompanion();
     showListChats("Найденные чаты");
 }
 void MainWindow::setChatContent(QList<UserMessage> conntent)
@@ -319,6 +340,7 @@ void MainWindow::setChatContent(QList<UserMessage> conntent)
     showChatContents(curChatContent);
     int i = searchChatByID(curChat.chatID);
     if(i == -1) return;
+    if(chats[i].countIsNotReadMessages == "0" || chats[i].countIsNotReadMessages == "") return;
     sockWrite("main", "isReadingMessage", chats[i]);
     chats[i].countIsNotReadMessages = "0";
 }
@@ -387,6 +409,7 @@ void MainWindow::showListChats(QString headerLabel)
         if(chats[i].countIsLook == "0") break;
         ui->tableWidget_chatsList->insertRow(i);
         QString nameChat = chats.at(i).name;
+
         if(chats[i].countIsNotReadMessages != "0") {
             nameChat += " " + chats.at(i).countIsNotReadMessages;
         }
@@ -567,9 +590,12 @@ void MainWindow::sockWrite(QString process, QString signal, QList<UserChat> chat
                         + "\",  \"countIsLook\":\"" + chat.countIsLook
                         + "\",  \"type\":\"" + chat.type
                         + "\", \"participants\":[");
-            for(auto & participant : chat.participants){
-                data.append("{\"participant\":\"" + participant + "\"},");
+            foreach (auto key, chat.participants.keys()){
+                data.append("{\"participantID\":\"" + key + "\", \"participantName\":\"" + chat.participants.value(key) + "\"},");
             }
+//            for(auto & participant : chat.participants){
+//                data.append("{\"participant\":\"" + participant + "\"},");
+//            }
             data.remove(data.length()-1,1);
             data.append("]},");
         }
@@ -593,9 +619,12 @@ void MainWindow::sockWrite(QString process, QString signal, UserChat chat)
                         + "\",  \"countIsLook\":\"" + chat.countIsLook.toLocal8Bit()
                         + "\",  \"type\":\"" + chat.type.toLocal8Bit()
                         + "\", \"participants\":[";
-        for(auto & participant : chat.participants){
-            data.append("{\"participant\":\"" + participant + "\"},");
+        foreach (auto key, chat.participants.keys()){
+            data.append("{\"participantID\":\"" + key + "\", \"participantName\":\"" + chat.participants.value(key) + "\"},");
         }
+//        for(auto & participant : chat.participants){
+//            data.append("{\"participant\":\"" + participant + "\"},");
+//        }
         data.remove(data.length()-1,1);
         data.append("]}");
         socket->write(data);

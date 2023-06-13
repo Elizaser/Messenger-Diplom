@@ -74,6 +74,7 @@ private:
 
     void setUserInfo(UserInfo userInfo);
     void setUserChats(QList<UserChat> chat);
+    void renameDialogOnNameCompanion();
     void setAllUsers(QList<UserInfo> users);
     void setSearchPeople(QList<UserInfo> user);
     void setSearchChats(QList<UserChat> chats);

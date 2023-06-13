@@ -91,10 +91,16 @@ ClientChat WorkDataBase::insertChat(ClientChat chat)
         query->exec("SELECT chatID FROM Chats ORDER BY chatID  DESC");
         query->next();
         chat.chatID = query->value(0).toString();
-        for(auto&participant:chat.participants){
+        foreach (auto key, chat.participants.keys()){
+            qDebug() << "key = " << key;
+            qDebug() << "chat.participants.value(key) = " << chat.participants.value(key);
             query->exec("INSERT INTO `Participants` (`chatID`, `participantID`) VALUES ('"
-                               + chat.chatID + "', '" + participant + "')");
+                               + chat.chatID + "', '" + key + "')");
         }
+//        for(auto&participant:chat.participants){
+//            query->exec("INSERT INTO `Participants` (`chatID`, `participantID`) VALUES ('"
+//                               + chat.chatID + "', '" + participant + "')");
+//        }
     }
     return chat;
 }
@@ -162,7 +168,10 @@ ClientChat WorkDataBase::getChat(QString chatID, QString userID)
 
     query2->exec("SELECT participantID FROM Participants where chatID = '" +  chat.chatID + "'");
     while(query2->next()){
-        chat.participants.append(query2->value(0).toString());
+        QSqlQuery* query4 = new QSqlQuery(db);
+        query4->exec("SELECT name FROM User where userID = '" +  query2->value(0).toString() + "'");
+        query4->next();
+        chat.participants.insert(query2->value(0).toString(), query4->value(0).toString());
     }
 
     query2->exec("SELECT messageID FROM Messages where chatID = '" +  chat.chatID + "'");
@@ -203,7 +212,10 @@ QList<ClientChat> WorkDataBase::getUserChats(QString userID)
 
         query2->exec("SELECT participantID FROM Participants where chatID = '" +  chat.chatID + "'");
         while(query2->next()){
-            chat.participants.append(query2->value(0).toString());
+            QSqlQuery* query4 = new QSqlQuery(db);
+            query4->exec("SELECT name FROM User where userID = '" +  query2->value(0).toString() + "'");
+            query4->next();
+            chat.participants.insert(query2->value(0).toString(), query4->value(0).toString());
         }
 
         query2->exec("SELECT messageID, sender FROM Messages where chatID = '" +  chat.chatID + "'");
@@ -343,8 +355,30 @@ QList<ClientChat> WorkDataBase::getFoundChats(QString desired, QString curUserID
         QSqlQuery* query2 = new QSqlQuery(db);
         query2->exec("SELECT participantID FROM Participants where chatID =  " + chat.chatID);
         while(query2->next()){
-            chat.participants.append(query2->value(0).toString());
+            QSqlQuery* query4 = new QSqlQuery(db);
+            query4->exec("SELECT name FROM User where userID = '" +  query2->value(0).toString() + "'");
+            query4->next();
+            chat.participants.insert(query2->value(0).toString(), query4->value(0).toString());
         }
+
+        query2->exec("SELECT messageID, sender FROM Messages where chatID = '" +  chat.chatID + "'");
+        int countIsLook = 0;
+        int countIsNotReadMessages = 0;
+        while(query2->next()){
+            QSqlQuery* query3 = new QSqlQuery(db);
+            query3->exec("SELECT isRead FROM MessageStatus where messageID = '" +  query2->value(0).toString() + "' and userID = '" + curUserID + "'");
+            query3->next();
+            if(query3->value(0).toString() == "0" && query2->value(1).toString() != curUserID){
+                countIsNotReadMessages++;
+            } else if(query3->value(0).toString() == ""){
+                countIsLook--;
+            }
+            countIsLook++;
+        }
+//        if(countIsLook <= 0)
+//            continue;
+        chat.countIsNotReadMessages = QString::number(countIsNotReadMessages);
+        chat.countIsLook = QString::number(countIsLook);
         chats.append(chat);
     }
     return chats;

@@ -85,6 +85,8 @@ CreateChat::~CreateChat()
 
 void CreateChat::on_pushButton_createChat_clicked()
 {
+    ui->label_errorNameChat->clear();
+    ui->label_errorUsersInChat->clear();
     QString nameChat = ui->lineEdit_nameChat->text();
     if( nameChat == "" || nameChat.count() > 100){
         ui->label_errorNameChat->setText("Ошибка");
@@ -95,7 +97,9 @@ void CreateChat::on_pushButton_createChat_clicked()
         userChat.name = nameChat;
         userChat.type = "group";
         for(auto&user:usersInChat){
-            userChat.participants.append(user.userID);
+            qDebug() << "user.userID = " << user.userID;
+            qDebug() << "user.name = " << user.name;
+            userChat.participants.insert(user.userID, user.name);
         }
         emit sockWrite("main", "createChat", userChat);
         this->close();

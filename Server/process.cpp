@@ -32,9 +32,12 @@ QByteArray Process::generateData(QString process, QString signal, QList<ClientCh
                         + "\",  \"countIsLook\":\"" + chat.countIsLook
                         + "\",  \"type\":\"" + chat.type
                         + "\", \"participants\":[");
-            for(auto & participant : chat.participants){
-                data.append("{\"participant\":\"" + participant + "\"},");
+            foreach (auto key, chat.participants.keys()){
+                data.append("{\"participantID\":\"" + key + "\", \"participantName\":\"" + chat.participants.value(key) + "\"},");
             }
+//            for(auto & participant : chat.participants){
+//                data.append("{\"participant\":\"" + participant + "\"},");
+//            }
             data.remove(data.length()-1,1);
             data.append("]},");
         }
@@ -58,9 +61,12 @@ QByteArray Process::generateData(QString process, QString signal, ClientChat cha
                     + "\",  \"countIsLook\":\"" + chat.countIsLook.toLocal8Bit()
                     + "\",  \"type\":\"" + chat.type.toLocal8Bit()
                     + "\", \"participants\":[";
-    for(auto & participant : chat.participants){
-        data.append("{\"participant\":\"" + participant + "\"},");
+    foreach (auto key, chat.participants.keys()){
+        data.append("{\"participantID\":\"" + key + "\", \"participantName\":\"" + chat.participants.value(key) + "\"},");
     }
+//    for(auto & participant : chat.participants){
+//        data.append("{\"participant\":\"" + participant + "\"},");
+//    }
     data.remove(data.length()-1,1);
     data.append("]}");
     return data;
@@ -141,8 +147,11 @@ QByteArray Process::generateData(QString process, QString signal, QList<ClientMe
                     + "\",  \"countIsLook\":\"" + chat.countIsLook.toLocal8Bit()
                     + "\",  \"type\":\"" + chat.type.toLocal8Bit()
                     + "\", \"participants\":[";
-    for(auto & participant : chat.participants){
-        data.append("{\"participant\":\"" + participant + "\"},");
+//    for(auto & participant : chat.participants){
+//        data.append("{\"participant\":\"" + participant + "\"},");
+//    }
+    foreach (auto key, chat.participants.keys()){
+        data.append("{\"participantID\":\"" + key + "\", \"participantName\":\"" + chat.participants.value(key) + "\"},");
     }
     if(chat.participants.size() > 0){
         data.remove(data.length()-1,1);
