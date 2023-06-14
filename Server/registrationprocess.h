@@ -6,9 +6,9 @@
 class RegistrationProcess: public Process
 {
     Q_OBJECT
-    QTcpSocket* socket;
+    QSslSocket* socket;
 public:
-    RegistrationProcess(QTcpSocket* socket, WorkDataBase* db);
+    RegistrationProcess(QSslSocket* socket, WorkDataBase* db);
     void sendingData(DataParsing messageFromClient);
 };
 

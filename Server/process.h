@@ -1,6 +1,6 @@
 #ifndef PROCESS_H
 #define PROCESS_H
-#include <QTcpSocket>
+#include <QSslSocket>
 #include "process.h"
 #include "workdatabase.h"
 #include "dataparsing.h"
@@ -10,7 +10,7 @@ class Process:public QObject
 {
 Q_OBJECT
 signals:
-    void writeSocketInProcess(QTcpSocket* socket, QByteArray data);
+    void writeSocketInProcess(QSslSocket* socket, QByteArray data);
 protected:
     WorkDataBase* db;
     QByteArray generateData(QString process, QString signal);
@@ -22,7 +22,7 @@ protected:
     QByteArray generateData(QString process, QString signal, QList<ClientInfo> clientInfos);
     QByteArray generateData(QString process, QString signal, ClientInfo clientInfo);
     QByteArray generateData(QString process, QString signal, QList<ClientMessage> conntents, ClientChat chat);
-    void sockWrite(QTcpSocket* socket, QByteArray data);
+    void sockWrite(QSslSocket* socket, QByteArray data);
     void printClientInfo(QString header, ClientInfo clientInfo);
 public:
     Process(WorkDataBase* db);

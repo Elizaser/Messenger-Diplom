@@ -6,11 +6,11 @@
 class EntryProcess:public Process
 {
     Q_OBJECT
-    QTcpSocket* socket;
+    QSslSocket* socket;
     void sendingStatus(ClientInfo curClientInfo);
     void sendingUserInfo(ClientInfo curClientInfo);
 public:
-    EntryProcess(QTcpSocket* socket, WorkDataBase* db);
+    EntryProcess(QSslSocket* socket, WorkDataBase* db);
     void sendingData(DataParsing messageFromClient);
 };
 

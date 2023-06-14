@@ -3,10 +3,9 @@
 
 #include <QMainWindow>
 #include <QMessageBox>
-#include <QTcpSocket>
 #include <QString>
 #include <QStandardItem>
-#include <QTcpSocket>
+#include <QSslSocket>
 #include "dataparsing.h"
 #include "userchat.h"
 #include "userinfo.h"
@@ -24,7 +23,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QTcpSocket* socket, QWidget *parent = nullptr);
+    MainWindow(QSslSocket* socket, QWidget *parent = nullptr);
     ~MainWindow();
 
 signals:
@@ -63,7 +62,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QTcpSocket* socket;
+    QSslSocket* socket;
 
     UserInfo curUserInfo;
     QList<UserChat> allChats;

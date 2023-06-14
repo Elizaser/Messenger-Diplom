@@ -1,7 +1,7 @@
 #include "registrationwindow.h"
 #include "ui_registrationwindow.h"
 
-RegistrationWindow::RegistrationWindow(QTcpSocket* socket, QWidget *parent) :
+RegistrationWindow::RegistrationWindow(QSslSocket* socket, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::RegistrationWindow)
 {

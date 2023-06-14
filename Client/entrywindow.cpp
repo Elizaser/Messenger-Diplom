@@ -2,7 +2,7 @@
 #include "ui_entrywindow.h"
 #include <QTimer>
 
-EntryWindow::EntryWindow(QTcpSocket* socket, RegistrationWindow *rWindow, MainWindow* mWindow, QWidget *parent) :
+EntryWindow::EntryWindow(QSslSocket* socket, RegistrationWindow *rWindow, MainWindow* mWindow, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::EntryWindow)
 {

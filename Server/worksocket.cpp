@@ -20,7 +20,7 @@ void WorkSocket::start()
 void WorkSocket::incomingConnection(qintptr socketDescriptor)
 {
     qDebug()<<socketDescriptor<<" new connection";
-    sockets.insert(socketDescriptor, new QTcpSocket(this));
+    sockets.insert(socketDescriptor, new QSslSocket(this));
     if(!sockets[socketDescriptor]->setSocketDescriptor(socketDescriptor)){
         return;
     }
@@ -40,7 +40,7 @@ void WorkSocket::incomingConnection(qintptr socketDescriptor)
     connect(controller,SIGNAL(finished()),thread,SLOT(quit()));
     connect(controller,SIGNAL(sockDisconnect(int)),this,SLOT(deleteSocketInSockets(int)));
     connect(thread,SIGNAL(finished()),thread,SLOT(deleteLater()));
-    connect(controller, SIGNAL(writeSocket(QTcpSocket*, QByteArray)),this, SLOT(swriteSocket(QTcpSocket*, QByteArray)));
+    connect(controller, SIGNAL(writeSocket(QSslSocket*, QByteArray)),this, SLOT(swriteSocket(QSslSocket*, QByteArray)));
     connect(controller,SIGNAL(finished()),controller,SLOT(deleteLater()));
 
 
@@ -53,7 +53,7 @@ void WorkSocket::error(QString err)
 
 }
 
-void WorkSocket::swriteSocket(QTcpSocket* socket, QByteArray data)
+void WorkSocket::swriteSocket(QSslSocket* socket, QByteArray data)
 {
     qDebug() << "out - "<< data;
     socket->write(data);

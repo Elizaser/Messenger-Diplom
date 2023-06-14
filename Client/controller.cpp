@@ -14,7 +14,7 @@ Controller::~Controller()
 }
 void Controller:: start(QString hostName)
 {    
-    socket = new QTcpSocket();
+    socket = new QSslSocket();
     socket->connectToHost(hostName, 5555);
 
     while(!socket->waitForConnected(1000)) {

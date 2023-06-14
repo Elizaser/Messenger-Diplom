@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QMessageBox>
-#include <QTcpSocket>
+#include <QSslSocket>
 #include <QString>
 #include "entrywindow.h"
 #include "registrationwindow.h"
@@ -21,7 +21,7 @@ class Controller : public QWidget
 public:
     explicit Controller(QWidget *parent = nullptr);
     ~Controller();
-    QTcpSocket* socket;
+    QSslSocket* socket;
     void start(QString hostName);
 
 signals:

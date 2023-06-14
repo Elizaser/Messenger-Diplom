@@ -7,8 +7,8 @@ class MainProcess: public Process
     Q_OBJECT
     QList<QThread*> threads;
     ClientInfo curClientInfo;
-    QMap <qintptr, QTcpSocket*> sockets;
-    QTcpSocket* socket;
+    QMap <qintptr, QSslSocket*> sockets;
+    QSslSocket* socket;
     qintptr sockDeskriptor;
     ClientInfo fillCurClientInfo(ClientInfo clientInfo);
     void sendingUserChats();
@@ -33,9 +33,9 @@ class MainProcess: public Process
     void deleteMessageForEveryone(ClientMessage message);
     void updateIsReadingMessages(ClientChat chat);
 public:
-    MainProcess(QMap <qintptr, QTcpSocket*> sockets, QTcpSocket* socket, WorkDataBase* db);
+    MainProcess(QMap <qintptr, QSslSocket*> sockets, QSslSocket* socket, WorkDataBase* db);
     void sendingData(DataParsing messageFromClient);
-    void updateListSockets(qintptr sockDescriptor, QTcpSocket* sockets);
+    void updateListSockets(qintptr sockDescriptor, QSslSocket* sockets);
     void deleteInListSockets(qintptr sockDescriptor);
 };
 

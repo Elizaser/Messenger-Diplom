@@ -166,7 +166,7 @@ QByteArray Process::generateData(QString process, QString signal, QList<ClientMe
     qDebug() << "super data = " << data;
     return data;
 }
-void Process::sockWrite(QTcpSocket* socket, QByteArray data)
+void Process::sockWrite(QSslSocket* socket, QByteArray data)
 {
     emit writeSocketInProcess(socket, data);
 

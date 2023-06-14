@@ -1,7 +1,7 @@
 #include "mainprocess.h"
 #include "QThread"
 
-MainProcess::MainProcess(QMap <qintptr, QTcpSocket*> sockets, QTcpSocket*socket, WorkDataBase* db):Process(db)
+MainProcess::MainProcess(QMap <qintptr, QSslSocket*> sockets, QSslSocket*socket, WorkDataBase* db):Process(db)
 {
     this->threads= threads;
     this->socket = socket;
@@ -223,7 +223,7 @@ ClientInfo MainProcess:: fillCurClientInfo(ClientInfo inClientInfo)
     return outClientInfo;
 }
 
-void MainProcess::updateListSockets(qintptr sockDescriptor, QTcpSocket* socket)
+void MainProcess::updateListSockets(qintptr sockDescriptor, QSslSocket* socket)
 {
     this->sockets.insert(sockDescriptor, socket);
 }

@@ -2,12 +2,11 @@
 #include "ui_createchat.h"
 
 
-CreateChat::CreateChat(QTcpSocket* socket, QWidget *parent) :
+CreateChat::CreateChat(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::CreateChat)
 {
     ui->setupUi(this);
-    this->socket = socket;
     connect(ui->tableWidget_allUsers, SIGNAL(cellClicked(int,int)), this, SLOT(addUserInChat(int)));
     connect(ui->tableWidget_addUsers, SIGNAL(cellClicked(int,int)), this, SLOT(deleteUserInChat(int, int)));
     connect(ui->lineEdit_searh, &QLineEdit::textChanged, this, &CreateChat::search);
@@ -27,7 +26,7 @@ CreateChat::CreateChat(QTcpSocket* socket, QWidget *parent) :
 }
 
 void CreateChat::start(){
-    socket->write("{\"process\":\"main\", \"signal\":\"getUsersCreateChat\"}");
+     emit sockWrite("main", "getUsersCreateChat");
 }
 void CreateChat::setAllUsers(QList<UserInfo> allUsers){
     this->allUsers = allUsers;
@@ -74,8 +73,8 @@ void CreateChat::deleteUserInChat(int i, int j){
 }
 
 void CreateChat::search(){
-    socket->write("{\"process\":\"main\", \"signal\":\"getUsersCreateChat\", \"user\":\"" +
-                  ui->lineEdit_searh->text().toLocal8Bit() + "\"}");
+     emit sockWrite("main", "getUsersCreateChat", "\"user\":\"" +
+                    ui->lineEdit_searh->text().toLocal8Bit() + "\"");
 }
 
 CreateChat::~CreateChat()
@@ -97,8 +96,6 @@ void CreateChat::on_pushButton_createChat_clicked()
         userChat.name = nameChat;
         userChat.type = "group";
         for(auto&user:usersInChat){
-            qDebug() << "user.userID = " << user.userID;
-            qDebug() << "user.name = " << user.name;
             userChat.participants.insert(user.userID, user.name);
         }
         emit sockWrite("main", "createChat", userChat);

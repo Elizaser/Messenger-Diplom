@@ -1,6 +1,6 @@
 #include "registrationprocess.h"
 
-RegistrationProcess::RegistrationProcess(QTcpSocket* socket, WorkDataBase* db):Process(db)
+RegistrationProcess::RegistrationProcess(QSslSocket* socket, WorkDataBase* db):Process(db)
 {
     this->socket = socket;
 }

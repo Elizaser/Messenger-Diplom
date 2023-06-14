@@ -7,7 +7,6 @@
 #include<QJsonParseError>
 //#include <QStandardItem>
 #include <QMessageBox>
-#include <QTcpSocket>
 #include "userchat.h"
 #include "userinfo.h"
 #include "usermessage.h"

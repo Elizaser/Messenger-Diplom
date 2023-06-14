@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QMessageBox>
-#include <QTcpSocket>
+#include <QSslSocket>
 #include "dataparsing.h"
 
 namespace Ui {
@@ -15,7 +15,7 @@ class RegistrationWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit RegistrationWindow(QTcpSocket *socket, QWidget *parent = nullptr);
+    explicit RegistrationWindow(QSslSocket *socket, QWidget *parent = nullptr);
     ~RegistrationWindow();
 signals:
     void openWindow();
@@ -30,7 +30,7 @@ public slots:
 
 private:
     Ui::RegistrationWindow *ui;
-    QTcpSocket* socket;
+    QSslSocket* socket;
 };
 
 #endif // REGISTRATIONWINDOW_H

@@ -3,7 +3,7 @@
 #include <QCheckBox>
 #include <QTextEdit>
 
-MainWindow::MainWindow(QTcpSocket* socket, QWidget *parent)
+MainWindow::MainWindow(QSslSocket* socket, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
@@ -541,9 +541,10 @@ void MainWindow::showNewChat(UserChat chat)
 
 void MainWindow::on_pushButton_createChat_clicked()
 {
-    createChat = new CreateChat(socket);
-//    connect(createChat, &CreateChat::sockWrite, this, &MainWindow::sockWrite);
+    createChat = new CreateChat();
     connect(createChat, SIGNAL(sockWrite(QString,QString, UserChat)), this, SLOT(sockWrite(QString, QString, UserChat)));
+    connect(createChat, SIGNAL(sockWrite(QString,QString, QString)), this, SLOT(sockWrite(QString, QString, QString)));
+    connect(createChat, SIGNAL(sockWrite(QString,QString)), this, SLOT(sockWrite(QString, QString)));
 
     createChat->show();
     createChat->start();

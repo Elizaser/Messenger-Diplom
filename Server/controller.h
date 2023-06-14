@@ -3,7 +3,7 @@
 
 #include <QThread>
 #include <QTcpServer>
-#include <QTcpSocket>
+#include <QSslSocket>
 #include "workdatabase.h"
 #include "dataparsing.h"
 #include "entryprocess.h"
@@ -13,7 +13,7 @@
 class Controller:public QObject
 {
 Q_OBJECT
-    QMap <qintptr, QTcpSocket*>sockets;
+    QMap <qintptr, QSslSocket*>sockets;
     WorkDataBase* db;
     QObject* parent;
     EntryProcess* entry;
@@ -21,12 +21,12 @@ Q_OBJECT
     MainProcess* main;
 public:
     qintptr sockDescriptor;
-    Controller(QMap <qintptr, QTcpSocket*> sockets, qintptr sockDescriptor, QObject * parent);
-    void updateListSockets(qintptr sockDescriptor, QTcpSocket* sockets);
+    Controller(QMap <qintptr, QSslSocket*> sockets, qintptr sockDescriptor, QObject * parent);
+    void updateListSockets(qintptr sockDescriptor, QSslSocket* sockets);
     void deleteInListSockets(qintptr sockDescriptor);
 public slots:
     void start();
-    void swriteSocketInProcess(QTcpSocket* sockets, QByteArray data);
+    void swriteSocketInProcess(QSslSocket* sockets, QByteArray data);
 private slots:
     void dataAnalysis();
     void disconnected();
@@ -34,7 +34,7 @@ signals:
     void finished();
     void sockDisconnect(int sockDescriptor);
     void error(QString err);
-    void writeSocket(QTcpSocket* sockets, QByteArray data);
+    void writeSocket(QSslSocket* sockets, QByteArray data);
 
 
 };

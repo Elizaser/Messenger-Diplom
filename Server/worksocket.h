@@ -3,7 +3,7 @@
 
 #include <QThread>
 #include <QTcpServer>
-#include <QTcpSocket>
+#include <QSslSocket>
 #include <QJsonDocument>
 #include "controller.h"
 
@@ -17,10 +17,10 @@ public:
 private slots:
     void incomingConnection(qintptr socketDescriptor);
     void error(QString err);
-    void swriteSocket(QTcpSocket* sockets, QByteArray data);
+    void swriteSocket(QSslSocket* sockets, QByteArray data);
     void deleteSocketInSockets(int sockDescriptor);
 private:
-    QMap <qintptr, QTcpSocket*>sockets;
+    QMap <qintptr, QSslSocket*>sockets;
     QMap <qintptr, Controller*> controllers;
 };
 

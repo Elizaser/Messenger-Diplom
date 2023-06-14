@@ -2,7 +2,6 @@
 #define CREATECHAT_H
 
 #include <QWidget>
-#include "QTcpSocket"
 #include "userinfo.h"
 #include "userchat.h"
 
@@ -15,10 +14,12 @@ class CreateChat : public QWidget
     Q_OBJECT
 
 signals:
-    void sockWrite(QString proces, QString signal, UserChat userChat) ;
+    void sockWrite(QString proces, QString signal);
+    void sockWrite(QString proces, QString signal, UserChat userChat);
+    void sockWrite(QString proces, QString signal, QString message);
 
 public:
-    explicit CreateChat(QTcpSocket* socket, QWidget *parent = nullptr);
+    explicit CreateChat(QWidget *parent = nullptr);
     ~CreateChat();
 private slots:
     void addUserInChat(int i);
@@ -28,7 +29,6 @@ private slots:
 
 private:
     Ui::CreateChat *ui;
-    QTcpSocket* socket;
     QList<UserInfo> usersInChat;
     QList<UserInfo> allUsers;
     void search();

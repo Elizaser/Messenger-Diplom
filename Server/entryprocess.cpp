@@ -1,6 +1,6 @@
 #include "entryprocess.h"
 
-EntryProcess::EntryProcess(QTcpSocket* socket, WorkDataBase* db):Process(db)
+EntryProcess::EntryProcess(QSslSocket* socket, WorkDataBase* db):Process(db)
 {
     this->socket = socket;
 }
