@@ -8,14 +8,12 @@ Process::Process(WorkDataBase* db)
 QByteArray Process::generateData(QString process, QString signal)
 {
     QByteArray data = "{\"process\":\"" +  process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\"}";
-    qDebug() << "data1 = " << data;
     return data;
 }
 
 QByteArray Process::generateData(QString process, QString signal, QString message)
 {
     QByteArray data = "{\"process\":\"" +  process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\", " + message.toLocal8Bit() + "}";
-    qDebug() << "data2 = " << data;
     return data;
 }
 
@@ -48,7 +46,6 @@ QByteArray Process::generateData(QString process, QString signal, QList<ClientCh
         data = generateData(process, signal,
                   "\"chat\":\"-1\"");
     }
-    qDebug() << "data chats = " << data;
     return data;
 }
 QByteArray Process::generateData(QString process, QString signal, ClientChat chat)
@@ -64,9 +61,7 @@ QByteArray Process::generateData(QString process, QString signal, ClientChat cha
     foreach (auto key, chat.participants.keys()){
         data.append("{\"participantID\":\"" + key + "\", \"participantName\":\"" + chat.participants.value(key) + "\"},");
     }
-//    for(auto & participant : chat.participants){
-//        data.append("{\"participant\":\"" + participant + "\"},");
-//    }
+
     data.remove(data.length()-1,1);
     data.append("]}");
     return data;
@@ -84,6 +79,8 @@ QByteArray Process::generateData(QString process, QString signal, QList<ClientMe
                         + "\", \"senderName\":\"" + conntent.senderName
                         + "\", \"isRead\":\"" + conntent.isRead
                         + "\", \"isSystem\":\"" + conntent.isSystem
+                        + "\", \"date\":\"" + conntent.date
+                        + "\", \"time\":\"" + conntent.time
                         + "\", \"message\":\"" + conntent.message + "\"},");
 
         }
@@ -104,6 +101,8 @@ QByteArray Process::generateData(QString process, QString signal, ClientMessage 
                     + "\", \"senderName\":\"" + conntent.senderName.toLocal8Bit()
                     + "\", \"isRead\":\"" + conntent.isRead.toLocal8Bit()
                     + "\", \"isSystem\":\"" + conntent.isSystem.toLocal8Bit()
+                    + "\", \"date\":\"" + conntent.date.toLocal8Bit()
+                    + "\", \"time\":\"" + conntent.time.toLocal8Bit()
                     + "\", \"message\":\"" + conntent.message.toLocal8Bit() +"\"}";
     return data;
 }
@@ -144,7 +143,6 @@ QByteArray Process::generateData(QString process, QString signal, QList<ClientMe
 {
     QByteArray data  = generateData(process, signal, conntents);
     data.remove(data.length()-1,1).append(", ");
-//    data.append("\"chatID\":\"" + chatID + "\"}");
     data += "\"chatID\":\"" + chat.chatID.toLocal8Bit()
                     + "\", \"userCreator\":\"" + chat.userCreator.toLocal8Bit()
                     + "\", \"name\":\"" + chat.name.toLocal8Bit()
@@ -152,9 +150,6 @@ QByteArray Process::generateData(QString process, QString signal, QList<ClientMe
                     + "\",  \"countIsLook\":\"" + chat.countIsLook.toLocal8Bit()
                     + "\",  \"type\":\"" + chat.type.toLocal8Bit()
                     + "\", \"participants\":[";
-//    for(auto & participant : chat.participants){
-//        data.append("{\"participant\":\"" + participant + "\"},");
-//    }
     foreach (auto key, chat.participants.keys()){
         data.append("{\"participantID\":\"" + key + "\", \"participantName\":\"" + chat.participants.value(key) + "\"},");
     }
@@ -163,7 +158,6 @@ QByteArray Process::generateData(QString process, QString signal, QList<ClientMe
     }
     data.append("]}");
 
-    qDebug() << "super data = " << data;
     return data;
 }
 void Process::sockWrite(QSslSocket* socket, QByteArray data)

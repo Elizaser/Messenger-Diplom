@@ -14,7 +14,6 @@ void Controller::start()
     entry = new EntryProcess(sockets[sockDescriptor], db);
     registration = new RegistrationProcess(sockets[sockDescriptor], db);
     main = new MainProcess(sockets, sockets[sockDescriptor], db);
-//    qDebug() << "Starting thread:"<< QThread::currentThreadId() << "Socket:" << sockets[sockDescriptor];
     connect(sockets[sockDescriptor], SIGNAL(readyRead()), this, SLOT(dataAnalysis()));
     connect(sockets[sockDescriptor], SIGNAL(disconnected()), this, SLOT(disconnected()));
     connect(entry, SIGNAL(writeSocketInProcess(QSslSocket*, QByteArray)), this, SLOT(swriteSocketInProcess(QSslSocket*, QByteArray)));

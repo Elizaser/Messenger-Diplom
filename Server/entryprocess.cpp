@@ -29,7 +29,6 @@ void EntryProcess::sendingData(DataParsing messageFromClient)
 void EntryProcess:: sendingStatus(ClientInfo curClientInfo)
 {
     if (db->isCorrectInfoClient(curClientInfo.login, curClientInfo.password)) {
-        qDebug() << "1 entry curClientInfo.userID = " << curClientInfo.userID;
         sockWrite(socket, generateData("entry", "welcome"));
         printClientInfo("Вошел клиент ", curClientInfo);
 
@@ -41,7 +40,6 @@ void EntryProcess:: sendingStatus(ClientInfo curClientInfo)
 
 void EntryProcess:: sendingUserInfo(ClientInfo curClientInfo)
 {
-    qDebug() << "2 entry curClientInfo.userID = " << curClientInfo.userID;
     sockWrite(socket, generateData("main", "setUserInfo", curClientInfo));
 }
 

@@ -11,5 +11,7 @@ public:
     QString message;
     QString isRead;
     QString isSystem = "0";
+    QString date;
+    QString time;
 };
 #endif // USERMESSAGE_H

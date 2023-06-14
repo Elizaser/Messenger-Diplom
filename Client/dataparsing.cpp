@@ -121,6 +121,8 @@ QList<UserMessage> DataParsing::getChatContent()
             conntent.message = jsConntents[i].toObject().value("message").toString();
             conntent.isRead = jsConntents[i].toObject().value("isRead").toString();
             conntent.isSystem = jsConntents[i].toObject().value("isSystem").toString();
+            conntent.date = jsConntents[i].toObject().value("date").toString();
+            conntent.time = jsConntents[i].toObject().value("time").toString();
             conntents.append(conntent);
         }
     }
@@ -136,5 +138,7 @@ UserMessage DataParsing::getMessage()
     message.message = jDoc.object().value("message").toString();
     message.isRead = jDoc.object().value("isRead").toString();
     message.isSystem = jDoc.object().value("isSystem").toString();
+    message.date = jDoc.object().value("date").toString();
+    message.time = jDoc.object().value("time").toString();
     return message;
 }

@@ -54,8 +54,12 @@ ClientMessage WorkDataBase::insertMessage(ClientMessage message)
 {
 
     QSqlQuery* query = new QSqlQuery(db);
-    if(query->exec( "INSERT INTO Messages (`chatID`, `sender`, `message`, `isSystem`) VALUES ('"
-                    + message.chatID + "', '" + message.senderID + "', '" + message.message + "', '" + message.isSystem + "')"))
+    qDebug() << "insertMessage query = " << "INSERT INTO Messages (`chatID`, `sender`, `message`, `isSystem`, `date`, `time`) VALUES ('"
+                + message.chatID + "', '" + message.senderID + "', '" + message.message + "', '"
+                + message.isSystem + "', '" + message.date + "', '" + message.time + "')";
+    if(query->exec( "INSERT INTO Messages (`chatID`, `sender`, `message`, `isSystem`, `date`, `time`) VALUES ('"
+                    + message.chatID + "', '" + message.senderID + "', '" + message.message + "', '"
+                    + message.isSystem + "', '" + message.date + "', '" + message.time + "')"))
     {
         query->exec( "SELECT messageID FROM `Messages` ORDER BY messageID DESC");
         query->next();
@@ -65,11 +69,6 @@ ClientMessage WorkDataBase::insertMessage(ClientMessage message)
                             message.chatID + "'");
         message.isRead = "0";
         while(query2->next()) {
-//            if(message.senderID == query2->value(0).toString())
-//                message.isRead = "1";
-//            else
-//                message.isRead = "0";
-//            if(query2->value(0).toString() == message.senderID) message.isRead = "1";
             if(query->exec( "INSERT INTO `MessageStatus` (`messageID`, `userID`, `isRead`) VALUES ('"
                             + message.messageID + "', '" + query2->value(0).toString() + "', '" + message.isRead + "')")){
             } else {
@@ -92,15 +91,9 @@ ClientChat WorkDataBase::insertChat(ClientChat chat)
         query->next();
         chat.chatID = query->value(0).toString();
         foreach (auto key, chat.participants.keys()){
-            qDebug() << "key = " << key;
-            qDebug() << "chat.participants.value(key) = " << chat.participants.value(key);
             query->exec("INSERT INTO `Participants` (`chatID`, `participantID`) VALUES ('"
                                + chat.chatID + "', '" + key + "')");
         }
-//        for(auto&participant:chat.participants){
-//            query->exec("INSERT INTO `Participants` (`chatID`, `participantID`) VALUES ('"
-//                               + chat.chatID + "', '" + participant + "')");
-//        }
     }
     return chat;
 }
@@ -239,8 +232,7 @@ QList<ClientChat> WorkDataBase::getUserChats(QString userID)
             }
             countIsLook++;
         }
-//        if(countIsLook <= 0)
-//            continue;
+
         chat.countIsNotReadMessages = QString::number(countIsNotReadMessages);
         chat.countIsLook = QString::number(countIsLook);
         chats.append(chat);
@@ -252,13 +244,15 @@ QList<ClientMessage> WorkDataBase::getChatConntent(QString chatID, QString curUs
     QList<ClientMessage> conntents;
     ClientMessage conntent;
     QSqlQuery* query1 = new QSqlQuery(db);
-    query1->exec("SELECT messageID, chatID, sender, message, isSystem FROM Messages where chatID = '" +  chatID + "'");
+    query1->exec("SELECT messageID, chatID, sender, message, isSystem, date, time FROM Messages where chatID = '" +  chatID + "'");
     while(query1->next()) {
         conntent.messageID = query1->value(0).toString();
         conntent.chatID = query1->value(1).toString();
         conntent.senderID = query1->value(2).toString();
         conntent.message = query1->value(3).toString();
         conntent.isSystem = query1->value(4).toString();
+        conntent.date = query1->value(5).toString();
+        conntent.time = query1->value(6).toString();
         QSqlQuery* query2 = new QSqlQuery(db);
         query2->exec("SELECT name FROM User WHERE userID = " + conntent.senderID);
         query2->next();
@@ -277,20 +271,19 @@ QList<ClientMessage> WorkDataBase::getChatConntent(QString chatID, QString curUs
 
 QList<ClientMessage> WorkDataBase::getDialogConntent(QString companionUserID, QString curUserID)
 {
-    qDebug() << "companionUserID" << companionUserID;
-    qDebug() << "curUserID" << curUserID;
     QList<ClientMessage> conntents;
     ClientMessage conntent;
     QString chatID = getDialogID(companionUserID, curUserID);
-    qDebug() << "chatID" << chatID;
     QSqlQuery* queryDialogConntent = new QSqlQuery(db);
-    queryDialogConntent ->exec("SELECT messageID, chatID, sender, message, isSystem  FROM Messages where chatID = '" +  chatID + "'");
+    queryDialogConntent ->exec("SELECT messageID, chatID, sender, message, isSystem, date, time  FROM Messages where chatID = '" +  chatID + "'");
     while(queryDialogConntent->next()){
         conntent.messageID = queryDialogConntent->value(0).toString();
         conntent.chatID = queryDialogConntent->value(1).toString();
         conntent.senderID = queryDialogConntent->value(2).toString();
         conntent.message = queryDialogConntent->value(3).toString();
         conntent.isSystem = queryDialogConntent->value(4).toString();
+        conntent.date = queryDialogConntent->value(5).toString();
+        conntent.time = queryDialogConntent->value(6).toString();
         QSqlQuery* query2 = new QSqlQuery(db);
         query2->exec("SELECT name FROM User WHERE userID = " + conntent.senderID);
         query2->next();
@@ -443,7 +436,6 @@ bool WorkDataBase::deleteChat(QString chatID, QString userID){
     return true;
 }
 bool WorkDataBase::exitChat(QString chatID, QString userID){
-    qDebug() << "chatID = " << chatID << " userID =" << userID;
     QSqlQuery* query = new QSqlQuery(db);
     query->exec("SELECT messageID FROM Messages WHERE chatID = '" + chatID +  "'");
     while (query->next()) {
@@ -515,11 +507,6 @@ bool WorkDataBase::updateMessageEddit(ClientMessage message)
 }
 bool WorkDataBase::updateUser(ClientInfo client){
     QSqlQuery* query = new QSqlQuery(db);
-    qDebug() << "WorkDataBase::updateUser query = " << "UPDATE User SET `login` = '" + client.login
-                + "', `password` = '" + client.password
-                + "', `name` = '" + client.name
-                + "', `status` = \"" + client.status
-                + "\" WHERE userID = '" + client.userID + "'";
     if(!query->exec("UPDATE User SET `login` = '" + client.login
                     + "', `password` = '" + client.password
                     + "', `name` = '" + client.name

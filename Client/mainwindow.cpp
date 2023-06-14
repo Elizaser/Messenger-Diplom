@@ -46,17 +46,14 @@ void MainWindow::sockReady(DataParsing messageFromServer)
         } else if(signal == "searchChats") {
             setSearchChats(messageFromServer.getChats());
         } else if(signal == "setChatContent") {
-            qDebug() << "signal setContent messageFromServer.getChatID() =  " << messageFromServer.getChatID();
             if(messageFromServer.getChatID() != "") {
                 int i = searchChatByID(allChats, messageFromServer.getChat().chatID);
                 if(i == -1) {
                     setNewChat(messageFromServer.getChat());
                     i = searchChatByID(allChats, messageFromServer.getChat().chatID);
                 }
-                qDebug() << "signal setContent i =  " << i;
                 allChats[i].countIsNotReadMessages = "0";
                 curChat = allChats[i];
-                qDebug() << "signal setContent curChat =  " << curChat.name;
             }
             setChatContent(messageFromServer.getChatContent());
         } else if(signal == "newMessage") {
@@ -68,19 +65,14 @@ void MainWindow::sockReady(DataParsing messageFromServer)
         } else if(signal == "newChat") {
             setNewChat(messageFromServer.getChat());
         } else if(signal == "newDialog") {
-//            curChat = messageFromServer.getChat();
-//            qDebug () << "signal newDialog curChat =  " << curChat.name;
             setNewChat(messageFromServer.getChat());
         } else if(signal == "deleteParticipant") {
-//            deleteParticipant(messageFromServer.getUser());
         } else if(signal == "setUsersCreateChat") {
             setUsersInWindowCreateChat(messageFromServer.getUsers());
         } else if(signal == "updateIsReadingMessages") {
             updateIsReadingMessages(messageFromServer.getChatID());
         } else if(signal == "updateEdditUser") {
             updateEdditUser(messageFromServer.getUser());
-//            int i = searchChatByID( messageFromServer.getChatID());
-//            curChat = chats[i];
         } else {
             qDebug() << "Информация(MainWindow)\n" <<  "Ошибка с форматом передачи данных";
         }
@@ -108,7 +100,6 @@ void MainWindow::lookSelfUser()
 }
 void MainWindow::settingsSelfUser()
 {
-    qDebug() << "settingsSelfUser curUserInfo.userID" << curUserInfo.userID;
     UserSettings *userSettings = new UserSettings(curUserInfo);
     connect(userSettings, SIGNAL(sockWrite(QString,QString, UserInfo)), this, SLOT(sockWrite(QString, QString, UserInfo)));
     userSettings->show();
@@ -122,9 +113,6 @@ void MainWindow:: clickChatList(int i, int  j)
             ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Найденные чаты"){
         if(j == 0){
             clearChatWindow();
-//            ui->tableWidget_chatWindow->clear();
-//            chats[i].countIsNotReadMessages = "0";
-            qDebug() << "clickChatList chats[i].countIsNotReadMessages = " << allChats[i].countIsNotReadMessages;
             curChat = allChats[i];
             ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(curChat.name));
             ui->label_chatName->setText(allChats[i].name);
@@ -216,9 +204,6 @@ void MainWindow::clickedEdditMessage(int i)
 
 void MainWindow::setNewChat(UserChat chat)
 {
-    qDebug() << "setNewChat chat.countIsNotReadMessages = " << chat.countIsNotReadMessages;
-    qDebug() << "setNewChat chat.countIsLook = " << chat.countIsLook;
-
     allChats.append(chat);
     renameDialogOnNameCompanion();
     showNewChat(chat);
@@ -252,8 +237,6 @@ void MainWindow::setNewMessage(UserMessage message)
     } else {
         curChatContent.append(message);
         showNewMessage(message);
-        qDebug() << "message.senderID = " << message.senderID;
-        qDebug() << "userInfo.userID = " << curUserInfo.userID;
         if(message.senderID != curUserInfo.userID)
             sockWrite("main", "isReadingMessage", "\"chatID\":\""
                       + message.chatID + "\"");
@@ -265,11 +248,7 @@ void MainWindow::deleteMessage(UserMessage message)
     int i = searchMessageByID(curChatContent, message.messageID);
 
     if(i != -1) {
-        qDebug() << "i = " << i << " message.messageID = " << message.messageID;
-        qDebug() << "1curChatContent.at(i).chatID = " << curChatContent.at(i).chatID << " message.chatID = " << message.chatID;
         if(!(curChatContent.isEmpty()) && curChatContent.at(i).chatID == message.chatID) {
-            qDebug() << "2curChatContent.at(i).chatID = " << curChatContent.at(i).chatID << " message.chatID = " << message.chatID;
-
             ui->tableWidget_chatWindow->removeRow(i);
             curChatContent.removeAt(i);
         }
@@ -475,9 +454,9 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
 {
     ui->tableWidget_chatWindow-> clear();
     ui->tableWidget_chatWindow->setRowCount(0);
-    ui->tableWidget_chatWindow->setColumnCount(5);
+    ui->tableWidget_chatWindow->setColumnCount(6);
     QStringList horzHeaders;
-    horzHeaders << "История вашего чата" << "" << "" << "" << "";
+    horzHeaders << "История вашего чата" << "" << "" << "" << ""<< "";
     ui->tableWidget_chatWindow->setHorizontalHeaderLabels(horzHeaders);
     for(int i = 0; i < conntents.count(); i++){
         ui->tableWidget_chatWindow->insertRow(i);
@@ -498,6 +477,7 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
         else
             text = "V";
         ui->tableWidget_chatWindow->setItem(i, 4, new QTableWidgetItem(text));
+        ui->tableWidget_chatWindow->setItem(i, 5, new QTableWidgetItem(conntents.at(i).date + " " + conntents.at(i).time));
     }
     ui->tableWidget_chatWindow->resizeColumnsToContents();
     ui->tableWidget_chatWindow->resizeRowsToContents();
@@ -520,10 +500,10 @@ void MainWindow::showNewMessage(UserMessage message)
     else
         text = "V";
     ui->tableWidget_chatWindow->setItem(rowCount, 4, new QTableWidgetItem(text));
+    ui->tableWidget_chatWindow->setItem(rowCount, 5, new QTableWidgetItem(message.date + " " + message.time));
 }
 void MainWindow::showNewChat(UserChat chat)
 {
-    qDebug() << "showNewChat chat.countIsNotReadMessages = " << chat.countIsNotReadMessages;
     int rowCount  =  ui->tableWidget_chatsList->rowCount();
     if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Мои чаты") {
         ui->tableWidget_chatsList->insertRow(rowCount);
@@ -574,7 +554,6 @@ void MainWindow::on_pushButton_sendReply_clicked()
             QMessageBox::information(this, "Информация(MainWindow)", "Соединение не установлено");
         }
     } else if(ui->pushButton_sendReply->text() == "Редактировать"){
-        qDebug() << "messageID" << curMessage.messageID << " message" << ui->textEdit_replyBox->toPlainText().toLocal8Bit();
         curMessage.message =    ui->textEdit_replyBox->toPlainText();
         sockWrite("main", "messageEddit", curMessage);
         ui->pushButton_sendReply->setText("Отправить");
@@ -659,6 +638,8 @@ void MainWindow::sockWrite(QString process, QString signal, QList<UserMessage> c
                         "\", \"senderName\":\"" + conntent.senderName +
                         "\", \"isRead\":\"" + conntent.isRead +
                         "\", \"isSystem\":\"" + conntent.isSystem +
+                         "\", \"date\":\"" + conntent.date +
+                         "\", \"time\":\"" + conntent.time +
                         "\", \"message\":\"" + conntent.message +"\"},");
 
         }
@@ -681,6 +662,8 @@ void MainWindow::sockWrite(QString process, QString signal, UserMessage conntent
                         + "\", \"senderName\":\"" + conntent.senderName.toLocal8Bit()
                         + "\", \"isRead\":\"" + conntent.isRead.toLocal8Bit()
                         + "\", \"isSystem\":\"" + conntent.isSystem.toLocal8Bit()
+                        + "\", \"date\":\"" + conntent.date.toLocal8Bit()
+                        + "\", \"time\":\"" + conntent.time.toLocal8Bit()
                         + "\", \"message\":\"" + conntent.message.toLocal8Bit() +"\"}";
         socket->write(data);
         socket->waitForBytesWritten();

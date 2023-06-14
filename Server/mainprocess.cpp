@@ -116,6 +116,8 @@ ClientMessage MainProcess::saveMessage(ClientMessage message)
     message.senderID = curClientInfo.userID;
     message.senderName = curClientInfo.name;
     message.isSystem = "0";
+    message.date = QDateTime::currentDateTime().toString("dd.MM.yyyy");
+    message.time = QDateTime::currentDateTime().toString("hh:mm");
     return db->insertMessage(message);
 }
 void MainProcess::sendingMessageInNewDialog(ClientMessage message)
@@ -136,13 +138,11 @@ void MainProcess::sendingMessageInNewDialog(ClientMessage message)
     if (chat.chatID == ""){
         return;
     }
-    qDebug() << "chat.chatID = " << chat.chatID;
-//    sockWrite(socket, "main", "setCurChat", chat);
-    qDebug() << "chat.countIsNotReadMessages  = " << chat.countIsNotReadMessages;
-    sendOnlineUsersInChat(chat.chatID, generateData("main", "newDialog", chat));
     message.chatID = chat.chatID;
-//    sockWrite(socket, generateData("main", "setCurChat", "\"chatID\":\"" + message.chatID + "\""));
-    sendingMessage(message);
+    message = saveMessage(message);
+    if(message.messageID == "") return;
+    sendOnlineUsersInChat(chat.chatID, generateData("main", "newDialog", chat));
+    sendOnlineUsersInChat(message.chatID, generateData("main", "newMessage", message));
 }
 void MainProcess::updateMessage(ClientMessage message)
 {
@@ -180,7 +180,6 @@ void MainProcess::createChat(ClientChat chat)
     if (chat.chatID == ""){
         return;
     }
-    qDebug() << "chat.chatID = " << chat.chatID;
     sendOnlineUsersInChat(chat.chatID, generateData("main", "newChat", chat));
 
     ClientMessage message;
@@ -211,7 +210,6 @@ void MainProcess:: exitChat(QString chatID)
 void MainProcess::edditUser(ClientInfo client)
 {
     if(db->updateUser(client)) {
-        qDebug() << "db->updateUser(client)";
         sendOnlineUsers(generateData("main", "updateEdditUser", client));
     }
 }

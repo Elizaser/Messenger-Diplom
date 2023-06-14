@@ -13,8 +13,6 @@ void WorkSocket::start()
     } else {
         qDebug()<<"Not listening users";
     }
-//    db = new WorkDataBase;
-//    db->start();
 }
 
 void WorkSocket::incomingConnection(qintptr socketDescriptor)

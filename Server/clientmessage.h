@@ -11,5 +11,7 @@ public:
     QString message;
     QString isRead;
     QString isSystem;
+    QString date;
+    QString time;
 };
 #endif // CLIENTMESSAGE_H
