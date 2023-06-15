@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>731</width>
+    <width>892</width>
     <height>578</height>
    </rect>
   </property>
@@ -17,10 +17,10 @@
    <widget class="QTableWidget" name="tableWidget_chatsList">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>10</x>
       <y>60</y>
-      <width>351</width>
-      <height>431</height>
+      <width>371</width>
+      <height>421</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -35,170 +35,192 @@
     <property name="showGrid">
      <bool>false</bool>
     </property>
-    <column>
-     <property name="text">
-      <string>Все чаты</string>
-     </property>
-     <property name="textAlignment">
-      <set>AlignCenter</set>
-     </property>
-    </column>
-   </widget>
-   <widget class="QTextEdit" name="textEdit_replyBox">
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>480</y>
-      <width>241</width>
-      <height>51</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_sendReply">
-    <property name="geometry">
-     <rect>
-      <x>630</x>
-      <y>480</y>
-      <width>101</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Отправить</string>
-    </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_searchUser">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>490</y>
-      <width>271</width>
-      <height>41</height>
+      <x>40</x>
+      <y>20</y>
+      <width>191</width>
+      <height>31</height>
      </rect>
     </property>
-   </widget>
-   <widget class="QTableWidget" name="tableWidget_chatWindow">
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>60</y>
-      <width>341</width>
-      <height>421</height>
-     </rect>
-    </property>
-    <property name="selectionMode">
-     <enum>QAbstractItemView::SingleSelection</enum>
-    </property>
-    <property name="showGrid">
-     <bool>false</bool>
-    </property>
-    <column>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="textAlignment">
-      <set>AlignTrailing|AlignVCenter</set>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string/>
-     </property>
-    </column>
-   </widget>
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>470</y>
-      <width>81</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string/>
-    </property>
-    <widget class="QRadioButton" name="radioButtonPeople">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>20</y>
-       <width>71</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Люди</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="radioButton_Chats">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>40</y>
-       <width>71</width>
-       <height>23</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Чаты</string>
-     </property>
-    </widget>
    </widget>
    <widget class="QPushButton" name="pushButton_createChat">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>351</width>
-      <height>61</height>
+      <x>320</x>
+      <y>20</y>
+      <width>61</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Создать чат</string>
-    </property>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_2">
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>-20</y>
-      <width>341</width>
-      <height>80</height>
-     </rect>
-    </property>
-    <property name="title">
      <string/>
     </property>
-    <widget class="QLabel" name="label_chatName">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>30</y>
-       <width>241</width>
-       <height>51</height>
-      </rect>
-     </property>
+    <property name="icon">
+     <iconset resource="Images.qrc">
+      <normaloff>:/icons/newChat.png</normaloff>:/icons/newChat.png</iconset>
+    </property>
+   </widget>
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>0</y>
+      <width>401</width>
+      <height>531</height>
+     </rect>
+    </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>Tab 1</string>
+     </attribute>
+     <widget class="QTableWidget" name="tableWidget_chatWindow">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>40</y>
+        <width>341</width>
+        <height>401</height>
+       </rect>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
+      <property name="showGrid">
+       <bool>false</bool>
+      </property>
+      <column>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="textAlignment">
+        <set>AlignTrailing|AlignVCenter</set>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string/>
+       </property>
+      </column>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>0</y>
+        <width>341</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <widget class="QLabel" name="label_chatName">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>311</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QTextEdit" name="textEdit_replyBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>440</y>
+        <width>241</width>
+        <height>51</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_sendReply">
+      <property name="geometry">
+       <rect>
+        <x>250</x>
+        <y>440</y>
+        <width>101</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Отправить</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>Tab 2</string>
+     </attribute>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>31</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap resource="Images.qrc">:/icons/search.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>20</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <item>
      <property name="text">
       <string/>
      </property>
-    </widget>
+     <property name="icon">
+      <iconset theme="people" resource="Images.qrc">
+       <normaloff>:/icons/people.png</normaloff>:/icons/people.png</iconset>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset theme="chats" resource="Images.qrc">
+       <normaloff>:/icons/chats.png</normaloff>:/icons/chats.png</iconset>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset theme="chats">
+       <normaloff>../chats.png</normaloff>../chats.png</iconset>
+     </property>
+    </item>
    </widget>
-   <zorder>textEdit_replyBox</zorder>
-   <zorder>pushButton_sendReply</zorder>
-   <zorder>tableWidget_chatsList</zorder>
-   <zorder>lineEdit_searchUser</zorder>
-   <zorder>tableWidget_chatWindow</zorder>
-   <zorder>groupBox</zorder>
-   <zorder>pushButton_createChat</zorder>
-   <zorder>groupBox_2</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>731</width>
+     <width>892</width>
      <height>22</height>
     </rect>
    </property>
@@ -236,6 +258,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="Images.qrc"/>
+ </resources>
  <connections/>
 </ui>

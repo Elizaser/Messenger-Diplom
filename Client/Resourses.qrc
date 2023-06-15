@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/chats.png</file>
+        <file>icons/free-icon-profile-8246830.png</file>
+        <file>icons/people.png</file>
+        <file>icons/plus.gif</file>
+        <file>icons/search.png</file>
+    </qresource>
+</RCC>

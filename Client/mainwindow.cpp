@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+ #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QCheckBox>
 #include <QTextEdit>
@@ -349,21 +349,21 @@ void MainWindow::searchChatList()
 {
     clearChatWindow();
     QString desired = ui->lineEdit_searchUser->text();
-    if(ui->radioButtonPeople->isChecked()) {
-        if(desired == "") {
-            if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() != "Все пользователи")
-                socket->write("{\"process\":\"main\", \"signal\":\"getAllUsers\"}");
-            return;
-        }
-        socket->write("{\"process\":\"main\", \"signal\":\"searchPeople\", \"user\":\"" + desired.toLocal8Bit() + "\"}");
-    } else if(ui->radioButton_Chats->isChecked()){
-        if(desired == "") {
-            if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() != "Мои чаты")
-                socket->write("{\"process\":\"main\", \"signal\":\"getUserChats\"}");
-            return;
-        }
-        socket->write("{\"process\":\"main\", \"signal\":\"searchChats\", \"user\":\"" + desired.toLocal8Bit() + "\"}");
-    }
+//    if(ui->radioButtonPeople->isChecked()) {
+//        if(desired == "") {
+//            if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() != "Все пользователи")
+//                socket->write("{\"process\":\"main\", \"signal\":\"getAllUsers\"}");
+//            return;
+//        }
+//        socket->write("{\"process\":\"main\", \"signal\":\"searchPeople\", \"user\":\"" + desired.toLocal8Bit() + "\"}");
+//    } else if(ui->radioButton_Chats->isChecked()){
+//        if(desired == "") {
+//            if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() != "Мои чаты")
+//                socket->write("{\"process\":\"main\", \"signal\":\"getUserChats\"}");
+//            return;
+//        }
+//        socket->write("{\"process\":\"main\", \"signal\":\"searchChats\", \"user\":\"" + desired.toLocal8Bit() + "\"}");
+//    }
 }
 void MainWindow::clearChatWindow()
 {
