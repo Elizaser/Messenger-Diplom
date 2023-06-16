@@ -226,6 +226,12 @@
         <layout class="QGridLayout" name="gridLayout">
          <item row="4" column="12" rowspan="9">
           <widget class="QTabWidget" name="tabWidget">
+           <property name="minimumSize">
+            <size>
+             <width>700</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="currentIndex">
             <number>0</number>
            </property>
@@ -248,8 +254,8 @@
               <widget class="QTableWidget" name="tableWidget_chatWindow">
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
-                 <height>400</height>
+                 <width>300</width>
+                 <height>450</height>
                 </size>
                </property>
                <property name="palette">
@@ -357,7 +363,7 @@
                 <number>50</number>
                </attribute>
                <attribute name="horizontalHeaderDefaultSectionSize">
-                <number>250</number>
+                <number>550</number>
                </attribute>
                <attribute name="verticalHeaderMinimumSectionSize">
                 <number>30</number>
@@ -1469,6 +1475,12 @@
             <size>
              <width>271</width>
              <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>300</width>
+             <height>16777215</height>
             </size>
            </property>
            <property name="palette">

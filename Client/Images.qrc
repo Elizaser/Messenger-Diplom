@@ -14,5 +14,6 @@
         <file>icons/double-check.png</file>
         <file>icons/edit.png</file>
         <file>icons/trash.png</file>
+        <file>icons/cancelEditMenuMessage.png</file>
     </qresource>
 </RCC>
