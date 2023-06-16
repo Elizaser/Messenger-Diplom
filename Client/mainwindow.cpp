@@ -23,6 +23,10 @@ MainWindow::MainWindow(QSslSocket* socket, QWidget *parent)
     ui->tableWidget_chatWindow->setShowGrid(false);
     ui->tableWidget_chatsList->setEditTriggers(0);
     ui->tableWidget_chatWindow->setEditTriggers(0);
+    ui->tableWidget_chatsList->verticalHeader()->hide();
+    ui->tableWidget_chatsList->horizontalHeader()->hide();
+    ui->tableWidget_chatWindow->verticalHeader()->hide();
+    ui->tableWidget_chatWindow->horizontalHeader()->hide();
     ui->tableWidget_chatWindow->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->tableWidget_chatWindow->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
@@ -534,27 +538,30 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
     QStringList horzHeaders;
     horzHeaders << "История вашего чата" << "" << "" << "" << "";
     ui->tableWidget_chatWindow->setHorizontalHeaderLabels(horzHeaders);
-    for(int i = 0; i < conntents.count(); i++){
-        ui->tableWidget_chatWindow->insertRow(i);
-        ui->tableWidget_chatWindow->setItem(i, 0, new QTableWidgetItem(conntents.at(i).senderName));
-        ui->tableWidget_chatWindow->setColumnWidth(0, 80);
-        ui->tableWidget_chatWindow->setItem(i, 1, new QTableWidgetItem(conntents.at(i).message));
-//        ui->tableWidget_chatWindow->resizeRowToContents(i);
-//        ui->tableWidget_chatWindow->resizeRowToContents(i);
 
-//        ui->tableWidget_chatWindow->item(i, 1)->;
+    ui->tableWidget_chatWindow->insertRow(0);
+    ui->tableWidget_chatWindow->setItem(0, 1, new QTableWidgetItem(conntents.at(0).date));
+    for(int conntent = 0, row = 1; conntent < conntents.count(); conntent++, row++) {
+        if(conntent != 0 && conntents.at(conntent - 1).date != conntents.at(conntent).date){
+            ui->tableWidget_chatWindow->insertRow(row);
+            ui->tableWidget_chatWindow->setItem(row, 1, new QTableWidgetItem(conntents.at(conntent).date));
+            row++;
+        }
+
+        ui->tableWidget_chatWindow->insertRow(row);
+        ui->tableWidget_chatWindow->setItem(row, 0, new QTableWidgetItem(conntents.at(conntent).senderName));
+        ui->tableWidget_chatWindow->setColumnWidth(0, 80);
+        ui->tableWidget_chatWindow->setItem(row, 1, new QTableWidgetItem(conntents.at(conntent).message));
+
         QIcon iIsRead;
-        if(conntents.at(i).isRead == "1")
+        if(conntents.at(conntent).isRead == "1")
             iIsRead.addFile("//home//liza//diplom//Client//icons//double-check.png");
         else
             iIsRead.addFile("/home/liza/diplom/Client/icons/check.png");
-        ui->tableWidget_chatWindow->item(i, 1)->setIcon(iIsRead);
+        ui->tableWidget_chatWindow->item(row, 1)->setIcon(iIsRead);
 
-        ui->tableWidget_chatWindow->setItem(i, 2, new QTableWidgetItem(conntents.at(i).date + " " + conntents.at(i).time));
+        ui->tableWidget_chatWindow->setItem(row, 2, new QTableWidgetItem(conntents.at(conntent).time));
     }
-//    ui->tableWidget_chatWindow->resizeColumnsToContents();
-//    ui->tableWidget_chatWindow->resizeRowsToContents();
-
 }
 void MainWindow::showNewMessage(UserMessage message)
 {
