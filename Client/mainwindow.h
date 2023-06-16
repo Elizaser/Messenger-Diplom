@@ -60,7 +60,15 @@ private slots:
 
     void on_radioButton_Chats_clicked();
 
+    void on_tableWidget_chatWindow_cellDoubleClicked(int row, int column);
+
 private:
+    enum actions{
+        cancelEditMessage,
+        deletMessage,
+        editMessage,
+        sendMessage};
+    actions curAction;
     Ui::MainWindow *ui;
     QSslSocket* socket;
 
@@ -75,6 +83,12 @@ private:
 
     CreateChat* createChat;
 
+    bool isSendORisEdit;// 0 - send, 1 edit
+//    QIcon iCancelEdit;
+//    QIcon iDelete;
+//    QIcon iEdit;
+//    QIcon iSendOrEdit;
+//    QIcon iIsRead;
 
     void setUserInfo(UserInfo curUserInfo);
     void setUserChats(QList<UserChat> chat);
@@ -104,6 +118,6 @@ private:
     int searchMessageByID(QList<UserMessage> messages, QString messageID);
     int searchUserByID(QList<UserInfo> users, QString userID);
 
-
+    void deleteMenuEdditMessage();
 };
 #endif // MAINWINDOW_H

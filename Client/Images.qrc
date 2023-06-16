@@ -1,9 +1,18 @@
 <RCC>
     <qresource prefix="/">
-        <file>icons/people.png</file>
-        <file>icons/search.png</file>
         <file>icons/profile.png</file>
-        <file>icons/newChat.png</file>
         <file>icons/chats.png</file>
+        <file>icons/newProfile.png</file>
+        <file>icons/oops.png</file>
+        <file>icons/emptyTab.png</file>
+        <file>icons/woman.png</file>
+        <file>icons/people.png</file>
+        <file>icons/newChat.png</file>
+        <file>icons/background.png</file>
+        <file>icons/send-message.png</file>
+        <file>icons/check.png</file>
+        <file>icons/double-check.png</file>
+        <file>icons/edit.png</file>
+        <file>icons/trash.png</file>
     </qresource>
 </RCC>

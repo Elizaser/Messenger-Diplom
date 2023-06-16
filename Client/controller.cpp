@@ -44,7 +44,7 @@ void Controller:: sockDisc()
 void Controller:: sockReady(){
     try {
         QByteArray msocket = socket->readAll();
-        qDebug() << "msocket -  " << msocket;
+//        qDebug() << "msocket -  " << msocket;
 //        QMessageBox::information(this, "Информация(ConnectionToServer)", "msocket\n = " + msocket);
         DataParsing messageFromServer(msocket);
         QString nameProccess = messageFromServer.getProccess();
