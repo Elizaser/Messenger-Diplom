@@ -1,0 +1,6 @@
+0000000000000000000000000000000000000000 c0d3aa51446b04d6fdcfc9a5e43bf5fb5411c392 Elizaser <liza.gluhowerowa@gmail.com> 1686347457 +0700	branch: Created from HEAD
+c0d3aa51446b04d6fdcfc9a5e43bf5fb5411c392 76d4c65ec2e3dac76e591ee52aa2f997abeb260c Elizaser <liza.gluhowerowa@gmail.com> 1686347480 +0700	commit: restart. create chat
+76d4c65ec2e3dac76e591ee52aa2f997abeb260c 26746918fb3d5f87d8f906fc792ebfcd7007c910 Elizaser <liza.gluhowerowa@gmail.com> 1686386246 +0700	commit: add: create dialog, deleteDialog, exitDialog
+26746918fb3d5f87d8f906fc792ebfcd7007c910 7e54ec7ced3ce34c7ad889b8d3c8c882efebf3de Elizaser <liza.gluhowerowa@gmail.com> 1686392516 +0700	commit: add message: deleteAll, deleteMe,refactAll
+7e54ec7ced3ce34c7ad889b8d3c8c882efebf3de 5665dc699b3fd60aec71ea84ec4fded658b3256b Elizaser <liza.gluhowerowa@gmail.com> 1686393532 +0700	commit: refact
+5665dc699b3fd60aec71ea84ec4fded658b3256b 56fc7ef4d06512b7a6a9f89342639dbb28f85751 Elizaser <liza.gluhowerowa@gmail.com> 1686410330 +0700	commit: client:fixid new message(plusing not readmessages), createChat(user cant add self)

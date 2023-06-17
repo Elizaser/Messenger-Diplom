@@ -1,0 +1,6 @@
+0000000000000000000000000000000000000000 c04a36d816762506fd49e260900c1b82f7a6a0e3 Elizaser <liza.gluhowerowa@gmail.com> 1685983537 +0700	commit (initial): first commit before destruction of the ol rep..add remove,send,refact user message
+c04a36d816762506fd49e260900c1b82f7a6a0e3 c04a36d816762506fd49e260900c1b82f7a6a0e3 Elizaser <liza.gluhowerowa@gmail.com> 1685983548 +0700	Branch: renamed refs/heads/master to refs/heads/main
+c04a36d816762506fd49e260900c1b82f7a6a0e3 17f0192e950f276eeca687769e8a0d40cc559d35 Elizaser <liza.gluhowerowa@gmail.com> 1686305734 +0700	commit: add create dialog. fixed all. MessageStatus for all user
+17f0192e950f276eeca687769e8a0d40cc559d35 e1590330a153ef957bd35c2a1744c506e646c51c Elizaser <liza.gluhowerowa@gmail.com> 1686657615 +0700	merge createDialog: Fast-forward
+e1590330a153ef957bd35c2a1744c506e646c51c 8295245e68d9db8a2f9c24377105cd104e0c4bcf Elizaser <liza.gluhowerowa@gmail.com> 1686728358 +0700	merge ShowUsers: Fast-forward
+8295245e68d9db8a2f9c24377105cd104e0c4bcf 3c31ad3b84be85a6596f1ea1978e28ed0fbb63cc Elizaser <liza.gluhowerowa@gmail.com> 1686742067 +0700	merge QSslServer: Fast-forward

@@ -1,0 +1,9 @@
+0000000000000000000000000000000000000000 56fc7ef4d06512b7a6a9f89342639dbb28f85751 Elizaser <liza.gluhowerowa@gmail.com> 1686410358 +0700	branch: Created from HEAD
+56fc7ef4d06512b7a6a9f89342639dbb28f85751 ec24ef0aab4b9b81cea8687be40690538f3f44b5 Elizaser <liza.gluhowerowa@gmail.com> 1686420059 +0700	commit: add status reading message
+ec24ef0aab4b9b81cea8687be40690538f3f44b5 751a9fa734b36044056aae1eac400af06c93ec56 Elizaser <liza.gluhowerowa@gmail.com> 1686497349 +0700	commit: fixid bugs
+751a9fa734b36044056aae1eac400af06c93ec56 319ab4aac1222041dc441879e0855d697196d7b5 Elizaser <liza.gluhowerowa@gmail.com> 1686575328 +0700	commit: add create dialog
+319ab4aac1222041dc441879e0855d697196d7b5 ef19041a283d4a05d40361bc33baba7e27c99755 Elizaser <liza.gluhowerowa@gmail.com> 1686583005 +0700	commit: not working version(when clear dialog appears bug: add newDialog)
+ef19041a283d4a05d40361bc33baba7e27c99755 3a25bc450d59639a2eff159b6de1789db50dd627 Elizaser <liza.gluhowerowa@gmail.com> 1686642431 +0700	commit: end fixing sendMessage in clear dialog
+3a25bc450d59639a2eff159b6de1789db50dd627 a2136582b5fb9111c0a933a9f67b146546cc6647 Elizaser <liza.gluhowerowa@gmail.com> 1686653561 +0700	commit: fixid read message, and fixid create chat
+a2136582b5fb9111c0a933a9f67b146546cc6647 357155016dc4c89b618ef1a05f86b1d2b08bd1ec Elizaser <liza.gluhowerowa@gmail.com> 1686656704 +0700	commit: add deleteChats for clear Chat but not delete
+357155016dc4c89b618ef1a05f86b1d2b08bd1ec e1590330a153ef957bd35c2a1744c506e646c51c Elizaser <liza.gluhowerowa@gmail.com> 1686657502 +0700	commit: fixid for new chat - countIsNotReadMessages = 1

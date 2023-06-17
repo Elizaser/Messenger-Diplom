@@ -121,13 +121,11 @@ void MainWindow:: clickChatList(int i, int  j)
 {
     ui->tabWidget->setCurrentIndex(0);
     if(ui->tableWidget_chatsList->item(i, j)->text() == "") return;
+
     if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Мои чаты" ||
             ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Найденные чаты"){
         if(j == 0){
-            qDebug() << "before clickChatList curChat.chatID = " << curChat.chatID;
             clearChatWindow();
-            qDebug() << "after clickChatList curChat.chatID = " << curChat.chatID;
-
             curChat = allChats[i];
             ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(curChat.name));
             ui->label_chatName->setText(allChats[i].name);
@@ -138,7 +136,6 @@ void MainWindow:: clickChatList(int i, int  j)
         }
         else if (j == 2){
             clickedDeleteChat(i, "exitChat");
-//            chats.removeAt(i);
         }
     } else {
         curUser = users[i];
@@ -173,65 +170,81 @@ void MainWindow::clickedDeleteChat(int i, QString signal)
 
 void MainWindow:: clickChatWindow(int i, int j)
 {
-    if(ui->tableWidget_chatWindow->columnCount() != 6 || ui->tableWidget_chatWindow->item(i, 5)->text() != "Отмена") return;
-    curMessage = curChatContent.at(i);
-    if(j == 3){
-        clickedDeleteMessage(i);
-    } else if(j == 4){
-        clickedEdditMessage(i);
-    }
-    else if(j == 5){
-        deleteMenuEdditMessage();
+    if (ui->tableWidget_chatWindow->item(i, 3)->text() == "Перевести")
+    {
+        if(j == columnCountInChatWindow){
+             clickedTranslateMessage(i);
+        }
+    } else if(ui->tableWidget_chatWindow->columnCount() == 6 && ui->tableWidget_chatWindow->item(i, 5)->text() == "Отмена") {
+        curMessage = curChatContent.at(i);
+        if(j == columnCountInChatWindow){
+            clickedDeleteMessage(i);
+        } else if(j == columnCountInChatWindow + 1){
+            clickedEdditMessage(i);
+        }
+        else if(j == columnCountInChatWindow + 2){
+            deleteMenuEdditMessage();
+            QIcon iEdit;
+            iEdit.addFile("/home/liza/diplom/Client/icons/send-message.png");
+            ui->pushButton_sendReply->setIcon(iEdit);
+            ui->textEdit_replyBox->clear();
+            isSendORisEdit = false;
+        }
     }
 }
 
 void MainWindow::deleteMenuEdditMessage()
 {
-    ui->tableWidget_chatWindow->setColumnCount(3);
+    ui->tableWidget_chatWindow->setColumnCount(columnCountInChatWindow + 1);
+    QIcon iTranslate;
+    for(int i = 0; i < ui->tableWidget_chatWindow->rowCount(); i++) {
+        ui->tableWidget_chatWindow->setItem(i, columnCountInChatWindow, new QTableWidgetItem("Перевести"));
+        iTranslate.addFile("//home//liza//diplom//Client//icons//translate.png");
+        ui->tableWidget_chatWindow->item(i, columnCountInChatWindow)->setIcon(iTranslate);
+    }
+
+
 }
 void MainWindow::on_tableWidget_chatWindow_cellDoubleClicked(int i, int j)
 {
-    if(ui->tableWidget_chatWindow->item(i, 0)->text() == "" ){
+    if(ui->tableWidget_chatWindow->item(i, 0)->text() == "" || curChatContent.at(i).isSystem == "1"){
         ui->tableWidget_chatWindow->clearSelection();
         return;
     }
-    ui->tableWidget_chatWindow->setColumnCount(6);
+    ui->tableWidget_chatWindow->setColumnCount(columnCountInChatWindow + 3);
     QStringList horzHeaders;
 
     horzHeaders << "История вашего чата" << "" << "" << "" << "" << "";
 
     ui->tableWidget_chatWindow->setHorizontalHeaderLabels(horzHeaders);
-    ui->tableWidget_chatWindow->setItem(i, 3, new QTableWidgetItem());
-    ui->tableWidget_chatWindow->setItem(i, 4, new QTableWidgetItem());
-    ui->tableWidget_chatWindow->setItem(i, 5, new QTableWidgetItem("Отмена"));
+    ui->tableWidget_chatWindow->setItem(i, columnCountInChatWindow, new QTableWidgetItem());
+    ui->tableWidget_chatWindow->setItem(i, columnCountInChatWindow + 1, new QTableWidgetItem());
+    ui->tableWidget_chatWindow->setItem(i, columnCountInChatWindow + 2, new QTableWidgetItem("Отмена"));
 
 
     for(int  j = 0; j < ui->tableWidget_chatWindow->rowCount(); j++) {
         if(j != i) {
-            ui->tableWidget_chatWindow->setItem(j, 3, new QTableWidgetItem());
-            ui->tableWidget_chatWindow->setItem(j, 4, new QTableWidgetItem());
-            ui->tableWidget_chatWindow->setItem(j, 5, new QTableWidgetItem());
+            ui->tableWidget_chatWindow->setItem(j, columnCountInChatWindow, new QTableWidgetItem());
+            ui->tableWidget_chatWindow->setItem(j, columnCountInChatWindow + 1, new QTableWidgetItem());
+            ui->tableWidget_chatWindow->setItem(j, columnCountInChatWindow + 2, new QTableWidgetItem());
         }
     }
 
     qDebug() << "curChatContent.at(i)" << curChatContent.at(i).message << " isSystem - " << curChatContent.at(i).isSystem;
     QIcon iCancelEdit;
     iCancelEdit.addFile("//home//liza//diplom//Client//icons//cancelEditMenuMessage.png");
-    ui->tableWidget_chatWindow->item(i, 5)->setIcon(iCancelEdit);
+    ui->tableWidget_chatWindow->item(i, columnCountInChatWindow + 2)->setIcon(iCancelEdit);
 
     QIcon iDelete;
-    if(curChatContent.at(i).isSystem != "1") {
-        iDelete.addFile("//home//liza//diplom//Client//icons//trash.png");
-    }
-    ui->tableWidget_chatWindow->item(i, 3)->setIcon(iDelete);
+    iDelete.addFile("//home//liza//diplom//Client//icons//trash.png");
+    ui->tableWidget_chatWindow->item(i, columnCountInChatWindow)->setIcon(iDelete);
 
 
     QIcon iEdit;
-    if(curChatContent.at(i).senderID == curUserInfo.userID &&
-        curChatContent.at(i).isSystem != "1"){
+    if(curChatContent.at(i).senderID == curUserInfo.userID){
          iEdit.addFile("//home//liza//diplom//Client//icons//edit.png");
      }
-     ui->tableWidget_chatWindow->item(i, 4)->setIcon(iEdit);
+     ui->tableWidget_chatWindow->item(i, columnCountInChatWindow + 1)->setIcon(iEdit);
 
      ui->tableWidget_chatWindow->setColumnWidth(0, 80);
      ui->tableWidget_chatWindow->setColumnWidth(1, 400);
@@ -239,6 +252,18 @@ void MainWindow::on_tableWidget_chatWindow_cellDoubleClicked(int i, int j)
      ui->tableWidget_chatWindow->setColumnWidth(3, 3);
      ui->tableWidget_chatWindow->setColumnWidth(4, 3);
      ui->tableWidget_chatWindow->setColumnWidth(5, 50);
+}
+void MainWindow::clickedTranslateMessage(int i)
+{
+    QString str = ui->comboBox_translate->currentText();
+    str = "ru_RU";
+//    qDebug() << "clickedTranslateMessage langvish = " << str;
+//    qtLanguageTranslator.load("/home/liza/diplom/Client/Translations/client_" + str);   // Загружаем перевод
+//    qApp->installTranslator(&qtLanguageTranslator);
+    /*ui->tableWidget_chatWindow->item(i, 1)->text()*/
+    QString textTrans = tr("Yes");
+    ui->tableWidget_chatWindow->setItem(i, 1, new QTableWidgetItem(textTrans));
+//    ui->retranslateUi(this);
 }
 void MainWindow::clickedDeleteMessage(int i)
 {
@@ -423,7 +448,6 @@ void MainWindow::setSearchChats(QList<UserChat> chats)
 void MainWindow::setChatContent(QList<UserMessage> conntents)
 {
     curChatContent.clear();
-    qDebug() << "setChatContent curChat.chatID = " << curChat.chatID;
     UserMessage message;
     for(int conntentI = 0; conntentI < conntents.count(); conntentI++) {
         if(conntentI == 0 || conntents.at(conntentI - 1).date != conntents.at(conntentI).date){
@@ -463,7 +487,6 @@ void MainWindow::searchChatList()
 }
 void MainWindow::clearChatWindow()
 {
-    qDebug() << "clearChatWindow";
     //    очистка текущего чата и его контента
         ui->tableWidget_chatWindow->clear();
         ui->tableWidget_chatWindow->setRowCount(0);
@@ -472,9 +495,7 @@ void MainWindow::clearChatWindow()
         curChat.chatID = "";
         curChat.countIsNotReadMessages = "";
         curChat.name = "";
-        //currentChat.participants = "";
         curChat.userCreator = "";
-        qDebug() << "clearChatWindow curChat.chatID = " << curChat.chatID;
 }
 
 void MainWindow::setUsersInWindowCreateChat(QList<UserInfo> users)
@@ -510,7 +531,7 @@ void MainWindow::showListChats(QString headerLabel)
 {
     ui->tableWidget_chatsList-> clear();
     ui->tableWidget_chatsList->setRowCount(0);
-    ui->tableWidget_chatsList->setColumnCount(3);
+    ui->tableWidget_chatsList->setColumnCount(columnCountInChatWindow + 1);
 
     QStringList horzHeaders;
     horzHeaders << headerLabel << "" << "";
@@ -554,7 +575,7 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
 {
     ui->tableWidget_chatWindow-> clear();
     ui->tableWidget_chatWindow->setRowCount(0);
-    ui->tableWidget_chatWindow->setColumnCount(3);
+    ui->tableWidget_chatWindow->setColumnCount(columnCountInChatWindow + 1);
     QStringList horzHeaders;
     horzHeaders << "" << "" << "" << "" << "";
     ui->tableWidget_chatWindow->setHorizontalHeaderLabels(horzHeaders);
@@ -562,13 +583,12 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
     for(int i = 0; i < conntents.count(); i++) {
         if(conntents.at(i).message == ""){
             ui->tableWidget_chatWindow->insertRow(i);
-            ui->tableWidget_chatWindow->setItem(i, 1, new QTableWidgetItem(conntents.at(i).date));
-
             ui->tableWidget_chatWindow->setItem(i, 0, new QTableWidgetItem());
+            ui->tableWidget_chatWindow->setItem(i, 1, new QTableWidgetItem(conntents.at(i).date));
             ui->tableWidget_chatWindow->setItem(i, 2, new QTableWidgetItem());
-
+            ui->tableWidget_chatWindow->setItem(i, 3, new QTableWidgetItem());
             continue;
-        }
+        }//проставления даты
         ui->tableWidget_chatWindow->insertRow(i);
         ui->tableWidget_chatWindow->setItem(i, 0, new QTableWidgetItem(conntents.at(i).senderName));
         ui->tableWidget_chatWindow->setItem(i, 1, new QTableWidgetItem(conntents.at(i).message));
@@ -581,10 +601,19 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
         ui->tableWidget_chatWindow->item(i, 1)->setIcon(iIsRead);
 
         ui->tableWidget_chatWindow->setItem(i, 2, new QTableWidgetItem(conntents.at(i).time));
+
+        ui->tableWidget_chatWindow->setItem(i, 3, new QTableWidgetItem("Перевести"));
+        if(conntents.at(i).isSystem != "1"){
+            QIcon iTranslate;
+            iTranslate.addFile("//home//liza//diplom//Client//icons//translate.png");
+            ui->tableWidget_chatWindow->item(i, 3)->setIcon(iTranslate);
+
+        }
     }
     ui->tableWidget_chatWindow->setColumnWidth(0, 80);
     ui->tableWidget_chatWindow->setColumnWidth(1, 400);
-    ui->tableWidget_chatWindow->setColumnWidth(2, 20);
+    ui->tableWidget_chatWindow->setColumnWidth(2, 130);
+    ui->tableWidget_chatWindow->setColumnWidth(3, 3);
     ui->tableWidget_chatWindow->scrollToBottom();
 }
 void MainWindow::showNewMessage(UserMessage message)

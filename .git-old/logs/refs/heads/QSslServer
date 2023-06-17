@@ -1,0 +1,3 @@
+0000000000000000000000000000000000000000 8295245e68d9db8a2f9c24377105cd104e0c4bcf Elizaser <liza.gluhowerowa@gmail.com> 1686728428 +0700	branch: Created from HEAD
+8295245e68d9db8a2f9c24377105cd104e0c4bcf b9f427a71f1b0ce635cf8be1043c5a8e2962ba3a Elizaser <liza.gluhowerowa@gmail.com> 1686731092 +0700	commit: refact QTcpSocket in QSslSOcket, and in CreateChat replaced direct sending to server with sending via signals
+b9f427a71f1b0ce635cf8be1043c5a8e2962ba3a 3c31ad3b84be85a6596f1ea1978e28ed0fbb63cc Elizaser <liza.gluhowerowa@gmail.com> 1686742046 +0700	commit: add date,time for message

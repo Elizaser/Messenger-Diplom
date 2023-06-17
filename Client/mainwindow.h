@@ -42,6 +42,7 @@ private slots:
     void clickChatList(int i, int j);
     void clickedDeleteChat(int i, QString signal);
     void clickChatWindow(int i, int j);
+    void clickedTranslateMessage(int i);
     void clickedDeleteMessage(int i);
     void clickedEdditMessage(int i);
     void on_pushButton_sendReply_clicked();
@@ -64,12 +65,6 @@ private slots:
     void on_tableWidget_chatWindow_cellDoubleClicked(int row, int column);
 
 private:
-    enum actions{
-        cancelEditMessage,
-        deletMessage,
-        editMessage,
-        sendMessage};
-    actions curAction;
     Ui::MainWindow *ui;
     QSslSocket* socket;
 
@@ -86,12 +81,11 @@ private:
 
     bool isSendORisEdit;// 0 - send, 1 edit
     QTranslator qtLanguageTranslator;
-    //    QIcon iCancelEdit;
-//    QIcon iDelete;
-//    QIcon iEdit;
-//    QIcon iSendOrEdit;
-//    QIcon iIsRead;
 
+    QString langTranslateInChatWindow;
+    QString langTranslateInReplyMessageBox;
+
+    int columnCountInChatWindow = 3;
     void setUserInfo(UserInfo curUserInfo);
     void setUserChats(QList<UserChat> chat);
     void renameDialogOnNameCompanion();
