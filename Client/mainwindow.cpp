@@ -124,7 +124,10 @@ void MainWindow:: clickChatList(int i, int  j)
     if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Мои чаты" ||
             ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Найденные чаты"){
         if(j == 0){
+            qDebug() << "before clickChatList curChat.chatID = " << curChat.chatID;
             clearChatWindow();
+            qDebug() << "after clickChatList curChat.chatID = " << curChat.chatID;
+
             curChat = allChats[i];
             ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(curChat.name));
             ui->label_chatName->setText(allChats[i].name);
@@ -170,10 +173,8 @@ void MainWindow::clickedDeleteChat(int i, QString signal)
 
 void MainWindow:: clickChatWindow(int i, int j)
 {
-    qDebug() << "i = " << i;
     if(ui->tableWidget_chatWindow->columnCount() != 6 || ui->tableWidget_chatWindow->item(i, 5)->text() != "Отмена") return;
     curMessage = curChatContent.at(i);
-    qDebug() << "2j = " << j;
     if(j == 3){
         clickedDeleteMessage(i);
     } else if(j == 4){
@@ -190,7 +191,6 @@ void MainWindow::deleteMenuEdditMessage()
 }
 void MainWindow::on_tableWidget_chatWindow_cellDoubleClicked(int i, int j)
 {
-    qDebug() << "ui->tableWidget_chatWindow->item(i, 0)->text() = " << ui->tableWidget_chatWindow->item(i, 0)->text();
     if(ui->tableWidget_chatWindow->item(i, 0)->text() == "" ){
         ui->tableWidget_chatWindow->clearSelection();
         return;
@@ -214,6 +214,7 @@ void MainWindow::on_tableWidget_chatWindow_cellDoubleClicked(int i, int j)
         }
     }
 
+    qDebug() << "curChatContent.at(i)" << curChatContent.at(i).message << " isSystem - " << curChatContent.at(i).isSystem;
     QIcon iCancelEdit;
     iCancelEdit.addFile("//home//liza//diplom//Client//icons//cancelEditMenuMessage.png");
     ui->tableWidget_chatWindow->item(i, 5)->setIcon(iCancelEdit);
@@ -232,15 +233,12 @@ void MainWindow::on_tableWidget_chatWindow_cellDoubleClicked(int i, int j)
      }
      ui->tableWidget_chatWindow->item(i, 4)->setIcon(iEdit);
 
-//    ui->tableWidget_chatWindow->resizeColumnsToContents();
-//    ui->tableWidget_chatWindow->resizeRowsToContents();
      ui->tableWidget_chatWindow->setColumnWidth(0, 80);
      ui->tableWidget_chatWindow->setColumnWidth(1, 400);
      ui->tableWidget_chatWindow->setColumnWidth(2, 20);
-     ui->tableWidget_chatWindow->setColumnWidth(3,3);
+     ui->tableWidget_chatWindow->setColumnWidth(3, 3);
      ui->tableWidget_chatWindow->setColumnWidth(4, 3);
      ui->tableWidget_chatWindow->setColumnWidth(5, 50);
-
 }
 void MainWindow::clickedDeleteMessage(int i)
 {
@@ -273,19 +271,15 @@ void MainWindow::clickedDeleteMessage(int i)
 }
 void MainWindow::clickedEdditMessage(int i)
 {
+//    deleteMenuEdditMessage();
     ui->textEdit_replyBox->setText(ui->tableWidget_chatWindow->item(i, 1)->text());
     QIcon iEdit;
     iEdit.addFile("/home/liza/diplom/Client/icons/edit.png");
     ui->pushButton_sendReply->setIcon(iEdit);
     ui->pushButton_sendReply->adjustSize();
     isSendORisEdit = true;
-    deleteMenuEdditMessage();
 }
 
-//void MainWindow::clickedCancelEddit(int i)
-//{
-//    ui->tableWidget_chatWindow->setColumnCount(3);
-//}
 void MainWindow::setNewChat(UserChat chat)
 {
     allChats.append(chat);
@@ -428,25 +422,16 @@ void MainWindow::setSearchChats(QList<UserChat> chats)
 }
 void MainWindow::setChatContent(QList<UserMessage> conntents)
 {
-
+    curChatContent.clear();
+    qDebug() << "setChatContent curChat.chatID = " << curChat.chatID;
     UserMessage message;
-//    curChatContent.append(message);
     for(int conntentI = 0; conntentI < conntents.count(); conntentI++) {
-        qDebug() << "conntentI" << conntentI;
-        qDebug() << "conntents.at(conntentI).date" << conntents.at(conntentI).date;
         if(conntentI == 0 || conntents.at(conntentI - 1).date != conntents.at(conntentI).date){
-            if(conntentI != 0)
-                qDebug() << "conntents.at(conntentI - 1).date" << conntents.at(conntentI - 1).date;
             message.date = conntents.at(conntentI).date;
             message.message = "";
             curChatContent.append(message);
         }
         curChatContent.append(conntents.at(conntentI));
-    }
-    for(int conntentI = 0; conntentI < curChatContent.count(); conntentI++) {
-        qDebug() << "conntentI" << conntentI;
-        qDebug() << "curChatContent.at(conntentI).message" << curChatContent.at(conntentI).message;
-         qDebug() << "curChatContent.at(conntentI).date" << curChatContent.at(conntentI).date;
     }
     // сверху добавляем пустые поля, для даты в таблице
     showChatContents(curChatContent);
@@ -478,6 +463,7 @@ void MainWindow::searchChatList()
 }
 void MainWindow::clearChatWindow()
 {
+    qDebug() << "clearChatWindow";
     //    очистка текущего чата и его контента
         ui->tableWidget_chatWindow->clear();
         ui->tableWidget_chatWindow->setRowCount(0);
@@ -488,6 +474,7 @@ void MainWindow::clearChatWindow()
         curChat.name = "";
         //currentChat.participants = "";
         curChat.userCreator = "";
+        qDebug() << "clearChatWindow curChat.chatID = " << curChat.chatID;
 }
 
 void MainWindow::setUsersInWindowCreateChat(QList<UserInfo> users)
@@ -531,7 +518,6 @@ void MainWindow::showListChats(QString headerLabel)
 
 
     for(int i = 0; i < allChats.count(); i++) {
-        qDebug() << "allChats[i].countIsLook" << allChats[i].countIsLook;
         if(allChats[i].countIsLook == "0") break;
         ui->tableWidget_chatsList->insertRow(i);
         QString nameChat = allChats.at(i).name;
@@ -573,14 +559,8 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
     horzHeaders << "" << "" << "" << "" << "";
     ui->tableWidget_chatWindow->setHorizontalHeaderLabels(horzHeaders);
 
-//    ui->tableWidget_chatWindow->insertRow(0);
-//    ui->tableWidget_chatWindow->setItem(0, 1, new QTableWidgetItem(conntents.at(0).date));
     for(int i = 0; i < conntents.count(); i++) {
-        qDebug() << "showChatContents ";
-        qDebug() << "conntents.at(i).date " << conntents.at(i).date;
-        qDebug() << "conntents.at(i).message " << conntents.at(i).message;
         if(conntents.at(i).message == ""){
-             qDebug() << "i " << i;
             ui->tableWidget_chatWindow->insertRow(i);
             ui->tableWidget_chatWindow->setItem(i, 1, new QTableWidgetItem(conntents.at(i).date));
 

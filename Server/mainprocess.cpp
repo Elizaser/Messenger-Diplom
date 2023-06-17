@@ -115,7 +115,8 @@ ClientMessage MainProcess::saveMessage(ClientMessage message)
 {
     message.senderID = curClientInfo.userID;
     message.senderName = curClientInfo.name;
-    message.isSystem = "0";
+//    if(message.isSystem == "")
+//        message.isSystem = "0";
     message.date = QDateTime::currentDateTime().toString("dd.MM.yyyy");
     message.time = QDateTime::currentDateTime().toString("hh:mm");
     return db->insertMessage(message);

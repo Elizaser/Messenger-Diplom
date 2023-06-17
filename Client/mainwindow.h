@@ -6,6 +6,7 @@
 #include <QString>
 #include <QStandardItem>
 #include <QSslSocket>
+#include <QTranslator>
 #include "dataparsing.h"
 #include "userchat.h"
 #include "userinfo.h"
@@ -84,7 +85,8 @@ private:
     CreateChat* createChat;
 
     bool isSendORisEdit;// 0 - send, 1 edit
-//    QIcon iCancelEdit;
+    QTranslator qtLanguageTranslator;
+    //    QIcon iCancelEdit;
 //    QIcon iDelete;
 //    QIcon iEdit;
 //    QIcon iSendOrEdit;
