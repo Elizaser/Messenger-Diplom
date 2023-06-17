@@ -19,12 +19,13 @@ void UserSettings::showUserInfo()
 {
     ui->lineEdit_login->setText(user.login);
     ui->lineEdit_name->setText(user.name);
-    ui->textEdit_status->setText(user.status);
+    ui->lineEdit_status->setText(user.status);
+    ui->lineEdit_password->setText(user.password);
 
     ui->lineEdit_login->setReadOnly(true);
     ui->lineEdit_password->setReadOnly(true);
     ui->lineEdit_name->setReadOnly(true);
-    ui->textEdit_status->setReadOnly(true);
+    ui->lineEdit_status->setReadOnly(true);
 }
 
 UserSettings::~UserSettings()
@@ -35,8 +36,8 @@ UserSettings::~UserSettings()
 void UserSettings::on_pushButton_login_clicked()
 {
     if(ui->pushButton_login->text() == "ред.") {
-        ui->lineEdit_login->setReadOnly(false);
         ui->pushButton_login->setText("Отмена");
+        ui->lineEdit_login->setReadOnly(false);
     } else if(ui->pushButton_login->text() == "Отмена"){
         ui->lineEdit_login->setText(user.login);
         ui->lineEdit_login->setReadOnly(true);
@@ -50,10 +51,13 @@ void UserSettings::on_pushButton_password_clicked()
         ui->lineEdit_password->clear();
         ui->lineEdit_password->setReadOnly(false);
         ui->pushButton_password->setText("Отмена");
+        ui->lineEdit_password->setEchoMode(QLineEdit::PasswordEchoOnEdit);
     } else if(ui->pushButton_password->text() == "Отмена"){
-        ui->lineEdit_password->setText("**********");
+        QIcon iconEddit;
+        ui->lineEdit_password->setText(user.password);
         ui->lineEdit_password->setReadOnly(true);
         ui->pushButton_password->setText("ред.");
+        ui->lineEdit_password->setEchoMode(QLineEdit::Password);
     }
 }
 
@@ -72,11 +76,11 @@ void UserSettings::on_pushButton_name_clicked()
 void UserSettings::on_pushButton_status_clicked()
 {
     if(ui->pushButton_status->text() == "ред.") {
-        ui->textEdit_status->setReadOnly(false);
+        ui->lineEdit_status->setReadOnly(false);
         ui->pushButton_status->setText("Отмена");
     } else if(ui->pushButton_status->text() == "Отмена"){
-        ui->textEdit_status->setText(user.status);
-        ui->textEdit_status->setReadOnly(true);
+        ui->lineEdit_status->setText(user.status);
+        ui->lineEdit_status->setReadOnly(true);
         ui->pushButton_status->setText("ред.");
     }
 }
@@ -99,11 +103,8 @@ void UserSettings::on_pushButton_OK_clicked()
     }
     if(ui->pushButton_status->text() == "Отмена") {
         f = true;
-        user.status = ui->textEdit_status->toPlainText();
+        user.status = ui->lineEdit_status->text();
     }
-    qDebug() << "user.login" << user.login;
-    qDebug() << "user.password" << user.password;
-    qDebug() << "user.name" << user.name;
     if(user.login == "" || user.password == "" || user.name == "" ){
         ui->label_error->setText("Ошибка в заполнении");
         return;
@@ -115,12 +116,9 @@ void UserSettings::on_pushButton_OK_clicked()
     ConfirmationPassword* confirmationPassword = new ConfirmationPassword();
     connect(confirmationPassword, SIGNAL(confirmationPasswordIsOk(QString)), this, SLOT(sockWrite(QString)));
     confirmationPassword->show();
-
 }
 void UserSettings::sockWrite(QString password)
 {
-    qDebug() << "password = " << password;
-    qDebug() << "user.password = " << user.password;
     if(password == user.password) {
         emit sockWrite("main", "edditUser", user);
         this->close();

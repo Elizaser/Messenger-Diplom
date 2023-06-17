@@ -415,6 +415,7 @@ QList<ClientInfo> WorkDataBase::getFoundUsers(QString desired, QString curUserID
         QSqlQuery* query2 = new QSqlQuery(db);
         query2->exec("SELECT userID FROM UsersOnline where userID = '" + user.userID + "'");
         query2->next();
+        qDebug() << "getFoundUsers wdb name = " << user.name;
         if(query2->value(0).toString() == "")
             user.statusInLine = "Offline";
         else

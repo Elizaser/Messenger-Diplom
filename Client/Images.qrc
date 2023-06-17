@@ -15,5 +15,6 @@
         <file>icons/edit.png</file>
         <file>icons/trash.png</file>
         <file>icons/cancelEditMenuMessage.png</file>
+        <file>icons/search.png</file>
     </qresource>
 </RCC>

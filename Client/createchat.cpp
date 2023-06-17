@@ -1,6 +1,6 @@
 #include "createchat.h"
 #include "ui_createchat.h"
-
+#include <QDebug>
 
 CreateChat::CreateChat(QWidget *parent) :
     QWidget(parent),
@@ -23,6 +23,27 @@ CreateChat::CreateChat(QWidget *parent) :
     ui->tableWidget_addUsers->setEditTriggers(0);
     ui->tableWidget_addUsers->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableWidget_allUsers->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    ui->tableWidget_allUsers->verticalHeader()->hide();
+    ui->tableWidget_allUsers->horizontalHeader()->hide();
+    ui->tableWidget_allUsers->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableWidget_allUsers->setStyleSheet(
+                    "QTableWidget::item:selected:active {"
+                    "background: rgb(255, 255,255);"
+                    "border: 1px solid transparent;"
+                    "selection-color: #3A6B35;"
+                    "}"
+                    );
+    ui->tableWidget_addUsers->verticalHeader()->hide();
+    ui->tableWidget_addUsers->horizontalHeader()->hide();
+    ui->tableWidget_addUsers->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableWidget_addUsers->setStyleSheet(
+                    "QTableWidget::item:selected:active {"
+                    "background: rgb(255, 255,255);"
+                    "border: 1px solid transparent;"
+                    "selection-color: #3A6B35;"
+                    "}"
+                    );
 }
 
 void CreateChat::start(){
@@ -73,6 +94,7 @@ void CreateChat::deleteUserInChat(int i, int j){
 }
 
 void CreateChat::search(){
+    qDebug() << "search user - " << ui->lineEdit_searh->text();
      emit sockWrite("main", "getUsersCreateChat", "\"user\":\"" +
                     ui->lineEdit_searh->text().toLocal8Bit() + "\"");
 }

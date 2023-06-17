@@ -44,7 +44,7 @@ void MainProcess::sendingData(DataParsing messageFromClient)
     } else if(signal == "isReadingMessage") {
         updateIsReadingMessages(messageFromClient.getChat());
     } else if(signal == "getUsersCreateChat") {
-        sendingFoundUsers("", "setUsersCreateChat");// поиск по имени если осуществляется с пустой строкой, просто вернет все что есть
+        sendingFoundUsers(messageFromClient.getSearchedUser(), "setUsersCreateChat");// поиск по имени если осуществляется с пустой строкой, просто вернет все что есть
     } else if(signal == "createChat") {
         createChat(messageFromClient.getChat());
     } else if(signal == "edditUser") {

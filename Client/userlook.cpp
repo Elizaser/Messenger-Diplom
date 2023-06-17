@@ -1,5 +1,6 @@
 #include "userlook.h"
-#include "ui_user.h"
+#include "ui_userlook.h"
+#include <QDebug>
 
 UserLook::UserLook(UserInfo user, QWidget *parent) :
     QWidget(parent),
@@ -8,7 +9,7 @@ UserLook::UserLook(UserInfo user, QWidget *parent) :
     ui->setupUi(this);
     ui->label_name->setText(user.name);
     ui->label_status->setText(user.status);
-
+    qDebug() << "in UserLook";
 }
 
 UserLook::~UserLook()

@@ -7,6 +7,7 @@
 #include <QStandardItem>
 #include <QSslSocket>
 #include <QTranslator>
+#include <QTableWidget>
 #include "dataparsing.h"
 #include "userchat.h"
 #include "userinfo.h"
@@ -63,6 +64,8 @@ private slots:
 
     void on_tableWidget_chatWindow_cellDoubleClicked(int row, int column);
 
+    void on_comboBox_currentIndexChanged(int index);
+
 private:
     enum actions{
         cancelEditMessage,
@@ -108,6 +111,7 @@ private:
     void showListChats(QString headerLabel);
     void showUsers(QString headerLabel);
     void showChatContents(QList<UserMessage> conntents);
+    void setColortoRow(QTableWidget* table, int rowIndex);
     void showNewMessage(UserMessage message);
     void showNewChat(UserChat chat);
     void clearChatWindow();

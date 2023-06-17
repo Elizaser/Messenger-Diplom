@@ -30,6 +30,13 @@ MainWindow::MainWindow(QSslSocket* socket, QWidget *parent)
     ui->tableWidget_chatWindow->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->tableWidget_chatWindow->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableWidget_chatWindow->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableWidget_chatWindow->setStyleSheet(
+                    "QTableWidget::item:selected:active {"
+                    "background: rgb(255, 255,255);"
+                    "border: 1px solid transparent;"
+                    "selection-color: #3A6B35;"
+                    "}"
+                    );
 
     ui->tabWidget->tabBar()->hide();
     ui->tabWidget->setCurrentIndex(1);
@@ -563,10 +570,12 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
         if(conntents.at(i).message == ""){
             ui->tableWidget_chatWindow->insertRow(i);
             ui->tableWidget_chatWindow->setItem(i, 1, new QTableWidgetItem(conntents.at(i).date));
-
             ui->tableWidget_chatWindow->setItem(i, 0, new QTableWidgetItem());
+            QColor color = QColor::fromRgb(255,255,255,255);
+            ui->tableWidget_chatWindow->item(i, 1)->setTextColor(color);
             ui->tableWidget_chatWindow->setItem(i, 2, new QTableWidgetItem());
 
+            setColortoRow(ui->tableWidget_chatWindow, i);
             continue;
         }
         ui->tableWidget_chatWindow->insertRow(i);
@@ -586,6 +595,12 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
     ui->tableWidget_chatWindow->setColumnWidth(1, 400);
     ui->tableWidget_chatWindow->setColumnWidth(2, 20);
     ui->tableWidget_chatWindow->scrollToBottom();
+}
+void MainWindow:: setColortoRow(QTableWidget* table, int rowIndex) {
+    QColor color = QColor::fromRgb(39,78,19,120);
+    for(int i = 0; i < ui->tableWidget_chatWindow->columnCount(); i++ )
+        table->item(rowIndex, i)->setBackgroundColor(color);
+//    ui->tableWidget_chatWindow->item(0, 0)->setText("blablabla");
 }
 void MainWindow::showNewMessage(UserMessage message)
 {
@@ -640,7 +655,7 @@ void MainWindow::on_pushButton_sendReply_clicked()
         if(m.remove(' ').remove('\n') == ""){
             return;
         }
-        for(int i = 0; i < message.message.count(); i+=50)
+        for(int i = 0; i < message.message.count(); i+=40)
         {
             message.message.insert(i, "\n");
         }
@@ -834,3 +849,26 @@ void MainWindow::on_radioButton_Chats_clicked()
 }
 
 
+
+void MainWindow::on_comboBox_currentIndexChanged(int index)
+{
+    if(index == 0){
+        clearChatWindow();
+        QString desired = ui->lineEdit_searchUser->text();
+        if(desired == "") {
+            if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() != "Все пользователи")
+                 sockWrite("main", "getAllUsers");
+            return;
+        }
+        sockWrite("main", "searchPeople", "\"user\":\"" + desired.toLocal8Bit() + "\"");
+    } else if(index == 1) {
+        clearChatWindow();
+        QString desired = ui->lineEdit_searchUser->text();
+        if(desired == "") {
+            if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() != "Мои чаты")
+                sockWrite("main", "getUserChats");
+            return;
+        }
+        sockWrite("main", "searchChats", "\"user\":\"" + desired.toLocal8Bit() + "\"");
+    }
+}
