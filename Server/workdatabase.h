@@ -12,6 +12,7 @@
 class WorkDataBase
 {
     QSqlDatabase db;
+
 public:
     WorkDataBase();
     ~WorkDataBase();

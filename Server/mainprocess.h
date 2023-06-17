@@ -10,6 +10,7 @@ class MainProcess: public Process
     QMap <qintptr, QSslSocket*> sockets;
     QSslSocket* socket;
     qintptr sockDeskriptor;
+
     ClientInfo fillCurClientInfo(ClientInfo clientInfo);
     void sendingUserChats();
     void sendingFoundUsers(QString searchedUser, QString signal);

@@ -31,7 +31,7 @@ void WorkDataBase::close(qintptr socketDeskriptor)
 bool WorkDataBase::isCorrectInfoClient(QString login, QString password)
 {
     QSqlQuery* query = new QSqlQuery(db);
-    query->exec("SELECT EXISTS(SELECT * FROM User where login = '" + login +  "' and password = '" + password + "')");
+    query->exec("SELECT EXISTS(SELECT * FROM `User` WHERE AES_DECRYPT(`password`, " + keyDBPasswordUser + ") = '" + password + "')");
     query->next();
     if(query->value(0).toString() != "0" && query->value(0).toString() != "") {
         return true;
@@ -100,7 +100,10 @@ ClientChat WorkDataBase::insertChat(ClientChat chat)
 bool WorkDataBase::insertUser(QString name, QString login, QString password)
 {
     QSqlQuery* query = new QSqlQuery(db);
-    if(query->exec("INSERT INTO `User` (`name`, `login`, `password`) VALUES ('" + name + "', " + "'" + login + "', '"  + password + "')")){
+    if(query->exec( "INSERT INTO `User` SET name = '" + name
+                    + "', login = '" + login
+                    + "', password = AES_ENCRYPT('" + password + "', " + keyDBPasswordUser + ")")
+){
         return true;
     }
     return false;
@@ -509,8 +512,9 @@ bool WorkDataBase::updateMessageEddit(ClientMessage message)
 bool WorkDataBase::updateUser(ClientInfo client){
     QSqlQuery* query = new QSqlQuery(db);
     if(!query->exec("UPDATE User SET `login` = '" + client.login
-                    + "', `password` = '" + client.password
-                    + "', `name` = '" + client.name
+                    + "', `password` = AES_ENCRYPT('" + client.password + "', " + keyDBPasswordUser + ") "
+//                    + ", `password` = '" + client.password
+                    + ", `name` = '" + client.name
                     + "', `status` = \"" + client.status
                     + "\" WHERE userID = '" + client.userID + "'")) {
         return false;
