@@ -12,7 +12,7 @@
 class WorkDataBase
 {
     QSqlDatabase db;
-
+    QString keyDBPasswordUser = "QkWa8FUB13QiJLuS6wrGyFSDSvBG/+evOEHbrJvtawqRImCM6ZcrIcQtgiyqPSVw";// придумать генерацию
 public:
     WorkDataBase();
     ~WorkDataBase();

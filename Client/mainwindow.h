@@ -58,10 +58,6 @@ private slots:
     void sockWrite(QString process, QString signal, QList<UserInfo> clientInfos);
     void sockWrite(QString process, QString signal, UserInfo clientInfo);
 
-    void on_radioButtonPeople_clicked();
-
-    void on_radioButton_Chats_clicked();
-
     void on_tableWidget_chatWindow_cellDoubleClicked(int row, int column);
 
     void on_comboBox_currentIndexChanged(int index);

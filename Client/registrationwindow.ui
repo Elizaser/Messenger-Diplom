@@ -297,6 +297,9 @@
      min-width: 10em;
      padding: 6px;</string>
        </property>
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
+       </property>
        <property name="placeholderText">
         <string>Пароль</string>
        </property>

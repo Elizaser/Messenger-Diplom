@@ -8,7 +8,6 @@
         <file>icons/woman.png</file>
         <file>icons/people.png</file>
         <file>icons/newChat.png</file>
-        <file>icons/background.png</file>
         <file>icons/send-message.png</file>
         <file>icons/check.png</file>
         <file>icons/double-check.png</file>
@@ -16,5 +15,10 @@
         <file>icons/trash.png</file>
         <file>icons/cancelEditMenuMessage.png</file>
         <file>icons/search.png</file>
+        <file>icons/out.png</file>
+        <file>icons/clear.png</file>
+        <file>icons/offline.png</file>
+        <file>icons/online.png</file>
+        <file>icons/write.png</file>
     </qresource>
 </RCC>

@@ -53,7 +53,7 @@ void WorkSocket::error(QString err)
 
 void WorkSocket::swriteSocket(QSslSocket* socket, QByteArray data)
 {
-    qDebug() << "out - "<< data;
+//    qDebug() << "out - "<< data;
     socket->write(data);
     socket->waitForBytesWritten();
 }

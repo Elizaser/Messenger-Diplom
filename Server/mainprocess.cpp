@@ -108,6 +108,8 @@ void MainProcess::sendingDialogContent(QString companionUserID)
 void MainProcess::sendingMessage(ClientMessage message)
 {
     message = saveMessage(message);
+
+    qDebug() << "message.messageID = " << message.messageID;// без этой строки дает сбой при отправки в новое сообщение не отправляет сигнал о новом чате
     if(message.messageID == "") return;
     sendOnlineUsersInChat(message.chatID, generateData("main", "newMessage", message));
 }

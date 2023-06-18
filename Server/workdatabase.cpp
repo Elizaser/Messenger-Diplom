@@ -31,7 +31,7 @@ void WorkDataBase::close(qintptr socketDeskriptor)
 bool WorkDataBase::isCorrectInfoClient(QString login, QString password)
 {
     QSqlQuery* query = new QSqlQuery(db);
-    query->exec("SELECT EXISTS(SELECT * FROM `User` WHERE AES_DECRYPT(`password`, " + keyDBPasswordUser + ") = '" + password + "')");
+    query->exec("SELECT EXISTS(SELECT * FROM `User` WHERE login = '" + login + "' and AES_DECRYPT(`password`, '" + keyDBPasswordUser + "') = '" + password + "')");
     query->next();
     if(query->value(0).toString() != "0" && query->value(0).toString() != "") {
         return true;
@@ -102,7 +102,7 @@ bool WorkDataBase::insertUser(QString name, QString login, QString password)
     QSqlQuery* query = new QSqlQuery(db);
     if(query->exec( "INSERT INTO `User` SET name = '" + name
                     + "', login = '" + login
-                    + "', password = AES_ENCRYPT('" + password + "', " + keyDBPasswordUser + ")")
+                    + "', password = AES_ENCRYPT('" + password + "', '" + keyDBPasswordUser + "')")
 ){
         return true;
     }
@@ -362,6 +362,7 @@ QMap<qintptr, ClientInfo> WorkDataBase::getOnlineUsers()
 }
 QList<ClientChat> WorkDataBase::getFoundChats(QString desired, QString curUserID)
 {
+    qDebug() << "desired = " << desired;
     QSqlQuery* query = new QSqlQuery(db);
     query->exec("SELECT t1.chatID, t1.userCreator, t1.name, t1.type FROM (SELECT chatID, userCreator, name, type FROM Chats where name LIKE '%" +
                 desired + "%') t1, (SELECT chatID FROM Participants where participantID = '" + curUserID + "' GROUP BY chatID) t2 where t1.chatID = t2.chatID");
@@ -372,7 +373,7 @@ QList<ClientChat> WorkDataBase::getFoundChats(QString desired, QString curUserID
         chat.userCreator = query->value(1).toString();
         chat.name = query->value(2).toString();
         chat.type = query->value(3).toString();
-
+        qDebug() << "chat.name = " << chat.name;
         QSqlQuery* query2 = new QSqlQuery(db);
         query2->exec("SELECT participantID FROM Participants where chatID =  " + chat.chatID);
         while(query2->next()){
@@ -399,7 +400,7 @@ QList<ClientChat> WorkDataBase::getFoundChats(QString desired, QString curUserID
 //        if(countIsLook <= 0)
 //            continue;
         chat.countIsNotReadMessages = QString::number(countIsNotReadMessages);
-        chat.countIsLook = QString::number(countIsLook);
+        chat.countIsLook = 1/*QString::number(countIsLook)*/;
         chats.append(chat);
     }
     return chats;
@@ -512,7 +513,7 @@ bool WorkDataBase::updateMessageEddit(ClientMessage message)
 bool WorkDataBase::updateUser(ClientInfo client){
     QSqlQuery* query = new QSqlQuery(db);
     if(!query->exec("UPDATE User SET `login` = '" + client.login
-                    + "', `password` = AES_ENCRYPT('" + client.password + "', " + keyDBPasswordUser + ") "
+                    + "', `password` = AES_ENCRYPT('" + client.password + "', '" + keyDBPasswordUser + "') "
 //                    + ", `password` = '" + client.password
                     + ", `name` = '" + client.name
                     + "', `status` = \"" + client.status
