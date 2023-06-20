@@ -38,6 +38,7 @@ void EntryWindow::on_pushButton_signin_clicked()
     if(login == "" || password == "") {
         ui->label_error->setText("Заполните пустые поля");
     } else {
+         if(socket->isOpen())
         socket->write("{\"process\":\"entry\", \"signal\":\"getStatus\", \"login\":\"" + login.toLocal8Bit() + "\", \"password\":\"" + password.toLocal8Bit() + "\"}");
     }
 }
@@ -47,15 +48,17 @@ void EntryWindow::sockReady(DataParsing messageFromServer)
     try {
         QString statusEntry = messageFromServer.getSignal();
         if(statusEntry == "welcome") {
-            QString login = ui->lineEdit_login->text();
-            QString password = ui->lineEdit_password->text();
-            socket->write("{\"process\":\"entry\", \"signal\":\"setUserInfo\", \"login\":\"" + login.toLocal8Bit() + "\", \"password\":\"" + password.toLocal8Bit() + "\"}");
-            mWindow->show();
-            this->close();
+            if(socket->isOpen()) {
+                QString login = ui->lineEdit_login->text();
+                QString password = ui->lineEdit_password->text();
+                socket->write("{\"process\":\"entry\", \"signal\":\"setUserInfo\", \"login\":\"" + login.toLocal8Bit() + "\", \"password\":\"" + password.toLocal8Bit() + "\"}");
+                mWindow->show();
+                this->close();
 
-            ui->label_error->clear();
-            ui->lineEdit_login->clear();
-            ui->lineEdit_password->clear();
+                ui->label_error->clear();
+                ui->lineEdit_login->clear();
+                ui->lineEdit_password->clear();
+            }
         } else if (statusEntry == "error") {
             ui->label_error->setText("Неверный логин или пароль");
         } else {

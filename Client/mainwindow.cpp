@@ -52,7 +52,6 @@ void MainWindow::sockReady(DataParsing messageFromServer)
 {
     try {
         QString  signal = messageFromServer.getSignal();
-        qDebug() << " signal = " << signal;
         if(signal == "setUserInfo"){
             setUserInfo(messageFromServer.getUser());
         } else if(signal == "setUserChats") {
@@ -128,13 +127,10 @@ void MainWindow::settingsSelfUser()
 void MainWindow:: clickChatList(int i, int  j)
 {
     ui->tabWidget->setCurrentIndex(0);
-//    if(ui->tableWidget_chatsList->item(i, j)->text() == "") return;
     if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Чаты" ||
             ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Найденные чаты" || ui->comboBox->currentIndex() == 0){
         if(j == 0){
-            qDebug() << "before clickChatList curChat.chatID = " << curChat.chatID;
             clearChatWindow();
-            qDebug() << "after clickChatList curChat.chatID = " << curChat.chatID;
 
             curChat = allChats[i];
             ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(curChat.name));
@@ -146,7 +142,6 @@ void MainWindow:: clickChatList(int i, int  j)
         }
         else if (j == 2){
             clickedDeleteChat(i, "exitChat");
-//            chats.removeAt(i);
         }
     } else {
         curUser = users[i];
@@ -158,19 +153,16 @@ void MainWindow:: clickChatList(int i, int  j)
             ui->label_chatName->setText(curUser.name);
             sockWrite("main", "getDialogContent", "\"userID\":\"" + curUser.userID.toLocal8Bit() + "\"");
         }
-//        QMessageBox::information(this, "Информация(MainWindow)", "Пока это поле недоступно");
     }
 }
 void MainWindow::clickedDeleteChat(int i, QString signal)
 {
-    qDebug() << "clickedDeleteChat i = " << i;
     if(!curChatContent.isEmpty()) {
         if(curChatContent.at(0).chatID == allChats.at(i).chatID)
             ui->tableWidget_chatWindow->clear();
             ui->tableWidget_chatWindow->setRowCount(0);
             curChatContent.clear();
     }
-    qDebug() << "ui->tableWidget_chatsList->rowCount() = " << ui->tableWidget_chatsList->rowCount();
     if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() != "Найденные люди")
         ui->tableWidget_chatsList->removeRow(i);
     sockWrite("main", signal, "\"chatID\":\"" + allChats.at(i).chatID.toLocal8Bit() + "\"");
@@ -263,6 +255,7 @@ void MainWindow::clickedDeleteMessage(int i)
     }
     msgBox.setIcon(QMessageBox::NoIcon);
     msgBox.setDefaultButton(QMessageBox::Cancel);
+    msgBox.setStyleSheet("background-color: #3A6B35;\n font: 75 10pt \"Ubuntu Mono\";\n color-font: #FFFF;");
     msgBox.show();
     int res = msgBox.exec();
     if (res == QMessageBox::Ok)  {
@@ -311,8 +304,7 @@ void MainWindow::setNewMessage(UserMessage message)
 {
     qDebug() << "setNewMessage curChat.chatID = " << curChat.chatID;
     if((curChat.chatID == "" || curChat.chatID != message.chatID) &&
-    (  ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Найденные чаты"
-    || ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() == "Мои чаты" )) {
+     ui->comboBox->currentIndex() == 0) {
         int i = searchChatByID(allChats, message.chatID);
         if(i == -1){
             qDebug() << " i = -1";
@@ -327,7 +319,7 @@ void MainWindow::setNewMessage(UserMessage message)
         }
         allChats[i].countIsNotReadMessages = QString::number(allChats.at(i).countIsNotReadMessages.toInt() + 1);
         ui->tableWidget_chatsList->setItem(i, 0, new QTableWidgetItem(allChats[i].name + " " + allChats[i].countIsNotReadMessages));
-    } else {
+    } else if(curChat.chatID == message.chatID){
         curChatContent.append(message);
         showNewMessage(message);
         if(message.senderID != curUserInfo.userID)
@@ -495,13 +487,13 @@ void MainWindow::clearChatWindow()
         curChat.userCreator = "";
         qDebug() << "clearChatWindow curChat.chatID = " << curChat.chatID;
 }
-
 void MainWindow::setUsersInWindowCreateChat(QList<UserInfo> users)
 {
     int i = searchUserByID(users, curUserInfo.userID);
     users.removeAt(i);
     createChat->setAllUsers(users);
 }
+
 void MainWindow::updateIsReadingMessages(QString chatID)
 {
     qDebug() << "curChatContent.size() = " <<curChatContent.size();
@@ -622,11 +614,13 @@ void MainWindow::showChatContents(QList<UserMessage> conntents)
         ui->tableWidget_chatWindow->setItem(i, 0, new QTableWidgetItem(conntents.at(i).senderName));
         if(conntents.at(i).isSystem != "1") {
             QIcon iIsRead;
-            if(conntents.at(i).isRead == "1")
-                iIsRead.addFile("//home//liza//diplom//Client//icons//double-check.png");
-            else
-                iIsRead.addFile("/home/liza/diplom/Client/icons/check.png");
-            ui->tableWidget_chatWindow->item(i, 1)->setIcon(iIsRead);
+            if(conntents.at(i).senderID == curUserInfo.userID) {
+                if(conntents.at(i).isRead == "1")
+                    iIsRead.addFile("//home//liza//diplom//Client//icons//double-check.png");
+                else
+                    iIsRead.addFile("/home/liza/diplom/Client/icons/check.png");
+                ui->tableWidget_chatWindow->item(i, 1)->setIcon(iIsRead);
+            }
         }
 
         ui->tableWidget_chatWindow->setItem(i, 2, new QTableWidgetItem(conntents.at(i).time));
@@ -649,11 +643,13 @@ void MainWindow::showNewMessage(UserMessage message)
     ui->tableWidget_chatWindow->setItem(rowCount, 0, new QTableWidgetItem(message.senderName));
     ui->tableWidget_chatWindow->setItem(rowCount, 1, new QTableWidgetItem(message.message));
     QIcon iIsRead;
-    if(message.isRead == "1")
-        iIsRead.addFile("//home//liza//diplom//Client//icons//double-check.png");
-    else
-        iIsRead.addFile("/home/liza/diplom/Client/icons/check.png");
-    ui->tableWidget_chatWindow->item(rowCount, 1)->setIcon(iIsRead);
+    if(message.senderID == curUserInfo.userID && message.isSystem != 1) {
+        if(message.isRead == "1")
+            iIsRead.addFile("//home//liza//diplom//Client//icons//double-check.png");
+        else
+            iIsRead.addFile("/home/liza/diplom/Client/icons/check.png");
+        ui->tableWidget_chatWindow->item(rowCount, 1)->setIcon(iIsRead);
+    }
     ui->tableWidget_chatWindow->setItem(rowCount, 2, new QTableWidgetItem(message.time));
 }
 void MainWindow::showNewChat(UserChat chat)
@@ -732,6 +728,28 @@ void MainWindow::on_pushButton_sendReply_clicked()
         deleteMenuEdditMessage();
     }
 }
+void MainWindow::on_comboBox_currentIndexChanged(int index)
+{
+    if(index == 1){
+        clearChatWindow();
+        QString desired = ui->lineEdit_searchUser->text();
+        if(desired == "") {
+            if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() != "Все пользователи")
+                 sockWrite("main", "getAllUsers");
+            return;
+        }
+        sockWrite("main", "searchPeople", "\"user\":\"" + desired.toLocal8Bit() + "\"");
+    } else if(index == 0) {
+        clearChatWindow();
+        QString desired = ui->lineEdit_searchUser->text();
+        if(desired == "") {
+            if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() != "Мои чаты")
+                sockWrite("main", "getUserChats");
+            return;
+        }
+        sockWrite("main", "searchChats", "\"user\":\"" + desired.toLocal8Bit() + "\"");
+    }
+}
 
 void MainWindow::sockWrite(QString process, QString signal)
 {
@@ -742,8 +760,10 @@ void MainWindow::sockWrite(QString process, QString signal)
 void MainWindow::sockWrite(QString process, QString signal, QString message)
 {
     QByteArray data = "{\"process\":\"" +  process.toLocal8Bit() + "\", \"signal\":\"" + signal.toLocal8Bit() + "\", " + message.toLocal8Bit() + "}";
-    socket->write(data);
-    socket->waitForBytesWritten();
+    if(socket->isOpen()){
+        socket->write(data);
+        socket->waitForBytesWritten();
+    }
 }
 void MainWindow::sockWrite(QString process, QString signal, QList<UserChat> chats)
 {
@@ -769,8 +789,10 @@ void MainWindow::sockWrite(QString process, QString signal, QList<UserChat> chat
         data.remove(data.length()-1,1);
         data.remove(data.length()-1,1);
         data.append("]}");
-        socket->write(data);
-        socket->waitForBytesWritten();
+        if(socket->isOpen()){
+            socket->write(data);
+            socket->waitForBytesWritten();
+        }
     } else {
         sockWrite(process, signal,
                   "\"chat\":\"-1\"");
@@ -794,8 +816,10 @@ void MainWindow::sockWrite(QString process, QString signal, UserChat chat)
 //        }
         data.remove(data.length()-1,1);
         data.append("]}");
-        socket->write(data);
-        socket->waitForBytesWritten();
+        if(socket->isOpen()){
+            socket->write(data);
+            socket->waitForBytesWritten();
+        }
 }
 void MainWindow::sockWrite(QString process, QString signal, QList<UserMessage> conntents)
 {
@@ -817,8 +841,10 @@ void MainWindow::sockWrite(QString process, QString signal, QList<UserMessage> c
         }
         data.remove(data.length()-1,1);
         data.append("]}");
-        socket->write(data);
-        socket->waitForBytesWritten();
+        if(socket->isOpen()){
+            socket->write(data);
+            socket->waitForBytesWritten();
+        }
     } else {
         sockWrite(process, signal,
                   "\"conntent\":\"-1\"");
@@ -837,8 +863,10 @@ void MainWindow::sockWrite(QString process, QString signal, UserMessage conntent
                         + "\", \"date\":\"" + conntent.date.toLocal8Bit()
                         + "\", \"time\":\"" + conntent.time.toLocal8Bit()
                         + "\", \"message\":\"" + conntent.message.toLocal8Bit() +"\"}";
+    if(socket->isOpen()){
         socket->write(data);
         socket->waitForBytesWritten();
+    }
 }
 void MainWindow::sockWrite(QString process, QString signal, QList<UserInfo> clientInfos)
 {
@@ -854,8 +882,10 @@ void MainWindow::sockWrite(QString process, QString signal, QList<UserInfo> clie
         }
         data.remove(data.length()-1,1);
         data.append("]}");
-        socket->write(data);
-        socket->waitForBytesWritten();
+        if(socket->isOpen()){
+            socket->write(data);
+            socket->waitForBytesWritten();
+        }
     } else {
         sockWrite(process, signal, "\"foundUser\":\"-1\"");
     }
@@ -869,30 +899,8 @@ void MainWindow::sockWrite(QString process, QString signal, UserInfo clientInfo)
                     + "\", \"password\":\"" + clientInfo.password.toLocal8Bit()
                     + "\", \"statusInLine\":\"" + clientInfo.statusInLine.toLocal8Bit()
                     + "\", \"userID\":\"" + clientInfo.userID.toLocal8Bit() + "\"}";
-    socket->write(data);
-    socket->waitForBytesWritten();
-}
-
-
-void MainWindow::on_comboBox_currentIndexChanged(int index)
-{
-    if(index == 1){
-        clearChatWindow();
-        QString desired = ui->lineEdit_searchUser->text();
-        if(desired == "") {
-            if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() != "Все пользователи")
-                 sockWrite("main", "getAllUsers");
-            return;
-        }
-        sockWrite("main", "searchPeople", "\"user\":\"" + desired.toLocal8Bit() + "\"");
-    } else if(index == 0) {
-        clearChatWindow();
-        QString desired = ui->lineEdit_searchUser->text();
-        if(desired == "") {
-            if(ui->tableWidget_chatsList->horizontalHeaderItem(0)->text() != "Мои чаты")
-                sockWrite("main", "getUserChats");
-            return;
-        }
-        sockWrite("main", "searchChats", "\"user\":\"" + desired.toLocal8Bit() + "\"");
+    if(socket->isOpen()){
+        socket->write(data);
+        socket->waitForBytesWritten();
     }
 }

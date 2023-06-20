@@ -25,7 +25,6 @@ void Controller::dataAnalysis()
 {
     try {
         QByteArray strsocket = sockets[sockDescriptor]->readAll();
-//        qDebug() << "in "<<strsocket;
         DataParsing messageFromClient(strsocket);
         QString  process = messageFromClient.getProccess();
         if(process == "entry") {

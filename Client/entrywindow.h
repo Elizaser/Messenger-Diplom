@@ -30,6 +30,7 @@ private:
 private slots:
     void on_pushButton_register_clicked();
     void on_pushButton_signin_clicked();
+
 public slots:
     void sockReady(DataParsing messageFromServer);
 };
